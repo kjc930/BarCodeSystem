@@ -1,0 +1,50 @@
+[
+  {
+    "supplier_code": "V2812",
+    "part_number": "89131CU210",
+    "part_name": "TESTETST TEST 0",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B2",
+    "use_status": "Y",
+    "memo": "",
+    "child_parts": []
+  },
+  {
+    "supplier_code": "V2812",
+    "part_number": "89131CU211",
+    "part_name": "TESTTESTTEST 1",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B3",
+    "use_status": "Y",
+    "memo": "",
+    "child_parts": [
+      {
+        "part_number": "111111111",
+        "part_name": "subassy",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "333333",
+        "part_name": "111",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "44444",
+        "part_name": "4444",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "5555",
+        "part_name": "555",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "6666",
+        "part_name": "6666",
+        "use_status": "Y"
+      }
+    ]
+  }
+]

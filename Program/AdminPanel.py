@@ -667,6 +667,19 @@ class MasterDataTab(QWidget):
         title.setStyleSheet(get_tab_title_style())
         layout.addWidget(title)
         
+        # 마스터 데이터 테이블 (맨 위로 이동)
+        table_group = QGroupBox("기준정보 목록")
+        table_layout = QVBoxLayout(table_group)
+        
+        self.master_table = QTableWidget()
+        self.master_table.setColumnCount(7)
+        self.master_table.setHorizontalHeaderLabels(["업체코드", "부품번호", "부품이름", "서열코드", "EO번호", "4M정보", "사용유무", "비고"])
+        self.master_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.master_table.itemSelectionChanged.connect(self.on_selection_changed)
+        table_layout.addWidget(self.master_table)
+        
+        layout.addWidget(table_group)
+        
         # 입력 폼 그룹
         input_group = QGroupBox("사양정보 입력")
         input_layout = QGridLayout(input_group)
@@ -682,6 +695,12 @@ class MasterDataTab(QWidget):
         self.part_number_edit = QLineEdit()
         self.part_number_edit.setPlaceholderText("예: P89131CU210")
         input_layout.addWidget(self.part_number_edit, 1, 1)
+        
+        # 부품이름
+        input_layout.addWidget(QLabel("부품이름:"), 1, 2)
+        self.part_name_edit = QLineEdit()
+        self.part_name_edit.setPlaceholderText("예: SUSPENSION LH")
+        input_layout.addWidget(self.part_name_edit, 1, 3)
         
         # 서열코드
         input_layout.addWidget(QLabel("서열코드:"), 2, 0)
@@ -701,6 +720,19 @@ class MasterDataTab(QWidget):
         self.fourm_info_edit.setPlaceholderText("예: 2000")
         input_layout.addWidget(self.fourm_info_edit, 4, 1)
         
+        # 사용유무
+        input_layout.addWidget(QLabel("사용유무:"), 4, 2)
+        self.use_status_combo = QComboBox()
+        self.use_status_combo.addItems(["Y", "N"])
+        self.use_status_combo.setCurrentText("Y")
+        input_layout.addWidget(self.use_status_combo, 4, 3)
+        
+        # 비고
+        input_layout.addWidget(QLabel("비고:"), 5, 0)
+        self.memo_edit = QLineEdit()
+        self.memo_edit.setPlaceholderText("메모 입력")
+        input_layout.addWidget(self.memo_edit, 5, 1, 1, 3)
+        
         # 버튼
         button_layout = QHBoxLayout()
         
@@ -719,22 +751,115 @@ class MasterDataTab(QWidget):
         delete_btn.setStyleSheet("QPushButton { background-color: #f44336; color: white; font-weight: bold; }")
         button_layout.addWidget(delete_btn)
         
-        input_layout.addLayout(button_layout, 5, 0, 1, 2)
+        input_layout.addLayout(button_layout, 6, 0, 1, 4)
         
         layout.addWidget(input_group)
         
-        # 마스터 데이터 테이블
-        table_group = QGroupBox("기준정보 목록")
-        table_layout = QVBoxLayout(table_group)
+        # 하위 부품번호 관리 섹션 (아래로 이동)
+        child_part_group = QGroupBox("하위 부품번호 관리 (0-6개)")
+        child_part_layout = QVBoxLayout(child_part_group)
         
-        self.master_table = QTableWidget()
-        self.master_table.setColumnCount(5)
-        self.master_table.setHorizontalHeaderLabels(["업체코드", "부품번호", "서열코드", "EO번호", "4M정보"])
-        self.master_table.setSelectionBehavior(QTableWidget.SelectRows)
-        self.master_table.itemSelectionChanged.connect(self.on_selection_changed)
-        table_layout.addWidget(self.master_table)
+        # 안내 메시지
+        info_label = QLabel("💡 하위 부품번호를 추가하면 자동으로 저장됩니다 | 🗑️ 개별 삭제만 가능합니다")
+        info_label.setStyleSheet("QLabel { color: #17a2b8; font-weight: bold; font-size: 12px; }")
+        child_part_layout.addWidget(info_label)
         
-        layout.addWidget(table_group)
+        # 하위 부품번호 입력 영역
+        child_input_layout = QGridLayout()
+        
+        # 하위 부품번호
+        child_input_layout.addWidget(QLabel("하위 부품번호:"), 0, 0)
+        self.child_part_number_edit = QLineEdit()
+        self.child_part_number_edit.setPlaceholderText("예: P89231CU21")
+        child_input_layout.addWidget(self.child_part_number_edit, 0, 1)
+        
+        # 하위 부품이름
+        child_input_layout.addWidget(QLabel("하위 부품이름:"), 0, 2)
+        self.child_part_name_edit = QLineEdit()
+        self.child_part_name_edit.setPlaceholderText("예: SUB ASSY")
+        child_input_layout.addWidget(self.child_part_name_edit, 0, 3)
+        
+        # 사용유무
+        self.child_use_status_combo = QComboBox()
+        self.child_use_status_combo.addItems(["Y", "N"])
+        self.child_use_status_combo.setCurrentText("Y")
+        child_input_layout.addWidget(QLabel("사용유무:"), 1, 0)
+        child_input_layout.addWidget(self.child_use_status_combo, 1, 1)
+        
+        add_child_btn = QPushButton("➕ 하위 부품 추가")
+        add_child_btn.clicked.connect(self.add_child_part)
+        add_child_btn.setStyleSheet("""
+            QPushButton { 
+                background-color: #17a2b8; 
+                color: white; 
+                font-weight: bold; 
+                border-radius: 5px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #138496;
+            }
+        """)
+        child_input_layout.addWidget(add_child_btn, 1, 2, 1, 2)
+        
+        child_part_layout.addLayout(child_input_layout)
+        
+        # 하위 부품번호 리스트
+        self.child_part_list = QListWidget()
+        self.child_part_list.setMaximumHeight(120)
+        self.child_part_list.setStyleSheet("""
+            QListWidget {
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: #f8f9fa;
+            }
+            QListWidget::item {
+                padding: 5px;
+                border-bottom: 1px solid #eee;
+            }
+            QListWidget::item:selected {
+                background-color: #e3f2fd;
+            }
+        """)
+        child_part_layout.addWidget(self.child_part_list)
+        
+        # 하위 부품번호 관리 버튼
+        child_btn_layout = QHBoxLayout()
+        remove_child_btn = QPushButton("🗑️ 선택 삭제")
+        remove_child_btn.clicked.connect(self.remove_child_part)
+        remove_child_btn.setStyleSheet("""
+            QPushButton { 
+                background-color: #dc3545; 
+                color: white; 
+                font-weight: bold; 
+                border-radius: 5px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #c82333;
+            }
+        """)
+        child_btn_layout.addWidget(remove_child_btn)
+        
+        # 전체 삭제 버튼 제거 - 실수로 삭제하는 것을 방지
+        # clear_child_btn = QPushButton("🧹 전체 삭제")
+        # clear_child_btn.clicked.connect(self.clear_child_parts)
+        # clear_child_btn.setStyleSheet("""
+        #     QPushButton { 
+        #         background-color: #6c757d; 
+        #         color: white; 
+        #         font-weight: bold; 
+        #         border-radius: 5px;
+        #         padding: 8px;
+        #     }
+        #     QPushButton:hover {
+        #         background-color: #5a6268;
+        #     }
+        # """)
+        # child_btn_layout.addWidget(clear_child_btn)
+        
+        child_part_layout.addLayout(child_btn_layout)
+        layout.addWidget(child_part_group)
         
     def load_master_data(self):
         """마스터 데이터 로드"""
@@ -742,31 +867,52 @@ class MasterDataTab(QWidget):
         self.master_table.setRowCount(len(master_data))
         
         for row, data in enumerate(master_data):
-            self.master_table.setItem(row, 0, QTableWidgetItem(data.get('supplier_code', '')))
-            self.master_table.setItem(row, 1, QTableWidgetItem(data.get('part_number', '')))
-            self.master_table.setItem(row, 2, QTableWidgetItem(data.get('sequence_code', '')))
-            self.master_table.setItem(row, 3, QTableWidgetItem(data.get('eo_number', '')))
-            self.master_table.setItem(row, 4, QTableWidgetItem(data.get('fourm_info', '')))
+            # 안전하게 아이템 설정
+            def set_item_safe(row, col, value):
+                item = QTableWidgetItem(str(value) if value is not None else "")
+                self.master_table.setItem(row, col, item)
+            
+            set_item_safe(row, 0, data.get('supplier_code', ''))
+            set_item_safe(row, 1, data.get('part_number', ''))
+            set_item_safe(row, 2, data.get('part_name', ''))
+            set_item_safe(row, 3, data.get('sequence_code', ''))
+            set_item_safe(row, 4, data.get('eo_number', ''))
+            set_item_safe(row, 5, data.get('fourm_info', ''))
+            set_item_safe(row, 6, data.get('use_status', 'Y'))
+            set_item_safe(row, 7, data.get('memo', ''))
     
     def add_master_data(self):
         """마스터 데이터 추가"""
         supplier_code = self.supplier_code_edit.text().strip()
         part_number = self.part_number_edit.text().strip()
+        part_name = self.part_name_edit.text().strip()
         sequence_code = self.sequence_code_edit.text().strip()
         eo_number = self.eo_number_edit.text().strip()
         fourm_info = self.fourm_info_edit.text().strip()
+        use_status = self.use_status_combo.currentText()
+        memo = self.memo_edit.text().strip()
         
         if not supplier_code or not part_number:
             QMessageBox.warning(self, "경고", "업체코드와 부품번호는 필수입니다.")
             return
         
+        # 하위 부품번호 가져오기
+        child_parts = self.get_child_parts()
+        print(f"DEBUG: 저장할 하위 부품번호: {child_parts}")
+        
         data = {
             'supplier_code': supplier_code,
             'part_number': part_number,
+            'part_name': part_name,
             'sequence_code': sequence_code,
             'eo_number': eo_number,
-            'fourm_info': fourm_info
+            'fourm_info': fourm_info,
+            'use_status': use_status,
+            'memo': memo,
+            'child_parts': child_parts
         }
+        
+        print(f"DEBUG: 저장할 전체 데이터: {data}")
         
         if self.master_data_manager.add_master_data(data):
             self.load_master_data()
@@ -784,21 +930,34 @@ class MasterDataTab(QWidget):
         
         supplier_code = self.supplier_code_edit.text().strip()
         part_number = self.part_number_edit.text().strip()
+        part_name = self.part_name_edit.text().strip()
         sequence_code = self.sequence_code_edit.text().strip()
         eo_number = self.eo_number_edit.text().strip()
         fourm_info = self.fourm_info_edit.text().strip()
+        use_status = self.use_status_combo.currentText()
+        memo = self.memo_edit.text().strip()
         
         if not supplier_code or not part_number:
             QMessageBox.warning(self, "경고", "업체코드와 부품번호는 필수입니다.")
             return
         
+        # 하위 부품번호 가져오기
+        child_parts = self.get_child_parts()
+        print(f"DEBUG: 수정할 하위 부품번호: {child_parts}")
+        
         data = {
             'supplier_code': supplier_code,
             'part_number': part_number,
+            'part_name': part_name,
             'sequence_code': sequence_code,
             'eo_number': eo_number,
-            'fourm_info': fourm_info
+            'fourm_info': fourm_info,
+            'use_status': use_status,
+            'memo': memo,
+            'child_parts': child_parts
         }
+        
+        print(f"DEBUG: 수정할 전체 데이터: {data}")
         
         if self.master_data_manager.update_master_data(current_row, data):
             self.load_master_data()
@@ -828,19 +987,158 @@ class MasterDataTab(QWidget):
         """선택 변경 시 입력 필드 업데이트"""
         current_row = self.master_table.currentRow()
         if current_row >= 0:
-            self.supplier_code_edit.setText(self.master_table.item(current_row, 0).text())
-            self.part_number_edit.setText(self.master_table.item(current_row, 1).text())
-            self.sequence_code_edit.setText(self.master_table.item(current_row, 2).text())
-            self.eo_number_edit.setText(self.master_table.item(current_row, 3).text())
-            self.fourm_info_edit.setText(self.master_table.item(current_row, 4).text())
+            # 안전하게 아이템 텍스트 가져오기
+            def get_item_text(row, col):
+                item = self.master_table.item(row, col)
+                return item.text() if item else ""
+            
+            self.supplier_code_edit.setText(get_item_text(current_row, 0))
+            self.part_number_edit.setText(get_item_text(current_row, 1))
+            self.part_name_edit.setText(get_item_text(current_row, 2))
+            self.sequence_code_edit.setText(get_item_text(current_row, 3))
+            self.eo_number_edit.setText(get_item_text(current_row, 4))
+            self.fourm_info_edit.setText(get_item_text(current_row, 5))
+            self.use_status_combo.setCurrentText(get_item_text(current_row, 6))
+            self.memo_edit.setText(get_item_text(current_row, 7))
+            
+            # 하위 부품번호 로드
+            master_data = self.master_data_manager.get_master_data()
+            if current_row < len(master_data):
+                child_parts = master_data[current_row].get('child_parts', [])
+                self.set_child_parts(child_parts)
     
     def clear_inputs(self):
         """입력 필드 초기화"""
         self.supplier_code_edit.clear()
         self.part_number_edit.clear()
+        self.part_name_edit.clear()
         self.sequence_code_edit.clear()
         self.eo_number_edit.clear()
         self.fourm_info_edit.clear()
+        self.use_status_combo.setCurrentText("Y")
+        self.memo_edit.clear()
+        self.clear_child_parts()
+    
+    def add_child_part(self):
+        """하위 부품번호 추가"""
+        child_part_number = self.child_part_number_edit.text().strip()
+        child_part_name = self.child_part_name_edit.text().strip()
+        use_status = self.child_use_status_combo.currentText()
+        
+        if not child_part_number:
+            QMessageBox.warning(self, "경고", "하위 부품번호를 입력하세요.")
+            return
+        
+        if self.child_part_list.count() >= 6:
+            QMessageBox.warning(self, "경고", "하위 부품번호는 최대 6개까지 등록할 수 있습니다.")
+            return
+        
+        # 중복 체크
+        for i in range(self.child_part_list.count()):
+            item = self.child_part_list.item(i)
+            if item and child_part_number in item.text():
+                QMessageBox.warning(self, "경고", "이미 등록된 하위 부품번호입니다.")
+                return
+        
+        # 리스트에 추가
+        item_text = f"{child_part_number} - {child_part_name} [{use_status}]"
+        self.child_part_list.addItem(item_text)
+        
+        # 입력 필드 초기화
+        self.child_part_number_edit.clear()
+        self.child_part_name_edit.clear()
+        self.child_use_status_combo.setCurrentText("Y")
+        
+        # 현재 선택된 기준정보가 있으면 자동으로 저장
+        current_row = self.master_table.currentRow()
+        if current_row >= 0:
+            self.auto_save_child_parts(current_row)
+            QMessageBox.information(self, "성공", f"하위 부품번호 '{child_part_number}'가 추가되고 자동 저장되었습니다.")
+        else:
+            QMessageBox.information(self, "성공", f"하위 부품번호 '{child_part_number}'가 추가되었습니다.\n기준정보를 선택하고 '수정' 버튼을 눌러 저장하세요.")
+    
+    def auto_save_child_parts(self, row_index):
+        """하위 부품번호 자동 저장"""
+        try:
+            master_data = self.master_data_manager.get_master_data()
+            if 0 <= row_index < len(master_data):
+                # 현재 하위 부품번호 리스트 가져오기
+                child_parts = self.get_child_parts()
+                
+                # 기존 데이터에 하위 부품번호 추가
+                data = master_data[row_index].copy()
+                data['child_parts'] = child_parts
+                
+                # 저장
+                if self.master_data_manager.update_master_data(row_index, data):
+                    print(f"DEBUG: 하위 부품번호 자동 저장 완료: {child_parts}")
+                    return True
+                else:
+                    print("DEBUG: 하위 부품번호 자동 저장 실패")
+                    return False
+        except Exception as e:
+            print(f"DEBUG: 하위 부품번호 자동 저장 오류: {e}")
+            return False
+    
+    def remove_child_part(self):
+        """선택된 하위 부품번호 삭제"""
+        current_row = self.child_part_list.currentRow()
+        if current_row >= 0:
+            # 삭제할 항목 정보 가져오기
+            item = self.child_part_list.item(current_row)
+            if item:
+                item_text = item.text()
+                part_number = item_text.split(' - ')[0] if ' - ' in item_text else item_text
+                
+                # 삭제 확인
+                reply = QMessageBox.question(self, "삭제 확인", 
+                                           f"하위 부품번호 '{part_number}'를 삭제하시겠습니까?",
+                                           QMessageBox.Yes | QMessageBox.No)
+                
+                if reply == QMessageBox.Yes:
+                    self.child_part_list.takeItem(current_row)
+                    
+                    # 현재 선택된 기준정보가 있으면 자동으로 저장
+                    master_row = self.master_table.currentRow()
+                    if master_row >= 0:
+                        self.auto_save_child_parts(master_row)
+                        QMessageBox.information(self, "성공", f"하위 부품번호 '{part_number}'가 삭제되고 자동 저장되었습니다.")
+        else:
+            QMessageBox.warning(self, "경고", "삭제할 하위 부품번호를 선택하세요.")
+    
+    def clear_child_parts(self):
+        """하위 부품번호 리스트 초기화 (UI용)"""
+        self.child_part_list.clear()
+    
+    def get_child_parts(self):
+        """하위 부품번호 리스트 반환"""
+        child_parts = []
+        for i in range(self.child_part_list.count()):
+            item = self.child_part_list.item(i)
+            if item:
+                text = item.text()
+                # "부품번호 - 부품이름 [Y/N]" 형식에서 파싱
+                if ' - ' in text and ' [' in text and ']' in text:
+                    part_number = text.split(' - ')[0]
+                    remaining = text.split(' - ')[1]
+                    part_name = remaining.split(' [')[0]
+                    use_status = remaining.split(' [')[1].rstrip(']')
+                    child_parts.append({
+                        'part_number': part_number,
+                        'part_name': part_name,
+                        'use_status': use_status
+                    })
+        return child_parts
+    
+    def set_child_parts(self, child_parts):
+        """하위 부품번호 리스트 설정"""
+        self.clear_child_parts()
+        for child_part in child_parts:
+            part_number = child_part.get('part_number', '')
+            part_name = child_part.get('part_name', '')
+            use_status = child_part.get('use_status', 'Y')
+            item_text = f"{part_number} - {part_name} [{use_status}]"
+            self.child_part_list.addItem(item_text)
 
 class AdminPanel(QMainWindow):
     """관리자 패널 메인 윈도우"""
@@ -872,21 +1170,26 @@ class AdminPanel(QMainWindow):
         self.tab_widget = QTabWidget()
         self.tab_widget.setStyleSheet(get_main_stylesheet())
         
-        # 각 탭 추가
+        # 각 탭 추가 (순서 변경)
+        # 1. 기준정보
+        self.master_data_tab = MasterDataTab(self.settings_manager)
+        self.tab_widget.addTab(self.master_data_tab, "📊 기준정보")
+        
+        # 2. PLC 통신
         self.plc_tab = PLCCommunicationTab(self.settings_manager)
         self.tab_widget.addTab(self.plc_tab, "🔧 PLC 통신")
         
+        # 3. 바코드 스캐너
         self.scanner_tab = BarcodeScannerTab(self.settings_manager)
         self.tab_widget.addTab(self.scanner_tab, "📱 바코드 스캐너")
         
-        self.nutrunner_tab = NutRunnerTab(self.settings_manager)
-        self.tab_widget.addTab(self.nutrunner_tab, "🔧 너트 런너")
-        
+        # 4. 바코드 프린터
         self.printer_tab = BarcodePrinterTab(self.settings_manager)
         self.tab_widget.addTab(self.printer_tab, "🖨️ 바코드 프린터")
         
-        self.master_data_tab = MasterDataTab(self.settings_manager)
-        self.tab_widget.addTab(self.master_data_tab, "📊 기준정보")
+        # 5. 시스템툴 (기존 너트 런너)
+        self.nutrunner_tab = NutRunnerTab(self.settings_manager)
+        self.tab_widget.addTab(self.nutrunner_tab, "⚙️ 시스템툴")
         
         main_layout.addWidget(self.tab_widget)
         
