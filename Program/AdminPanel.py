@@ -32,13 +32,13 @@ class BarcodeAnalysisDialog(QDialog):
     def init_ui(self):
         """UI 초기화"""
         self.setWindowTitle("H/KMC 부품 2D 바코드 분석 결과")
-        self.setFixedSize(500, 700)
+        self.setFixedSize(600, 700)
         self.setModal(True)
         
         # 메인 레이아웃
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(20, 20, 20, 20)
-        main_layout.setSpacing(15)
+        main_layout.setContentsMargins(15, 15, 15, 15)
+        main_layout.setSpacing(10)
         
         # 바코드 내용 섹션
         self.create_barcode_content_section(main_layout)
@@ -60,7 +60,7 @@ class BarcodeAnalysisDialog(QDialog):
             QLabel {
                 background-color: #2196F3;
                 color: white;
-                padding: 10px;
+                padding: 8px;
                 font-size: 16px;
                 font-weight: bold;
                 border-radius: 5px;
@@ -74,12 +74,12 @@ class BarcodeAnalysisDialog(QDialog):
             QLabel {
                 background-color: #FFF9C4;
                 color: black;
-                padding: 15px;
+                padding: 10px;
                 font-size: 14px;
                 font-family: 'Courier New', monospace;
                 border: 1px solid #E0E0E0;
                 border-radius: 5px;
-                min-height: 40px;
+                min-height: 35px;
             }
         """)
         barcode_content.setWordWrap(True)
@@ -93,7 +93,7 @@ class BarcodeAnalysisDialog(QDialog):
             QLabel {
                 background-color: #2196F3;
                 color: white;
-                padding: 10px;
+                padding: 8px;
                 font-size: 16px;
                 font-weight: bold;
                 border-radius: 5px;
@@ -104,12 +104,26 @@ class BarcodeAnalysisDialog(QDialog):
         # 스크롤 영역 생성
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
-        scroll_area.setMaximumHeight(400)
+        scroll_area.setMaximumHeight(500)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         scroll_area.setStyleSheet("""
             QScrollArea {
-                border: 1px solid #E0E0E0;
-                border-radius: 5px;
+                border: 1px solid #DEE2E6;
+                border-radius: 8px;
                 background-color: white;
+            }
+            QScrollBar:vertical {
+                background-color: #F8F9FA;
+                width: 12px;
+                border-radius: 6px;
+            }
+            QScrollBar::handle:vertical {
+                background-color: #DEE2E6;
+                border-radius: 6px;
+                min-height: 20px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background-color: #ADB5BD;
             }
         """)
         
@@ -131,10 +145,13 @@ class BarcodeAnalysisDialog(QDialog):
         self.spec_label = QLabel("사양 정보")
         self.spec_label.setStyleSheet("""
             QLabel {
-                background-color: #F5F5F5;
-                padding: 8px;
+                background-color: #F8F9FA;
+                padding: 6px 12px;
                 font-weight: bold;
-                color: #333;
+                font-size: 14px;
+                color: #495057;
+                border: none;
+                border-bottom: 1px solid #DEE2E6;
             }
         """)
         table_layout.addWidget(self.spec_label)
@@ -149,10 +166,13 @@ class BarcodeAnalysisDialog(QDialog):
         self.trace_label = QLabel("추적 정보")
         self.trace_label.setStyleSheet("""
             QLabel {
-                background-color: #F5F5F5;
-                padding: 8px;
+                background-color: #F8F9FA;
+                padding: 6px 12px;
                 font-weight: bold;
-                color: #333;
+                font-size: 14px;
+                color: #495057;
+                border: none;
+                border-bottom: 1px solid #DEE2E6;
             }
         """)
         table_layout.addWidget(self.trace_label)
@@ -167,10 +187,13 @@ class BarcodeAnalysisDialog(QDialog):
         self.additional_label = QLabel("부가 정보")
         self.additional_label.setStyleSheet("""
             QLabel {
-                background-color: #F5F5F5;
-                padding: 8px;
+                background-color: #F8F9FA;
+                padding: 6px 12px;
                 font-weight: bold;
-                color: #333;
+                font-size: 14px;
+                color: #495057;
+                border: none;
+                border-bottom: 1px solid #DEE2E6;
             }
         """)
         table_layout.addWidget(self.additional_label)
@@ -186,7 +209,7 @@ class BarcodeAnalysisDialog(QDialog):
         parent_layout.addWidget(scroll_area)
         
     def create_table_row(self, category, result, data, is_header=False):
-        """테이블 행 생성"""
+        """테이블 행 생성 - 이미지와 같은 깔끔한 디자인"""
         row_widget = QWidget()
         row_layout = QHBoxLayout(row_widget)
         row_layout.setContentsMargins(0, 0, 0, 0)
@@ -194,36 +217,49 @@ class BarcodeAnalysisDialog(QDialog):
         
         # 구분 컬럼
         category_label = QLabel(category)
-        category_label.setFixedWidth(120)
+        category_label.setFixedWidth(140)
         if is_header:
             category_label.setStyleSheet("""
                 QLabel {
-                    background-color: #E0E0E0;
-                    padding: 10px;
+                    background-color: #F8F9FA;
+                    padding: 8px 12px;
                     font-weight: bold;
-                    border: 1px solid #BDBDBD;
+                    font-size: 14px;
+                    color: #495057;
+                    border: none;
+                    border-right: 1px solid #DEE2E6;
+                    border-bottom: 1px solid #DEE2E6;
                 }
             """)
         else:
             category_label.setStyleSheet("""
                 QLabel {
                     background-color: white;
-                    padding: 10px;
-                    border: 1px solid #E0E0E0;
+                    padding: 8px 12px;
+                    font-size: 13px;
+                    color: #495057;
+                    border: none;
+                    border-right: 1px solid #DEE2E6;
+                    border-bottom: 1px solid #DEE2E6;
                 }
             """)
         row_layout.addWidget(category_label)
         
         # 결과 컬럼
         result_label = QLabel(result)
-        result_label.setFixedWidth(80)
+        result_label.setFixedWidth(100)
+        result_label.setAlignment(Qt.AlignCenter)
         if is_header:
             result_label.setStyleSheet("""
                 QLabel {
-                    background-color: #E0E0E0;
-                    padding: 10px;
+                    background-color: #F8F9FA;
+                    padding: 8px 10px;
                     font-weight: bold;
-                    border: 1px solid #BDBDBD;
+                    font-size: 14px;
+                    color: #495057;
+                    border: none;
+                    border-right: 1px solid #DEE2E6;
+                    border-bottom: 1px solid #DEE2E6;
                 }
             """)
         else:
@@ -231,40 +267,53 @@ class BarcodeAnalysisDialog(QDialog):
                 result_label.setStyleSheet("""
                     QLabel {
                         background-color: white;
-                        padding: 10px;
-                        color: #2196F3;
+                        padding: 8px 10px;
+                        color: #28A745;
                         font-weight: bold;
-                        border: 1px solid #E0E0E0;
+                        font-size: 13px;
+                        border: none;
+                        border-right: 1px solid #DEE2E6;
+                        border-bottom: 1px solid #DEE2E6;
                     }
                 """)
             else:
                 result_label.setStyleSheet("""
                     QLabel {
                         background-color: white;
-                        padding: 10px;
-                        color: #9E9E9E;
-                        border: 1px solid #E0E0E0;
+                        padding: 8px 10px;
+                        color: #6C757D;
+                        font-size: 13px;
+                        border: none;
+                        border-right: 1px solid #DEE2E6;
+                        border-bottom: 1px solid #DEE2E6;
                     }
                 """)
         row_layout.addWidget(result_label)
         
         # 데이터 컬럼
         data_label = QLabel(data)
+        data_label.setWordWrap(True)
         if is_header:
             data_label.setStyleSheet("""
                 QLabel {
-                    background-color: #E0E0E0;
-                    padding: 10px;
+                    background-color: #F8F9FA;
+                    padding: 8px 12px;
                     font-weight: bold;
-                    border: 1px solid #BDBDBD;
+                    font-size: 14px;
+                    color: #495057;
+                    border: none;
+                    border-bottom: 1px solid #DEE2E6;
                 }
             """)
         else:
             data_label.setStyleSheet("""
                 QLabel {
                     background-color: white;
-                    padding: 10px;
-                    border: 1px solid #E0E0E0;
+                    padding: 8px 12px;
+                    font-size: 13px;
+                    color: #495057;
+                    border: none;
+                    border-bottom: 1px solid #DEE2E6;
                 }
             """)
         row_layout.addWidget(data_label)
@@ -344,10 +393,12 @@ class BarcodeAnalysisDialog(QDialog):
         return barcode_text
         
     def get_dialog_stylesheet(self):
-        """다이얼로그 스타일시트"""
+        """다이얼로그 스타일시트 - 모바일 앱 같은 깔끔한 디자인"""
         return """
             QDialog {
-                background-color: #FAFAFA;
+                background-color: #FFFFFF;
+                border: 1px solid #DEE2E6;
+                border-radius: 12px;
             }
         """
     
@@ -1393,13 +1444,60 @@ class NutRunnerTab(QWidget):
         # 연결 버튼
         self.nutrunner1_connect_btn = QPushButton("연결")
         self.nutrunner1_connect_btn.clicked.connect(lambda: self.connect_nutrunner(1))
-        self.nutrunner1_connect_btn.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; }")
+        self.nutrunner1_connect_btn.setCheckable(True)  # 버튼을 체크 가능하게 설정
+        self.nutrunner1_connect_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                font-weight: bold;
+                border: 2px solid #45a049;
+                border-radius: 5px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QPushButton:pressed {
+                background-color: #3d8b40;
+                border: 2px inset #45a049;
+            }
+            QPushButton:checked {
+                background-color: #3d8b40;
+                border: 2px inset #45a049;
+            }
+        """)
         nutrunner1_layout.addWidget(self.nutrunner1_connect_btn, 2, 0)
         
         self.nutrunner1_disconnect_btn = QPushButton("연결 해제")
         self.nutrunner1_disconnect_btn.clicked.connect(lambda: self.disconnect_nutrunner(1))
         self.nutrunner1_disconnect_btn.setEnabled(False)
-        self.nutrunner1_disconnect_btn.setStyleSheet("QPushButton { background-color: #f44336; color: white; font-weight: bold; }")
+        self.nutrunner1_disconnect_btn.setCheckable(True)  # 버튼을 체크 가능하게 설정
+        self.nutrunner1_disconnect_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #f44336;
+                color: white;
+                font-weight: bold;
+                border: 2px solid #da190b;
+                border-radius: 5px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #da190b;
+            }
+            QPushButton:pressed {
+                background-color: #c62828;
+                border: 2px inset #da190b;
+            }
+            QPushButton:checked {
+                background-color: #c62828;
+                border: 2px inset #da190b;
+            }
+            QPushButton:disabled {
+                background-color: #cccccc;
+                color: #666666;
+                border: 2px solid #999999;
+            }
+        """)
         nutrunner1_layout.addWidget(self.nutrunner1_disconnect_btn, 2, 1)
         
         # 상태 표시
@@ -1441,13 +1539,60 @@ class NutRunnerTab(QWidget):
         # 연결 버튼
         self.nutrunner2_connect_btn = QPushButton("연결")
         self.nutrunner2_connect_btn.clicked.connect(lambda: self.connect_nutrunner(2))
-        self.nutrunner2_connect_btn.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; }")
+        self.nutrunner2_connect_btn.setCheckable(True)  # 버튼을 체크 가능하게 설정
+        self.nutrunner2_connect_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                font-weight: bold;
+                border: 2px solid #45a049;
+                border-radius: 5px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QPushButton:pressed {
+                background-color: #3d8b40;
+                border: 2px inset #45a049;
+            }
+            QPushButton:checked {
+                background-color: #3d8b40;
+                border: 2px inset #45a049;
+            }
+        """)
         nutrunner2_layout.addWidget(self.nutrunner2_connect_btn, 2, 0)
         
         self.nutrunner2_disconnect_btn = QPushButton("연결 해제")
         self.nutrunner2_disconnect_btn.clicked.connect(lambda: self.disconnect_nutrunner(2))
         self.nutrunner2_disconnect_btn.setEnabled(False)
-        self.nutrunner2_disconnect_btn.setStyleSheet("QPushButton { background-color: #f44336; color: white; font-weight: bold; }")
+        self.nutrunner2_disconnect_btn.setCheckable(True)  # 버튼을 체크 가능하게 설정
+        self.nutrunner2_disconnect_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #f44336;
+                color: white;
+                font-weight: bold;
+                border: 2px solid #da190b;
+                border-radius: 5px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #da190b;
+            }
+            QPushButton:pressed {
+                background-color: #c62828;
+                border: 2px inset #da190b;
+            }
+            QPushButton:checked {
+                background-color: #c62828;
+                border: 2px inset #da190b;
+            }
+            QPushButton:disabled {
+                background-color: #cccccc;
+                color: #666666;
+                border: 2px solid #999999;
+            }
+        """)
         nutrunner2_layout.addWidget(self.nutrunner2_disconnect_btn, 2, 1)
         
         # 상태 표시
@@ -1529,6 +1674,7 @@ class NutRunnerTab(QWidget):
         
         if port_combo.currentText() == "사용 가능한 포트 없음":
             QMessageBox.warning(self, "경고", "연결할 포트를 선택하세요.")
+            connect_btn.setChecked(False)  # 연결 실패 시 버튼 상태 해제
             return
         
         port_name = port_combo.currentText().split(" - ")[0]
@@ -1551,6 +1697,10 @@ class NutRunnerTab(QWidget):
             lambda success, msg: self.on_nutrunner_connection_status(nutrunner_num, success, msg)
         )
         nutrunner_thread.start()
+        
+        # 버튼 상태 업데이트
+        connect_btn.setChecked(True)
+        disconnect_btn.setChecked(False)
         
         setattr(self, thread_attr, nutrunner_thread)
         self.log_message(f"너트 런너 {nutrunner_num} 연결 시도 중...")
@@ -1576,8 +1726,12 @@ class NutRunnerTab(QWidget):
             existing_thread.wait()
             setattr(self, thread_attr, None)
         
+        # 버튼 상태 업데이트
         connect_btn.setEnabled(True)
+        connect_btn.setChecked(False)
         disconnect_btn.setEnabled(False)
+        disconnect_btn.setChecked(True)
+        
         status_label.setText("연결되지 않음")
         status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
         data_label.setText("대기 중...")
@@ -1605,12 +1759,16 @@ class NutRunnerTab(QWidget):
         
         if success:
             connect_btn.setEnabled(False)
+            connect_btn.setChecked(True)
             disconnect_btn.setEnabled(True)
+            disconnect_btn.setChecked(False)
             status_label.setText("연결됨")
             status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
         else:
             connect_btn.setEnabled(True)
+            connect_btn.setChecked(False)
             disconnect_btn.setEnabled(False)
+            disconnect_btn.setChecked(False)
             status_label.setText("연결 실패")
             status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
         
@@ -2098,13 +2256,60 @@ class BarcodePrinterTab(QWidget):
         # 연결 버튼
         self.connect_btn = QPushButton("연결")
         self.connect_btn.clicked.connect(self.connect_serial)
-        self.connect_btn.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; }")
+        self.connect_btn.setCheckable(True)  # 버튼을 체크 가능하게 설정
+        self.connect_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                font-weight: bold;
+                border: 2px solid #45a049;
+                border-radius: 5px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+            QPushButton:pressed {
+                background-color: #3d8b40;
+                border: 2px inset #45a049;
+            }
+            QPushButton:checked {
+                background-color: #3d8b40;
+                border: 2px inset #45a049;
+            }
+        """)
         serial_layout.addWidget(self.connect_btn, 2, 0)
         
         self.disconnect_btn = QPushButton("연결 해제")
         self.disconnect_btn.clicked.connect(self.disconnect_serial)
         self.disconnect_btn.setEnabled(False)
-        self.disconnect_btn.setStyleSheet("QPushButton { background-color: #f44336; color: white; font-weight: bold; }")
+        self.disconnect_btn.setCheckable(True)  # 버튼을 체크 가능하게 설정
+        self.disconnect_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #f44336;
+                color: white;
+                font-weight: bold;
+                border: 2px solid #da190b;
+                border-radius: 5px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #da190b;
+            }
+            QPushButton:pressed {
+                background-color: #c62828;
+                border: 2px inset #da190b;
+            }
+            QPushButton:checked {
+                background-color: #c62828;
+                border: 2px inset #da190b;
+            }
+            QPushButton:disabled {
+                background-color: #cccccc;
+                color: #666666;
+                border: 2px solid #999999;
+            }
+        """)
         serial_layout.addWidget(self.disconnect_btn, 2, 1)
         
         # 설정 저장 버튼
@@ -2268,6 +2473,7 @@ class BarcodePrinterTab(QWidget):
         """시리얼 포트 연결"""
         if self.port_combo.currentText() == "사용 가능한 포트 없음":
             QMessageBox.warning(self, "경고", "연결할 포트를 선택하세요.")
+            self.connect_btn.setChecked(False)  # 연결 실패 시 버튼 상태 해제
             return
         
         port_name = self.port_combo.currentText().split(" - ")[0]
@@ -2279,6 +2485,10 @@ class BarcodePrinterTab(QWidget):
         self.serial_thread.data_received.connect(self.on_printer_response)
         self.serial_thread.connection_status.connect(self.on_connection_status)
         self.serial_thread.start()
+        
+        # 버튼 상태 업데이트
+        self.connect_btn.setChecked(True)
+        self.disconnect_btn.setChecked(False)
         
         self.log_message(f"{port_name} 연결 시도 중...")
     
@@ -2299,12 +2509,16 @@ class BarcodePrinterTab(QWidget):
         """연결 상태 변경 처리"""
         if success:
             self.connect_btn.setEnabled(False)
+            self.connect_btn.setChecked(True)
             self.disconnect_btn.setEnabled(True)
+            self.disconnect_btn.setChecked(False)
             self.status_label.setText("연결됨 - 프린터 준비")
             self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
         else:
             self.connect_btn.setEnabled(True)
+            self.connect_btn.setChecked(False)
             self.disconnect_btn.setEnabled(False)
+            self.disconnect_btn.setChecked(False)
             self.status_label.setText("연결 실패")
             self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
         
