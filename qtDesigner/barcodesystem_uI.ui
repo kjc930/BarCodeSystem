@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>바코드 시스템 - PLC 연동</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
@@ -32,10 +32,10 @@
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="tab">
-     <attribute name="title">
-      <string>Tab 1</string>
-     </attribute>
+         <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>바코드 시스템 메인</string>
+      </attribute>
      <widget class="QTextBrowser" name="textBrowser">
       <property name="geometry">
        <rect>
@@ -44,6 +44,9 @@
         <width>471</width>
         <height>121</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FRONT/LH&lt;br/&gt;현재작업중인공정표시&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color:rgb(238,238,236);
@@ -68,6 +71,9 @@ p, li { white-space: pre-wrap; }
         <height>121</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;REAR/RH&lt;br/&gt;현재작업중인공정표시&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="styleSheet">
        <string notr="true">background-color:rgb(238,238,236);
 font: 20pt&quot;Courier New&quot;;</string>
@@ -91,6 +97,9 @@ p, li { white-space: pre-wrap; }
         <height>191</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FRONT/LH 로그&lt;br/&gt;작업 진행 상황 및 상태 정보를 표시&lt;br/&gt;시간별 작업 기록 저장&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="styleSheet">
        <string notr="true">background-color:rgb(238,238,236);
 font: 20pt&quot;Courier New&quot;;</string>
@@ -104,6 +113,9 @@ font: 20pt&quot;Courier New&quot;;</string>
         <width>471</width>
         <height>191</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;REAR/RH 로그&lt;br/&gt;작업 진행 상황 및 상태 정보를 표시&lt;br/&gt;시간별 작업 기록 저장&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color:rgb(238,238,236);
@@ -119,6 +131,9 @@ font: 20pt&quot;Courier New&quot;;</string>
         <height>161</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FRONT/LH&lt;br/&gt;생산수량&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
@@ -132,6 +147,9 @@ font: 20pt&quot;Courier New&quot;;</string>
         <height>161</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;REAR/RH&lt;/p&gt;&lt;p&gt;생산수량&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
      </widget>
      <widget class="QTextBrowser" name="textBrowser_5">
       <property name="geometry">
@@ -141,6 +159,9 @@ font: 20pt&quot;Courier New&quot;;</string>
         <width>951</width>
         <height>61</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;시스템 상태 표시&lt;br/&gt;PLC, 스캐너, 프린터 연결 상태&lt;br/&gt;현재 작업 진행 상황&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color:rgb(46,52,54);
@@ -156,126 +177,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;third TectBrowser Selection !!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_9">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>340</y>
-        <width>41</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">	color: white;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(255, 190, 11, 255), stop:1 rgba(251, 86, 7, 255));
-	border-radius: 20px;</string>
-      </property>
-      <property name="text">
-       <string>PushButton</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_10">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>390</y>
-        <width>41</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">	color: white;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
-stop:0 rgba(16, 98, 10, 255), 
-stop:1 rgba(52, 134, 46, 255));
-	border-radius: 20px;
-</string>
-      </property>
-      <property name="text">
-       <string>PushButton</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_11">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>440</y>
-        <width>41</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">	color: white;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
-stop:0 rgba(170, 0, 0, 255), 
-stop:1 rgba(183, 0, 0, 255));
-	border-radius: 20px;
-</string>
-      </property>
-      <property name="text">
-       <string>PushButton</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_12">
-      <property name="geometry">
-       <rect>
-        <x>500</x>
-        <y>440</y>
-        <width>41</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">	color: white;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
-stop:0 rgba(170, 0, 0, 255), 
-stop:1 rgba(183, 0, 0, 255));
-	border-radius: 20px;
-</string>
-      </property>
-      <property name="text">
-       <string>PushButton</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_13">
-      <property name="geometry">
-       <rect>
-        <x>500</x>
-        <y>340</y>
-        <width>41</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">	color: white;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(255, 190, 11, 255), stop:1 rgba(251, 86, 7, 255));
-	border-radius: 20px;</string>
-      </property>
-      <property name="text">
-       <string>PushButton</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_14">
-      <property name="geometry">
-       <rect>
-        <x>500</x>
-        <y>390</y>
-        <width>41</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">	color: white;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
-stop:0 rgba(16, 98, 10, 255), 
-stop:1 rgba(52, 134, 46, 255));
-	border-radius: 20px;
-</string>
-      </property>
-      <property name="text">
-       <string>PushButton</string>
-      </property>
-     </widget>
      <widget class="QTextBrowser" name="textBrowser_7">
       <property name="geometry">
        <rect>
@@ -285,93 +186,12 @@ stop:1 rgba(52, 134, 46, 255));
         <height>241</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;현재작업중인 제품공정의 하위 바코드 정보1,2,3,4의 등록된 값을 표현해주고 ,1-4까지 스캔되면 녹색(OK)표시를 해줄꺼야&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="styleSheet">
        <string notr="true">background-color:rgb(238,238,236);
 font: 20pt&quot;Courier New&quot;;</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_27">
-      <property name="geometry">
-       <rect>
-        <x>980</x>
-        <y>710</y>
-        <width>41</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">	color: white;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
-stop:0 rgba(16, 98, 10, 255), 
-stop:1 rgba(52, 134, 46, 255));
-	border-radius: 20px;
-</string>
-      </property>
-      <property name="text">
-       <string>PushButton</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_28">
-      <property name="geometry">
-       <rect>
-        <x>980</x>
-        <y>600</y>
-        <width>41</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">	color: white;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
-stop:0 rgba(16, 98, 10, 255), 
-stop:1 rgba(52, 134, 46, 255));
-	border-radius: 20px;
-</string>
-      </property>
-      <property name="text">
-       <string>PushButton</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_29">
-      <property name="geometry">
-       <rect>
-        <x>980</x>
-        <y>550</y>
-        <width>41</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">	color: white;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
-stop:0 rgba(16, 98, 10, 255), 
-stop:1 rgba(52, 134, 46, 255));
-	border-radius: 20px;
-</string>
-      </property>
-      <property name="text">
-       <string>PushButton</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_30">
-      <property name="geometry">
-       <rect>
-        <x>980</x>
-        <y>650</y>
-        <width>41</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">	color: white;
-	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,
-stop:0 rgba(16, 98, 10, 255), 
-stop:1 rgba(52, 134, 46, 255));
-	border-radius: 20px;
-</string>
-      </property>
-      <property name="text">
-       <string>PushButton</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_2">
@@ -384,9 +204,7 @@ stop:1 rgba(52, 134, 46, 255));
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true">
-
-</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string/>
@@ -417,12 +235,389 @@ stop:1 rgba(52, 134, 46, 255));
        <string>TextLabel</string>
       </property>
      </widget>
+     <widget class="QDateEdit" name="dateEdit">
+      <property name="geometry">
+       <rect>
+        <x>1010</x>
+        <y>30</y>
+        <width>110</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;현재 날짜 표시&lt;br/&gt;시스템 운영 날짜&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QTimeEdit" name="timeEdit">
+      <property name="geometry">
+       <rect>
+        <x>1020</x>
+        <y>90</y>
+        <width>118</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;현재 시간 표시&lt;br/&gt;실시간 시스템 시간&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>350</y>
+        <width>50</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FRONT/LH&lt;/p&gt;&lt;p&gt;프로그램 정상모드&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;PLC,바코드스캐너,바코드프린터 정상모드시 녹색&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: white;
+	background-color: rgb(0, 100, 0);
+	border-radius: 20px;</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>420</y>
+        <width>50</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FRONT/LH&lt;/p&gt;&lt;p&gt;프로그램 비정상모드&lt;/p&gt;&lt;p&gt;PLC,바코드스캐너,바코드프린터 정상모드시 적색&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: white;
+	background-color: rgb(139, 0, 0);
+	border-radius: 20px;</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>500</x>
+        <y>420</y>
+        <width>50</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;REAR/RH&lt;/p&gt;&lt;p&gt;프로그램 비정상모드&lt;/p&gt;&lt;p&gt;PLC,바코드스캐너,바코드프린터 정상모드시 적색&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: white;
+	background-color: rgb( 139,0,0);
+	border-radius: 20px;</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_6">
+      <property name="geometry">
+       <rect>
+        <x>500</x>
+        <y>350</y>
+        <width>50</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;REAR/RH&lt;/p&gt;&lt;p&gt;프로그램 정상모드&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;PLC,바코드스캐너,바코드프린터 정상모드시 녹색&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: white;
+	background-color: rgb(0, 100, 0);
+	border-radius: 20px;</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     
+     <!-- LH 작업 제어 버튼들 -->
+     <widget class="QPushButton" name="pushButton_9">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>530</y>
+        <width>150</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;LH 작업 준비&lt;br/&gt;노란색 버튼 - 작업 준비 상태&lt;br/&gt;시스템 초기화 및 준비 완료&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 0);
+color: black;
+font: 16pt &quot;Arial&quot;;
+border: 2px solid black;
+border-radius: 10px;</string>
+      </property>
+      <property name="text">
+       <string>준비</string>
+      </property>
+     </widget>
+     
+     <widget class="QPushButton" name="pushButton_10">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>530</y>
+        <width>150</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;LH 작업 시작&lt;br/&gt;초록색 버튼 - 작업 시작&lt;br/&gt;바코드 스캔 및 프린트 시작&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(0, 255, 0);
+color: black;
+font: 16pt &quot;Arial&quot;;
+border: 2px solid black;
+border-radius: 10px;</string>
+      </property>
+      <property name="text">
+       <string>시작</string>
+      </property>
+     </widget>
+     
+     <widget class="QPushButton" name="pushButton_11">
+      <property name="geometry">
+       <rect>
+        <x>330</x>
+        <y>530</y>
+        <width>150</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;LH 작업 중지&lt;br/&gt;빨간색 버튼 - 작업 중지&lt;br/&gt;긴급 상황 시 작업 중단&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 0, 0);
+color: white;
+font: 16pt &quot;Arial&quot;;
+border: 2px solid black;
+border-radius: 10px;</string>
+      </property>
+      <property name="text">
+       <string>중지</string>
+      </property>
+     </widget>
+     
+     <!-- RH 작업 제어 버튼들 -->
+     <widget class="QPushButton" name="pushButton_12">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>530</y>
+        <width>150</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;RH 작업 중지&lt;br/&gt;빨간색 버튼 - 작업 중지&lt;br/&gt;긴급 상황 시 작업 중단&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 0, 0);
+color: white;
+font: 16pt &quot;Arial&quot;;
+border: 2px solid black;
+border-radius: 10px;</string>
+      </property>
+      <property name="text">
+       <string>중지</string>
+      </property>
+     </widget>
+     
+     <widget class="QPushButton" name="pushButton_13">
+      <property name="geometry">
+       <rect>
+        <x>650</x>
+        <y>530</y>
+        <width>150</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;RH 작업 준비&lt;br/&gt;노란색 버튼 - 작업 준비 상태&lt;br/&gt;시스템 초기화 및 준비 완료&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 0);
+color: black;
+font: 16pt &quot;Arial&quot;;
+border: 2px solid black;
+border-radius: 10px;</string>
+      </property>
+      <property name="text">
+       <string>준비</string>
+      </property>
+     </widget>
+     
+     <widget class="QPushButton" name="pushButton_14">
+      <property name="geometry">
+       <rect>
+        <x>810</x>
+        <y>530</y>
+        <width>150</width>
+        <height>60</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;RH 작업 시작&lt;br/&gt;초록색 버튼 - 작업 시작&lt;br/&gt;바코드 스캔 및 프린트 시작&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(0, 255, 0);
+color: black;
+font: 16pt &quot;Arial&quot;;
+border: 2px solid black;
+border-radius: 10px;</string>
+      </property>
+      <property name="text">
+       <string>시작</string>
+      </property>
+     </widget>
+     
+     <!-- 시스템 제어 버튼들 -->
+     <widget class="QPushButton" name="pushButton_15">
+      <property name="geometry">
+       <rect>
+        <x>970</x>
+        <y>160</y>
+        <width>200</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;샘플 바코드 생성&lt;br/&gt;LH/RH 샘플 바코드 생성&lt;br/&gt;테스트 및 검증용&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(100, 149, 237);
+color: white;
+font: 14pt &quot;Arial&quot;;
+border: 2px solid black;
+border-radius: 8px;</string>
+      </property>
+      <property name="text">
+       <string>샘플 바코드 생성</string>
+      </property>
+     </widget>
+     
+     <widget class="QPushButton" name="pushButton_16">
+      <property name="geometry">
+       <rect>
+        <x>970</x>
+        <y>220</y>
+        <width>200</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;시스템 설정&lt;br/&gt;PLC, 스캐너, 프린터 설정&lt;br/&gt;포트 및 통신 파라미터 설정&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 165, 0);
+color: white;
+font: 14pt &quot;Arial&quot;;
+border: 2px solid black;
+border-radius: 8px;</string>
+      </property>
+      <property name="text">
+       <string>시스템 설정</string>
+      </property>
+     </widget>
+     
+     <widget class="QPushButton" name="pushButton_17">
+      <property name="geometry">
+       <rect>
+        <x>970</x>
+        <y>280</y>
+        <width>200</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;시스템 재시작&lt;br/&gt;모든 장비 재연결&lt;br/&gt;설정 변경 후 적용&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(128, 0, 128);
+color: white;
+font: 14pt &quot;Arial&quot;;
+border: 2px solid black;
+border-radius: 8px;</string>
+      </property>
+      <property name="text">
+       <string>시스템 재시작</string>
+      </property>
+     </widget>
+     
+     <widget class="QPushButton" name="pushButton_18">
+      <property name="geometry">
+       <rect>
+        <x>970</x>
+        <y>340</y>
+        <width>200</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;로그 초기화&lt;br/&gt;모든 로그 내용 삭제&lt;br/&gt;새로운 작업 시작 시 사용&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(169, 169, 169);
+color: white;
+font: 14pt &quot;Arial&quot;;
+border: 2px solid black;
+border-radius: 8px;</string>
+      </property>
+      <property name="text">
+       <string>로그 초기화</string>
+      </property>
+     </widget>
+     
+     <widget class="QPushButton" name="pushButton_19">
+      <property name="geometry">
+       <rect>
+        <x>970</x>
+        <y>400</y>
+        <width>200</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;연결 상태 확인&lt;br/&gt;PLC, 스캐너, 프린터 연결 상태&lt;br/&gt;장비별 연결 테스트&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(0, 128, 128);
+color: white;
+font: 14pt &quot;Arial&quot;;
+border: 2px solid black;
+border-radius: 8px;</string>
+      </property>
+      <property name="text">
+       <string>연결 상태 확인</string>
+      </property>
+     </widget>
     </widget>
-    <widget class="QWidget" name="tab_2">
-     <attribute name="title">
-      <string>Tab 2</string>
-     </attribute>
-    </widget>
+         <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>시스템 모니터링</string>
+      </attribute>
+     </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
