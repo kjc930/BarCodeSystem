@@ -53,6 +53,12 @@ class NutRunnerTab(QWidget):
         refresh1_btn.clicked.connect(self.refresh_ports)
         nutrunner1_layout.addWidget(refresh1_btn, 0, 2)
         
+        # 설정 저장 버튼
+        save_settings_btn = QPushButton("설정 저장")
+        save_settings_btn.clicked.connect(self.save_nutrunner_settings)
+        save_settings_btn.setStyleSheet("QPushButton { background-color: #3498db; color: white; font-weight: bold; }")
+        nutrunner1_layout.addWidget(save_settings_btn, 0, 3)
+        
         # 연결 버튼
         self.nutrunner1_connect_btn = QPushButton("연결")
         self.nutrunner1_connect_btn.clicked.connect(lambda: self.connect_nutrunner(1))
@@ -358,6 +364,9 @@ class NutRunnerTab(QWidget):
             connect_btn.setChecked(True)
             disconnect_btn.setEnabled(True)
             disconnect_btn.setChecked(False)
+            
+            # 연결 성공 시 설정 자동 저장
+            self.save_nutrunner_settings()
         else:
             status_label.setText("연결 실패")
             status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
@@ -380,8 +389,29 @@ class NutRunnerTab(QWidget):
     
     def load_settings(self):
         """저장된 설정 불러오기"""
-        # 너트 런너 설정 로드 로직
-        pass
+        nutrunner_settings = self.settings_manager.settings.get("nutrunner", {})
+        
+        # 너트 런너 1 포트 설정
+        if nutrunner_settings.get("nutrunner1_port"):
+            self.nutrunner1_port_combo.setCurrentText(nutrunner_settings["nutrunner1_port"])
+        
+        # 너트 런너 2 포트 설정
+        if nutrunner_settings.get("nutrunner2_port"):
+            self.nutrunner2_port_combo.setCurrentText(nutrunner_settings["nutrunner2_port"])
+    
+    def save_nutrunner_settings(self):
+        """현재 설정 저장"""
+        nutrunner1_port = self.nutrunner1_port_combo.currentText()
+        nutrunner2_port = self.nutrunner2_port_combo.currentText()
+        
+        self.settings_manager.update_nutrunner_settings(nutrunner1_port, nutrunner2_port)
+        
+        if self.settings_manager.save_settings():
+            self.log_message("시스템툴 설정이 저장되었습니다.")
+            QMessageBox.information(self, "설정 저장", "시스템툴 설정이 성공적으로 저장되었습니다.")
+        else:
+            self.log_message("설정 저장 실패")
+            QMessageBox.warning(self, "설정 저장 실패", "설정 저장에 실패했습니다.")
 
 class BarcodePrinterTab(QWidget):
     """바코드 프린터 테스트 탭"""
@@ -602,6 +632,9 @@ class BarcodePrinterTab(QWidget):
             self.disconnect_btn.setChecked(False)
             self.status_label.setText("연결됨 - 프린터 준비")
             self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
+            
+            # 연결 성공 시 설정 자동 저장
+            self.save_printer_settings()
         else:
             self.connect_btn.setEnabled(True)
             self.connect_btn.setChecked(False)
@@ -640,13 +673,29 @@ class BarcodePrinterTab(QWidget):
     
     def load_settings(self):
         """저장된 설정 불러오기"""
-        # 프린터 설정 로드 로직
-        pass
+        printer_settings = self.settings_manager.settings.get("printer", {})
+        
+        # 포트 설정
+        if printer_settings.get("port"):
+            self.port_combo.setCurrentText(printer_settings["port"])
+        
+        # 보드레이트 설정
+        if printer_settings.get("baudrate"):
+            self.baudrate_combo.setCurrentText(str(printer_settings["baudrate"]))
     
     def save_printer_settings(self):
         """현재 설정 저장"""
-        # 프린터 설정 저장 로직
-        pass
+        port = self.port_combo.currentText()
+        baudrate = self.baudrate_combo.currentText()
+        
+        self.settings_manager.update_printer_settings(port, baudrate)
+        
+        if self.settings_manager.save_settings():
+            self.log_message("프린터 설정이 저장되었습니다.")
+            QMessageBox.information(self, "설정 저장", "프린터 설정이 성공적으로 저장되었습니다.")
+        else:
+            self.log_message("설정 저장 실패")
+            QMessageBox.warning(self, "설정 저장 실패", "설정 저장에 실패했습니다.")
 
 class MasterDataTab(QWidget):
     """기준정보 관리 탭"""

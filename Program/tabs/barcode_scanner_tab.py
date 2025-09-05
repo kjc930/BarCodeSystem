@@ -241,6 +241,9 @@ class BarcodeScannerTab(QWidget):
             self.disconnect_btn.setEnabled(True)
             self.status_label.setText("연결됨 - 바코드 스캔 대기 중")
             self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
+            
+            # 연결 성공 시 설정 자동 저장
+            self.save_scanner_settings()
         else:
             self.connect_btn.setEnabled(True)
             self.disconnect_btn.setEnabled(False)

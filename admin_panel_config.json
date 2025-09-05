@@ -1,0 +1,40 @@
+{
+  "plc": {
+    "port": "COM1",
+    "baudrate": 9600,
+    "timeout": 1,
+    "slave_id": 1,
+    "register_address": 10
+  },
+  "barcode_scanner": {
+    "port": "COM2",
+    "baudrate": 9600,
+    "timeout": 1
+  },
+  "barcode_printer": {
+    "port": "COM3",
+    "baudrate": 9600,
+    "timeout": 1
+  },
+  "nutrunner1": {
+    "port": "COM4",
+    "baudrate": 9600,
+    "timeout": 1
+  },
+  "nutrunner2": {
+    "port": "COM5",
+    "baudrate": 9600,
+    "timeout": 1
+  },
+  "master_data": {
+    "suppliers": [],
+    "parts": [],
+    "4m_info": []
+  },
+  "scanner": {
+    "port": "COM3 - AX99100 PCIe to High Speed Serial Port(COM3)",
+    "baudrate": 9600,
+    "terminator": "\\r\\n (CRLF)",
+    "auto_scan": true
+  }
+}

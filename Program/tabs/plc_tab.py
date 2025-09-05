@@ -269,6 +269,9 @@ class PLCCommunicationTab(QWidget):
             self.disconnect_btn.setChecked(False)
             self.status_label.setText("🟢 연결됨")
             self.status_label.setStyleSheet(get_status_connected_style())
+            
+            # 연결 성공 시 설정 자동 저장
+            self.save_plc_settings()
         else:
             self.connect_btn.setEnabled(True)
             self.connect_btn.setChecked(False)

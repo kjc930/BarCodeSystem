@@ -149,6 +149,44 @@ class SettingsManager:
     def set_category_settings(self, category, settings):
         """카테고리별 설정 설정하기"""
         self.settings[category] = settings
+    
+    # PLC 통신 설정
+    def update_plc_settings(self, port, baudrate, parity, station_id, device, test_value):
+        """PLC 통신 설정 업데이트"""
+        self.settings["plc"] = {
+            "port": port,
+            "baudrate": int(baudrate) if baudrate.isdigit() else 9600,
+            "parity": parity,
+            "station_id": station_id,
+            "device": device,
+            "test_value": test_value
+        }
+    
+    # 바코드 스캐너 설정
+    def update_scanner_settings(self, port, baudrate, terminator, auto_scan):
+        """바코드 스캐너 설정 업데이트"""
+        self.settings["scanner"] = {
+            "port": port,
+            "baudrate": int(baudrate) if baudrate.isdigit() else 9600,
+            "terminator": terminator,
+            "auto_scan": auto_scan
+        }
+    
+    # 바코드 프린터 설정
+    def update_printer_settings(self, port, baudrate):
+        """바코드 프린터 설정 업데이트"""
+        self.settings["printer"] = {
+            "port": port,
+            "baudrate": int(baudrate) if baudrate.isdigit() else 9600
+        }
+    
+    # 시스템툴(너트 런너) 설정
+    def update_nutrunner_settings(self, nutrunner1_port, nutrunner2_port):
+        """시스템툴 설정 업데이트"""
+        self.settings["nutrunner"] = {
+            "nutrunner1_port": nutrunner1_port,
+            "nutrunner2_port": nutrunner2_port
+        }
 
 
 class MasterDataManager:
