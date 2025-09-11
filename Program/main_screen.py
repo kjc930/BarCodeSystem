@@ -13,6 +13,7 @@ class ProductionPanel(QWidget):
     
     def __init__(self, title, part_number, part_name, division):
         super().__init__()
+        # self.setGeometry(10, 10, 1140, 760)
         self.title = title
         self.part_number = part_number
         self.part_name = part_name
@@ -334,16 +335,16 @@ class ProductionPanel(QWidget):
         
         # 생산수량 표시 (디지털 폰트, 오른쪽 정렬)
         self.production_box = QLabel("0")
-        self.production_box.setFont(QFont("Consolas", 108, QFont.Bold))
+        self.production_box.setFont(QFont("Consolas", 100, QFont.Bold))
         self.production_box.setStyleSheet("""
             QLabel {
                 background-color: #000000;
                 color: #00FF00;
                 border: 0.5px solid #333333;
                 border-radius: 8px;
-                padding: 68px;
-                margin: 23px;
-                min-height: 225px;
+                padding: 40px;
+                margin: 40px;
+                min-height: 250px;
                 font-family: 'Consolas', 'Courier New', monospace;
                 letter-spacing: 2px;
             }
@@ -738,7 +739,7 @@ class BarcodeMainScreen(QMainWindow):
         
     def init_ui(self):
         self.setWindowTitle("바코드 시스템 메인 화면")
-        self.setGeometry(100, 100, 1140, 760)
+        self.setGeometry(50, 50, 1140, 760)
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #F8F9FA;
