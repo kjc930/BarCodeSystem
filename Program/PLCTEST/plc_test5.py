@@ -7,7 +7,7 @@ from pymodbus.framer.rtu_framer import ModbusRtuFramer
 
 # 통신 설정 개선
 client = ModbusSerialClient(
-    port="COM3",      
+    port="COM6",      
     baudrate=9600,
     parity="N",
     stopbits=1,
@@ -23,7 +23,7 @@ def die(msg):
     # sys.exit(1) 제거 - 프로그램 계속 실행
 
 print("=== PLC Modbus RTU 통신 테스트 ===")
-print(f"포트: COM3, 속도: 9600, 슬레이브 ID: {SLAVE_ID}")
+print(f"포트: COM6, 속도: 9600, 슬레이브 ID: {SLAVE_ID}")
 print("=" * 40)
 
 if not client.connect():

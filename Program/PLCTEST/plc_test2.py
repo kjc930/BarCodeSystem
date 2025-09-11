@@ -5,7 +5,7 @@ def main():
     try:
         # 시리얼 포트 설정 (PC에서 COM3 사용)
         ser = serial.Serial(
-            port='COM3',        # PC 쪽 포트
+            port='COM6',        # PC 쪽 포트
             baudrate=9600,      # PLC 기본 통신 속도 (환경설정 확인 필요)
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,

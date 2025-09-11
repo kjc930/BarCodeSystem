@@ -25,6 +25,9 @@ class SerialConnectionThread(QThread):
         """스레드 실행"""
         try:
             import serial
+            import time
+            
+            # 시리얼 연결 생성
             self.serial_conn = serial.Serial(
                 port=self.port,
                 baudrate=self.baudrate,
@@ -33,17 +36,45 @@ class SerialConnectionThread(QThread):
                 stopbits=self.stopbits,
                 timeout=self.timeout
             )
-            self.running = True
-            self.connection_status.emit(True, f"연결 성공: {self.port}")
             
-            # 데이터 수신 루프
-            while self.running:
-                if self.serial_conn and self.serial_conn.in_waiting:
-                    data = self.serial_conn.readline().decode('utf-8', errors='ignore')
-                    if data:
-                        self.data_received.emit(data)
-                self.msleep(10)
+            # 연결 확인
+            if self.serial_conn.is_open:
+                self.running = True
+                self.connection_status.emit(True, f"연결 성공: {self.port}")
                 
+                # 연결 후 초기 대기 (하드웨어 안정화)
+                time.sleep(0.1)
+                
+                # 데이터 수신 루프
+                while self.running:
+                    try:
+                        if self.serial_conn and self.serial_conn.is_open and self.serial_conn.in_waiting:
+                            # 바이너리 데이터 읽기
+                            raw_data = self.serial_conn.read(self.serial_conn.in_waiting)
+                            if raw_data:
+                                # 다양한 인코딩으로 시도
+                                try:
+                                    data = raw_data.decode('utf-8', errors='ignore')
+                                except:
+                                    try:
+                                        data = raw_data.decode('ascii', errors='ignore')
+                                    except:
+                                        data = f"<바이너리 데이터: {raw_data.hex()}>"
+                                
+                                if data.strip():  # 빈 문자열이 아닌 경우만
+                                    self.data_received.emit(data.strip())
+                        
+                        self.msleep(10)
+                        
+                    except Exception as e:
+                        self.data_received.emit(f"데이터 수신 오류: {e}")
+                        self.msleep(100)
+                        
+            else:
+                self.connection_status.emit(False, f"포트 열기 실패: {self.port}")
+                
+        except serial.SerialException as e:
+            self.connection_status.emit(False, f"시리얼 포트 오류: {str(e)}")
         except Exception as e:
             self.connection_status.emit(False, f"연결 실패: {str(e)}")
     
@@ -247,3 +278,115 @@ class MasterDataManager:
             if data.get('supplier_code') == supplier_code:
                 return data
         return None
+
+
+class BackupManager:
+    """백업 데이터 관리 클래스"""
+    
+    def __init__(self, backup_dir="backups"):
+        self.backup_dir = backup_dir
+        self.ensure_backup_dir()
+    
+    def ensure_backup_dir(self):
+        """백업 디렉토리 생성"""
+        if not os.path.exists(self.backup_dir):
+            os.makedirs(self.backup_dir)
+    
+    def create_backup(self, master_data, operation_type, index=None):
+        """백업 생성"""
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        backup_data = {
+            'timestamp': timestamp,
+            'operation_type': operation_type,  # 'add', 'update', 'delete'
+            'index': index,
+            'data': master_data.copy() if master_data else None,
+            'backup_id': f"{operation_type}_{timestamp}"
+        }
+        
+        backup_file = os.path.join(self.backup_dir, f"backup_{timestamp}.json")
+        
+        try:
+            with open(backup_file, 'w', encoding='utf-8') as f:
+                json.dump(backup_data, f, ensure_ascii=False, indent=2)
+            return backup_file
+        except Exception as e:
+            print(f"백업 생성 오류: {e}")
+            return None
+    
+    def get_backup_list(self):
+        """백업 목록 가져오기"""
+        backup_files = []
+        if os.path.exists(self.backup_dir):
+            for filename in os.listdir(self.backup_dir):
+                if filename.startswith("backup_") and filename.endswith(".json"):
+                    backup_files.append(filename)
+        return sorted(backup_files, reverse=True)  # 최신순 정렬
+    
+    def load_backup(self, backup_filename):
+        """백업 파일 로드"""
+        backup_file = os.path.join(self.backup_dir, backup_filename)
+        try:
+            with open(backup_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"백업 로드 오류: {e}")
+            return None
+    
+    def restore_backup(self, backup_filename, master_data_manager):
+        """백업 복구"""
+        backup_data = self.load_backup(backup_filename)
+        if not backup_data:
+            return False, "백업 파일을 로드할 수 없습니다."
+        
+        operation_type = backup_data.get('operation_type')
+        index = backup_data.get('index')
+        data = backup_data.get('data')
+        
+        try:
+            if operation_type == 'add':
+                # 추가된 항목 삭제
+                if index is not None and index < len(master_data_manager.master_list):
+                    del master_data_manager.master_list[index]
+                    return master_data_manager.save_master_data(), "추가된 항목이 삭제되었습니다."
+            
+            elif operation_type == 'update':
+                # 수정된 항목 복구
+                if index is not None and data and index < len(master_data_manager.master_list):
+                    master_data_manager.master_list[index] = data
+                    return master_data_manager.save_master_data(), "수정된 항목이 복구되었습니다."
+            
+            elif operation_type == 'delete':
+                # 삭제된 항목 복구
+                if data:
+                    master_data_manager.master_list.insert(index, data)
+                    return master_data_manager.save_master_data(), "삭제된 항목이 복구되었습니다."
+            
+            return False, "알 수 없는 작업 유형입니다."
+            
+        except Exception as e:
+            return False, f"복구 중 오류가 발생했습니다: {e}"
+    
+    def cleanup_old_backups(self, keep_days=30):
+        """오래된 백업 파일 정리"""
+        import time
+        from datetime import datetime, timedelta
+        
+        cutoff_date = datetime.now() - timedelta(days=keep_days)
+        cleaned_count = 0
+        
+        for filename in self.get_backup_list():
+            try:
+                # 파일명에서 날짜 추출 (backup_YYYYMMDD_HHMMSS.json)
+                date_str = filename.replace("backup_", "").replace(".json", "")
+                file_date = datetime.strptime(date_str.split("_")[0], "%Y%m%d")
+                
+                if file_date < cutoff_date:
+                    file_path = os.path.join(self.backup_dir, filename)
+                    os.remove(file_path)
+                    cleaned_count += 1
+            except:
+                continue
+        
+        return cleaned_count

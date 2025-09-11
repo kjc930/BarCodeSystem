@@ -1,10 +1,11 @@
 {
   "plc": {
-    "port": "COM1",
+    "port": "COM6 - USB-Enhanced-SERIAL CH343(COM6)",
     "baudrate": 9600,
-    "timeout": 1,
-    "slave_id": 1,
-    "register_address": 10
+    "parity": "None",
+    "station_id": 1,
+    "device": "%MW10",
+    "test_value": 100
   },
   "barcode_scanner": {
     "port": "COM2",
@@ -36,5 +37,11 @@
     "baudrate": 9600,
     "terminator": "\\r\\n (CRLF)",
     "auto_scan": true
+  },
+  "nutrunner": {
+    "nutrunner1_port": "COM6 - USB-Enhanced-SERIAL CH343(COM6)",
+    "nutrunner1_baudrate": 9600,
+    "nutrunner2_port": "COM6 - USB-Enhanced-SERIAL CH343(COM6)",
+    "nutrunner2_baudrate": 9600
   }
 }

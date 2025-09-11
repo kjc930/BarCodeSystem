@@ -3,7 +3,7 @@ import time
 
 # CNET RS485 통신 설정
 ser = serial.Serial(
-    port="COM3",        # 윈도우: COM3, 리눅스: /dev/ttyUSB0
+    port="COM6",        # 윈도우: COM3, 리눅스: /dev/ttyUSB0
     baudrate=9600,      # CNET 통신 속도
     bytesize=serial.EIGHTBITS,
     parity=serial.PARITY_NONE,

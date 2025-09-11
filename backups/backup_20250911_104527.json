@@ -1,17 +1,8 @@
-[
-  {
-    "supplier_code": "V2812",
-    "division": "1",
-    "part_number": "89131CU210",
-    "part_name": "TESTETST TEST 0",
-    "sequence_code": "",
-    "eo_number": "",
-    "fourm_info": "S1B2",
-    "use_status": "Y",
-    "memo": "",
-    "child_parts": []
-  },
-  {
+{
+  "timestamp": "20250911_104527",
+  "operation_type": "update",
+  "index": 1,
+  "data": {
     "supplier_code": "V2812",
     "division": "3",
     "part_number": "89131CU211",
@@ -48,6 +39,7 @@
         "use_status": "Y"
       }
     ],
-    "modified_time": "2025-09-11 10:45:27"
-  }
-]
+    "modified_time": "2025-09-11 10:45:00"
+  },
+  "backup_id": "update_20250911_104527"
+}

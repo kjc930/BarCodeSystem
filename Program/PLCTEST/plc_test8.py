@@ -1,7 +1,7 @@
 # xgt_serial_sample.py
 import serial, time, re
 
-def open_port(port="COM3", baudrate=9600, bytesize=8, parity="N", stopbits=1, timeout=1.0):
+def open_port(port="COM6", baudrate=9600, bytesize=8, parity="N", stopbits=1, timeout=1.0):
     parity_map = {"N": serial.PARITY_NONE, "E": serial.PARITY_EVEN, "O": serial.PARITY_ODD}
     return serial.Serial(
         port=port, baudrate=baudrate,

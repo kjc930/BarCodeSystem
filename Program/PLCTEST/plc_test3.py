@@ -45,7 +45,7 @@ if __name__ == "__main__":
     
     #시리얼 포트 연결(COM1,9600,n,1,8)
     ser = serial.Serial(
-        port='COM3',
+        port='COM6',
         baudrate=9600,
         parity=serial.PARITY_NONE,
         stopbits=serial.STOPBITS_ONE,

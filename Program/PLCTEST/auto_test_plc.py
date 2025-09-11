@@ -23,7 +23,7 @@ def test_plc_connection():
         try:
             # Modbus 클라이언트 생성
             client = ModbusSerialClient(
-                port="COM3",
+                port="COM4",
                 baudrate=config['baudrate'],
                 parity=config['parity'],
                 stopbits=config['stopbits'],

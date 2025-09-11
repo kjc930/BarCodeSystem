@@ -2,7 +2,7 @@
 from pymodbus.client import ModbusSerialClient
 from pymodbus.exceptions import ModbusIOException
 
-PORT = "COM3"         # PC의 포트명
+PORT = "COM6"         # PC의 포트명
 BAUD = 9600
 PARITY = 'N'          # 8N1
 STOPBITS = 1

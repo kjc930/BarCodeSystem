@@ -320,11 +320,12 @@ class HKMCBarcodeUtils:
         """추적 정보 영역 파싱 (4M 정보 포함)"""
         pos = start_pos
         
-        # HKMC 바코드 형식: T2509052000A0000010M
+        # HKMC 바코드 형식: T2509051100A000001M
         # T + YYMMDD + 4M + A/@ + 추적번호 + M
         
         # 제조/조립일자 초기화
         manufacturing_date = ""
+        trace_type_char = ""
         
         # T 패턴 찾기
         if pos < len(barcode) and barcode[pos] == 'T':
@@ -346,10 +347,10 @@ class HKMCBarcodeUtils:
         equipment_info = None
         material_info = None
         
-        # 4M 정보 파싱 (S1B2)
+        # 4M 정보 파싱 (1100 또는 S1B2)
         if manufacturing_date and pos < len(barcode):
             m4_info = ""
-            # 4M 정보는 알파벳+숫자 조합 (예: S1B2)
+            # 4M 정보는 숫자 또는 알파벳+숫자 조합 (예: 1100, S1B2)
             while pos < len(barcode) and (barcode[pos].isalnum() or barcode[pos] in ['S', 'B']):
                 m4_info += barcode[pos]
                 pos += 1
@@ -358,13 +359,21 @@ class HKMCBarcodeUtils:
                     break
             
             if m4_info:
-                # 4M 정보를 개별 요소로 분해 (예: S1B2 -> S,1,B,2)
+                # 4M 정보를 개별 요소로 분해
                 if len(m4_info) >= 4:
-                    factory_info = m4_info[0] if len(m4_info) > 0 else None
-                    line_info = m4_info[1] if len(m4_info) > 1 else None
-                    shift_info = m4_info[2] if len(m4_info) > 2 else None
-                    equipment_info = m4_info[3] if len(m4_info) > 3 else None
-                    material_info = m4_info[4:] if len(m4_info) > 4 else None
+                    # 숫자 형식인 경우 (1100)
+                    if m4_info.isdigit():
+                        factory_info = m4_info[0] if len(m4_info) > 0 else None
+                        line_info = m4_info[1] if len(m4_info) > 1 else None
+                        shift_info = m4_info[2] if len(m4_info) > 2 else None
+                        equipment_info = m4_info[3] if len(m4_info) > 3 else None
+                    else:
+                        # 알파벳+숫자 형식인 경우 (S1B2)
+                        factory_info = m4_info[0] if len(m4_info) > 0 else None
+                        line_info = m4_info[1] if len(m4_info) > 1 else None
+                        shift_info = m4_info[2] if len(m4_info) > 2 else None
+                        equipment_info = m4_info[3] if len(m4_info) > 3 else None
+                        material_info = m4_info[4:] if len(m4_info) > 4 else None
                 else:
                     # 4M 정보가 4자리 미만인 경우
                     factory_info = m4_info
@@ -387,10 +396,12 @@ class HKMCBarcodeUtils:
                 char = barcode[pos]
                 if char == 'S':
                     trace_type = BarcodeType.SERIAL
+                    trace_type_char = 'S'
                     pos += 1
                     break
                 elif char == '@':
                     trace_type = BarcodeType.LOT
+                    trace_type_char = '@'
                     pos += 1
                     break
                 else:
@@ -411,7 +422,7 @@ class HKMCBarcodeUtils:
         return {
             'manufacturing_date': manufacturing_date,
             'traceability_type': trace_type,
-            'traceability_type_char': trace_type_char if 'trace_type_char' in locals() else '',
+            'traceability_type_char': trace_type_char,
             'traceability_number': traceability_number,
             'factory_info': factory_info,
             'line_info': line_info,

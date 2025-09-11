@@ -2,7 +2,7 @@ from pymodbus.client import ModbusSerialClient
 import time
 
 # RS485 통신 설정
-PORT = "COM3"      # PC에서 잡힌 포트 확인 필요
+PORT = "COM6"      # PC에서 잡힌 포트 확인 필요
 BAUD = 9600        # RS485 일반 속도
 PARITY = 'N'       # 8N1 설정 (8비트, 패리티 없음, 1 스톱비트)
 STOPBITS = 1

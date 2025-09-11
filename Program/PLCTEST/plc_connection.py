@@ -14,7 +14,7 @@ class PLCConnection:
     def __init__(self):
         self.client = None
         self.connected = False
-        self.port = "COM3"
+        self.port = "COM4"
         self.baudrate = 9600
         self.parity = "N"
         self.stopbits = 1

@@ -209,6 +209,7 @@ class PLCCommunicationTab(QWidget):
                 test_ser = serial.Serial(port.device, timeout=0.1)
                 test_ser.close()
                 available_ports.append(port)
+                    
             except (serial.SerialException, OSError):
                 # 포트가 사용 중이거나 접근할 수 없음
                 continue
@@ -216,6 +217,8 @@ class PLCCommunicationTab(QWidget):
         if not available_ports:
             self.port_combo.addItem("사용 가능한 포트 없음")
         else:
+            # 모든 사용 가능한 포트를 알파벳 순으로 정렬하여 표시
+            available_ports.sort(key=lambda x: x.device)
             for port in available_ports:
                 port_info = f"{port.device} - {port.description}"
                 self.port_combo.addItem(port_info)
@@ -234,8 +237,60 @@ class PLCCommunicationTab(QWidget):
         parity_map = {"None": serial.PARITY_NONE, "Even": serial.PARITY_EVEN, "Odd": serial.PARITY_ODD}
         parity = parity_map[self.parity_combo.currentText()]
         
+        # 연결 전 상세 진단
+        self.log_message(f"🔍 {port_name} 연결 진단 시작...")
+        self.log_message(f"📍 포트: {port_name}")
+        self.log_message(f"📍 보드레이트: {baudrate}")
+        self.log_message(f"📍 패리티: {self.parity_combo.currentText()}")
+        
+        # 포트 사용 가능 여부 확인
+        try:
+            import serial.tools.list_ports
+            ports = serial.tools.list_ports.comports()
+            port_found = False
+            for port in ports:
+                if port.device == port_name:
+                    port_found = True
+                    self.log_message(f"✅ {port_name} 포트 발견: {port.description}")
+                    break
+            
+            if not port_found:
+                self.log_message(f"❌ {port_name} 포트를 찾을 수 없습니다!")
+                QMessageBox.warning(self, "연결 실패", f"{port_name} 포트를 찾을 수 없습니다.")
+                self.connect_btn.setChecked(False)
+                return
+                
+        except Exception as e:
+            self.log_message(f"⚠️ 포트 검색 오류: {e}")
+        
+        # 시리얼 연결 시도
+        try:
+            # 직접 시리얼 연결 테스트
+            test_ser = serial.Serial(
+                port=port_name,
+                baudrate=baudrate,
+                parity=parity,
+                stopbits=1,
+                bytesize=8,
+                timeout=3
+            )
+            test_ser.close()
+            self.log_message(f"✅ {port_name} 포트 연결 테스트 성공")
+            
+        except serial.SerialException as e:
+            self.log_message(f"❌ {port_name} 포트 연결 실패: {e}")
+            QMessageBox.warning(self, "연결 실패", f"포트 연결 실패:\n{e}")
+            self.connect_btn.setChecked(False)
+            return
+        except Exception as e:
+            self.log_message(f"❌ 예상치 못한 오류: {e}")
+            QMessageBox.warning(self, "연결 실패", f"예상치 못한 오류:\n{e}")
+            self.connect_btn.setChecked(False)
+            return
+        
+        # SerialConnectionThread 생성 및 시작
         self.serial_thread = SerialConnectionThread(
-            port_name, baudrate, parity, 1, 8, 3
+            port_name, baudrate, parity, 8, 1, 3
         )
         self.serial_thread.data_received.connect(self.on_data_received)
         self.serial_thread.connection_status.connect(self.on_connection_status)
@@ -245,7 +300,7 @@ class PLCCommunicationTab(QWidget):
         self.connect_btn.setChecked(True)
         self.disconnect_btn.setChecked(False)
         
-        self.log_message(f"{port_name} 연결 시도 중...")
+        self.log_message(f"🚀 {port_name} 연결 스레드 시작...")
     
     def disconnect_serial(self):
         """시리얼 포트 연결 해제"""

@@ -148,10 +148,15 @@ class BarcodeAnalysisDialog(QDialog):
         table_layout.addWidget(self.spec_label)
         
         # 사양 정보 행들
-        table_layout.addWidget(self.create_table_row("업체코드", "OK", self.barcode_data.supplier_code))
-        table_layout.addWidget(self.create_table_row("부품번호", "OK", self.barcode_data.part_number))
-        table_layout.addWidget(self.create_table_row("서열코드", "-", "해당시 필수"))
-        table_layout.addWidget(self.create_table_row("EO번호", "-", ""))
+        self.company_code_row = self.create_table_row("업체코드", "OK", self.barcode_data.supplier_code)
+        self.part_number_row = self.create_table_row("부품번호", "OK", self.barcode_data.part_number)
+        self.sequence_code_row = self.create_table_row("서열코드", "-", "해당시 필수")
+        self.eo_number_row = self.create_table_row("EO번호", "-", "")
+        
+        table_layout.addWidget(self.company_code_row)
+        table_layout.addWidget(self.part_number_row)
+        table_layout.addWidget(self.sequence_code_row)
+        table_layout.addWidget(self.eo_number_row)
         
         # 추적 정보 섹션
         self.trace_label = QLabel("추적 정보")
@@ -169,10 +174,15 @@ class BarcodeAnalysisDialog(QDialog):
         table_layout.addWidget(self.trace_label)
         
         # 추적 정보 행들
-        table_layout.addWidget(self.create_table_row("생산일자", "OK", self.barcode_data.manufacturing_date))
-        table_layout.addWidget(self.create_table_row("부품4M", "OK", f"{self.barcode_data.factory_info or ''}{self.barcode_data.line_info or ''}{self.barcode_data.shift_info or ''}{self.barcode_data.equipment_info or ''}"))
-        table_layout.addWidget(self.create_table_row("A or @", "OK", self.barcode_data.traceability_type_char or self.barcode_data.traceability_type.value))
-        table_layout.addWidget(self.create_table_row("추적번호(7~)", "OK", self.barcode_data.traceability_number))
+        self.production_date_row = self.create_table_row("생산일자", "OK", self.barcode_data.manufacturing_date)
+        self.part_4m_row = self.create_table_row("부품4M", "OK", f"{self.barcode_data.factory_info or ''}{self.barcode_data.line_info or ''}{self.barcode_data.shift_info or ''}{self.barcode_data.equipment_info or ''}")
+        self.trace_type_row = self.create_table_row("A or @", "OK", self.barcode_data.traceability_type_char or self.barcode_data.traceability_type.value)
+        self.trace_number_row = self.create_table_row("추적번호(7~)", "OK", self.barcode_data.traceability_number)
+        
+        table_layout.addWidget(self.production_date_row)
+        table_layout.addWidget(self.part_4m_row)
+        table_layout.addWidget(self.trace_type_row)
+        table_layout.addWidget(self.trace_number_row)
         
         # 부가 정보 섹션
         self.additional_label = QLabel("부가 정보")
@@ -190,11 +200,12 @@ class BarcodeAnalysisDialog(QDialog):
         table_layout.addWidget(self.additional_label)
         
         # 부가 정보 행들
-        table_layout.addWidget(self.create_table_row("초도품구분", "-", ""))
+        self.initial_sample_row = self.create_table_row("초도품구분", "-", "")
+        table_layout.addWidget(self.initial_sample_row)
         
         # Trailer 행
-        trailer_row = self.create_table_row("Trailer", "OK", "RSEOT")
-        table_layout.addWidget(trailer_row)
+        self.trailer_row = self.create_table_row("Trailer", "OK", "RSEOT")
+        table_layout.addWidget(self.trailer_row)
         
         scroll_area.setWidget(self.table_widget)
         parent_layout.addWidget(scroll_area)
@@ -475,6 +486,9 @@ class BarcodeAnalysisDialog(QDialog):
         if not self.table_widget:
             return
             
+        # 특정 행들의 데이터 직접 업데이트
+        self.update_table_row_data(self.sequence_code_row, "해당시 필수", "Required if applicable")
+        
         # 테이블 위젯의 레이아웃을 순회하며 라벨 텍스트 업데이트
         layout = self.table_widget.layout()
         if layout:
@@ -487,12 +501,17 @@ class BarcodeAnalysisDialog(QDialog):
                         translated_text = self.translate_to_english(current_text)
                         if translated_text != current_text:
                             widget.setText(translated_text)
+                    elif hasattr(widget, 'layout'):  # 행 위젯인 경우
+                        self.update_table_row_to_english(widget)
     
     def update_table_to_korean(self):
         """테이블 내용을 한국어로 업데이트"""
         if not self.table_widget:
             return
             
+        # 특정 행들의 데이터 직접 업데이트
+        self.update_table_row_data(self.sequence_code_row, "Required if applicable", "해당시 필수")
+        
         # 테이블 위젯의 레이아웃을 순회하며 라벨 텍스트 업데이트
         layout = self.table_widget.layout()
         if layout:
@@ -505,6 +524,57 @@ class BarcodeAnalysisDialog(QDialog):
                         translated_text = self.translate_to_korean(current_text)
                         if translated_text != current_text:
                             widget.setText(translated_text)
+                    elif hasattr(widget, 'layout'):  # 행 위젯인 경우
+                        self.update_table_row_to_korean(widget)
+    
+    def update_table_row_to_english(self, row_widget):
+        """테이블 행을 영어로 업데이트"""
+        if not hasattr(row_widget, 'layout'):
+            return
+            
+        row_layout = row_widget.layout()
+        if not row_layout:
+            return
+            
+        # 첫 번째 라벨(구분) 업데이트
+        category_label = row_layout.itemAt(0).widget()
+        if isinstance(category_label, QLabel):
+            current_text = category_label.text()
+            translated_text = self.translate_to_english(current_text)
+            if translated_text != current_text:
+                category_label.setText(translated_text)
+    
+    def update_table_row_to_korean(self, row_widget):
+        """테이블 행을 한국어로 업데이트"""
+        if not hasattr(row_widget, 'layout'):
+            return
+            
+        row_layout = row_widget.layout()
+        if not row_layout:
+            return
+            
+        # 첫 번째 라벨(구분) 업데이트
+        category_label = row_layout.itemAt(0).widget()
+        if isinstance(category_label, QLabel):
+            current_text = category_label.text()
+            translated_text = self.translate_to_korean(current_text)
+            if translated_text != current_text:
+                category_label.setText(translated_text)
+    
+    def update_table_row_data(self, row_widget, old_data, new_data):
+        """특정 행의 데이터 부분을 업데이트"""
+        if not hasattr(row_widget, 'layout'):
+            return
+            
+        row_layout = row_widget.layout()
+        if not row_layout:
+            return
+            
+        # 세 번째 라벨(데이터) 업데이트
+        if row_layout.count() >= 3:
+            data_label = row_layout.itemAt(2).widget()
+            if isinstance(data_label, QLabel) and data_label.text() == old_data:
+                data_label.setText(new_data)
     
     def translate_to_english(self, text):
         """한국어를 영어로 번역"""
@@ -515,7 +585,15 @@ class BarcodeAnalysisDialog(QDialog):
             "추적정보": "Traceability Info",
             "부가 정보": "Additional Info",
             "부가정보": "Additional Info",
-            "해당시 필수": "Required if applicable"
+            "해당시 필수": "Required if applicable",
+            "업체코드": "Company Code",
+            "부품번호": "Part Number",
+            "서열코드": "Sequence Code",
+            "EO번호": "EO Number",
+            "생산일자": "Production Date",
+            "부품4M": "Part 4M",
+            "추적번호(7~)": "Tracking Number (7~)",
+            "초도품구분": "Initial Product Classification"
         }
         return translations.get(text, text)
     
@@ -525,7 +603,15 @@ class BarcodeAnalysisDialog(QDialog):
             "Spec Info": "사양정보",
             "Traceability Info": "추적정보",
             "Additional Info": "부가정보",
-            "Required if applicable": "해당시 필수"
+            "Required if applicable": "해당시 필수",
+            "Company Code": "업체코드",
+            "Part Number": "부품번호",
+            "Sequence Code": "서열코드",
+            "EO Number": "EO번호",
+            "Production Date": "생산일자",
+            "Part 4M": "부품4M",
+            "Tracking Number (7~)": "추적번호(7~)",
+            "Initial Product Classification": "초도품구분"
         }
         return translations.get(text, text)
     
