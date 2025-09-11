@@ -7,11 +7,12 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QFrame, QSizePolicy, QDialog)
 from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal
 from PyQt5.QtGui import QFont, QPalette, QColor, QPixmap, QPainter
+from AdminPanel import AdminPanel
 
 class ProductionPanel(QWidget):
     """생산 패널 (FRONT/LH, REAR/RH) - 실용적 디자인"""
     
-    def __init__(self, title, part_number, part_name, division):
+    def __init__(self, title, part_number, part_name, division, press_callback=None):
         super().__init__()
         # self.setGeometry(10, 10, 1140, 760)
         self.title = title
@@ -21,6 +22,7 @@ class ProductionPanel(QWidget):
         self.production_count = 0
         self.accumulated_count = 0
         self.is_normal = True
+        self.press_callback = press_callback  # 3초 누르기 콜백 함수
         self.init_ui()
         
     def init_ui(self):
@@ -302,12 +304,18 @@ class ProductionPanel(QWidget):
         """)
         status_layout.addWidget(self.nutrunner2_status_label)
         
-        # 장비 아이콘 클릭 이벤트 연결
-        self.plc_status_label.mousePressEvent = lambda event: self.toggle_device_label(self.plc_status_label, "PLC")
-        self.scanner_status_label.mousePressEvent = lambda event: self.toggle_device_label(self.scanner_status_label, "스캐너")
-        self.printer_status_label.mousePressEvent = lambda event: self.toggle_device_label(self.printer_status_label, "프린터")
-        self.nutrunner1_status_label.mousePressEvent = lambda event: self.toggle_device_label(self.nutrunner1_status_label, "너트1")
-        self.nutrunner2_status_label.mousePressEvent = lambda event: self.toggle_device_label(self.nutrunner2_status_label, "너트2")
+        # 장비 아이콘 3초 누르기 이벤트 연결 (콜백 함수 사용)
+        if self.press_callback:
+            self.plc_status_label.mousePressEvent = lambda event: self.press_callback("start", "PLC")
+            self.plc_status_label.mouseReleaseEvent = lambda event: self.press_callback("stop", "PLC")
+            self.scanner_status_label.mousePressEvent = lambda event: self.press_callback("start", "스캐너")
+            self.scanner_status_label.mouseReleaseEvent = lambda event: self.press_callback("stop", "스캐너")
+            self.printer_status_label.mousePressEvent = lambda event: self.press_callback("start", "프린터")
+            self.printer_status_label.mouseReleaseEvent = lambda event: self.press_callback("stop", "프린터")
+            self.nutrunner1_status_label.mousePressEvent = lambda event: self.press_callback("start", "너트1")
+            self.nutrunner1_status_label.mouseReleaseEvent = lambda event: self.press_callback("stop", "너트1")
+            self.nutrunner2_status_label.mousePressEvent = lambda event: self.press_callback("start", "너트2")
+            self.nutrunner2_status_label.mouseReleaseEvent = lambda event: self.press_callback("stop", "너트2")
         
         layout.addLayout(status_layout)
         
@@ -333,9 +341,9 @@ class ProductionPanel(QWidget):
         production_layout = QVBoxLayout(production_group)
         production_layout.setSpacing(8)
         
-        # 생산수량 표시 (디지털 폰트, 오른쪽 정렬)
+        # 생산수량 표시 (디지털 시계 폰트, 오른쪽 정렬)
         self.production_box = QLabel("0")
-        self.production_box.setFont(QFont("Consolas", 100, QFont.Bold))
+        self.production_box.setFont(QFont("Digital-7", 100, QFont.Bold))
         self.production_box.setStyleSheet("""
             QLabel {
                 background-color: #000000;
@@ -734,6 +742,13 @@ class BarcodeMainScreen(QMainWindow):
             "너트2": False
         }
         
+        # AdminPanel 인스턴스
+        self.admin_panel = None
+        
+        # 3초 누르기 타이머들
+        self.press_timers = {}
+        self.press_start_time = {}
+        
         self.init_ui()
         self.setup_timer()
         
@@ -852,7 +867,8 @@ class BarcodeMainScreen(QMainWindow):
             "FRONT/LH", 
             "123456789", 
             "프론트 도어 핸들", 
-            "A001"
+            "A001",
+            self.device_press_callback
         )
         panels_layout.addWidget(self.front_panel)
         
@@ -861,12 +877,19 @@ class BarcodeMainScreen(QMainWindow):
             "REAR/RH", 
             "987654321", 
             "리어 도어 핸들", 
-            "B002"
+            "B001",
+            self.device_press_callback
         )
         panels_layout.addWidget(self.rear_panel)
         
         layout.addLayout(panels_layout)
     
+    def device_press_callback(self, action, device_name):
+        """장비 아이콘 3초 누르기 콜백 함수"""
+        if action == "start":
+            self.start_press_timer(device_name)
+        elif action == "stop":
+            self.stop_press_timer(device_name)
     
     def setup_timer(self):
         """타이머 설정"""
@@ -923,24 +946,25 @@ class BarcodeMainScreen(QMainWindow):
         self.update_title_image()
     
     def add_scanned_part(self, part_number, is_ok=True):
-        """스캔된 부품 추가"""
+        """하위부품 스캔 추가 (선행조건)"""
         self.scanned_parts.insert(0, (part_number, is_ok))
         
         # 최대 20개까지만 유지
         if len(self.scanned_parts) > 20:
             self.scanned_parts = self.scanned_parts[:20]
         
-        # 생산수량 업데이트 (OK인 경우에만)
-        if is_ok:
-            # FRONT/LH 패널 업데이트
+        print(f"DEBUG: 하위부품 스캔 추가 - {part_number} ({'OK' if is_ok else 'NG'})")
+    
+    def complete_work(self, panel_name):
+        """작업완료 시 생산카운트 증가"""
+        if panel_name == "FRONT/LH":
             current_count = self.front_panel.production_count
             self.front_panel.update_production_count(current_count + 1)
-            
-            # REAR/RH 패널 업데이트
+            print(f"DEBUG: FRONT/LH 작업완료 - 생산카운트: {current_count + 1}")
+        elif panel_name == "REAR/RH":
             current_count = self.rear_panel.production_count
             self.rear_panel.update_production_count(current_count + 1)
-        
-        print(f"DEBUG: 스캔된 부품 추가 - {part_number} ({'OK' if is_ok else 'NG'})")
+            print(f"DEBUG: REAR/RH 작업완료 - 생산카운트: {current_count + 1}")
     
     def update_device_connection_status(self, device_name, is_connected):
         """공통 장비 연결 상태 업데이트"""
@@ -956,6 +980,53 @@ class BarcodeMainScreen(QMainWindow):
     def get_device_connection_status(self, device_name):
         """장비 연결 상태 조회"""
         return self.device_connection_status.get(device_name, False)
+    
+    def start_press_timer(self, device_name):
+        """3초 누르기 타이머 시작"""
+        import time
+        self.press_start_time[device_name] = time.time()
+        
+        # 3초 후 AdminPanel 열기
+        timer = QTimer()
+        timer.timeout.connect(lambda: self.open_admin_panel(device_name))
+        timer.setSingleShot(True)
+        timer.start(3000)  # 3초
+        self.press_timers[device_name] = timer
+        
+        print(f"DEBUG: {device_name} 3초 누르기 시작")
+    
+    def stop_press_timer(self, device_name):
+        """3초 누르기 타이머 중지"""
+        if device_name in self.press_timers:
+            self.press_timers[device_name].stop()
+            del self.press_timers[device_name]
+        
+        if device_name in self.press_start_time:
+            del self.press_start_time[device_name]
+        
+        print(f"DEBUG: {device_name} 3초 누르기 중지")
+    
+    def open_admin_panel(self, device_name):
+        """AdminPanel 열기 및 해당 탭 활성화"""
+        if self.admin_panel is None:
+            self.admin_panel = AdminPanel()
+        
+        # 장비명에 따른 탭 인덱스 매핑
+        tab_mapping = {
+            "PLC": 1,        # PLC 통신 탭
+            "스캐너": 2,      # 바코드 스캐너 탭
+            "프린터": 3,      # 바코드 프린터 탭
+            "너트1": 4,       # 시스템툴 탭
+            "너트2": 4        # 시스템툴 탭
+        }
+        
+        tab_index = tab_mapping.get(device_name, 0)
+        
+        # AdminPanel 표시 및 해당 탭 활성화
+        self.admin_panel.show()
+        self.admin_panel.tab_widget.setCurrentIndex(tab_index)
+        
+        print(f"DEBUG: AdminPanel 열기 - {device_name} 탭 활성화 (인덱스: {tab_index})")
     
     def show_scan_status(self):
         """스캔 현황 다이얼로그 표시"""
@@ -1146,12 +1217,12 @@ def main():
     window = BarcodeMainScreen()
     window.show()
     
-    # 테스트용 스캔 데이터 추가
-    window.add_scanned_part("111111111", True)
-    window.add_scanned_part("2223333333", False)
-    window.add_scanned_part("444444444", True)
-    window.add_scanned_part("66666", True)
-    window.add_scanned_part("5555555", True)
+    # 테스트용 하위부품 스캔 데이터 추가 (선행조건)
+    window.add_scanned_part("111111111", True)    # 하위부품 스캔
+    window.add_scanned_part("2223333333", False)  # 하위부품 스캔 (NG)
+    window.add_scanned_part("444444444", True)    # 하위부품 스캔
+    window.add_scanned_part("66666", True)        # 하위부품 스캔
+    window.add_scanned_part("5555555", True)      # 하위부품 스캔
     
     # 테스트용 작업 상태 업데이트
     # FRONT/LH 패널: 작업완료 (1), 구분값 있음, 하위부품 3개
@@ -1173,6 +1244,10 @@ def main():
     window.rear_panel.update_child_part_status(2, False)  # 3️⃣ 미매칭 (붉은색)
     window.rear_panel.update_child_part_status(3, False)  # 4️⃣ 미매칭 (붉은색)
     window.rear_panel.update_child_part_status(4, True)   # 5️⃣ 매칭됨 (녹색)
+    
+    # 테스트용 작업완료 시뮬레이션 (생산카운트 증가)
+    window.complete_work("FRONT/LH")  # FRONT/LH 작업완료 → 생산카운트 +1
+    window.complete_work("REAR/RH")   # REAR/RH 작업완료 → 생산카운트 +1
     
     # 공통 장비 연결 상태 시뮬레이션 (실제 연결 상태)
     window.update_device_connection_status("PLC", True)       # PLC 연결됨 (녹색)
