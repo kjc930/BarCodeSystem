@@ -2007,6 +2007,10 @@ class AdminPanel(QMainWindow):
         
         # 제목
         title = QLabel("🔧 시리얼 통신 관리자 패널")
+        title.setText("🔧 시리얼 통신 관리자 패널 v1.0.0")  # 버전 표시
+        title.setStyleSheet("QLabel { color: #666666; font-size: 12px; }")
+        title.setAlignment(Qt.AlignRight)
+        main_layout.addWidget(title)
         title.setFont(QFont("Segoe UI", 20, QFont.Bold))
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet(get_title_style())
