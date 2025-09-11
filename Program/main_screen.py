@@ -96,21 +96,53 @@ class ProductionPanel(QWidget):
         """)
         info_layout.addWidget(part_name_label)
         
-        # 구분값
-        division_label = QLabel(f"구분: {self.division}")
-        division_label.setFont(QFont("Arial", 10, QFont.Bold))
-        division_label.setStyleSheet("""
-            QLabel {
-                color: white;
+        # 구분 프레임 (작업완료 상태 + 구분값)
+        division_frame = QFrame()
+        division_frame.setStyleSheet("""
+            QFrame {
                 background-color: #3498DB;
                 border: 0.5px solid #2980B9;
                 border-radius: 3px;
-                padding: 5px;
                 margin: 1px;
             }
         """)
-        division_label.setAlignment(Qt.AlignCenter)
-        info_layout.addWidget(division_label)
+        division_layout = QHBoxLayout(division_frame)
+        division_layout.setContentsMargins(0, 0, 0, 0)
+        division_layout.setSpacing(0)
+        
+        # 작업완료 상태 (왼쪽 절반)
+        self.work_status_label = QLabel("작업완료")
+        self.work_status_label.setFont(QFont("Arial", 9, QFont.Bold))
+        self.work_status_label.setStyleSheet("""
+            QLabel {
+                color: white;
+                background-color: #28A745;
+                border: none;
+                border-radius: 0px;
+                padding: 5px;
+                margin: 0px;
+            }
+        """)
+        self.work_status_label.setAlignment(Qt.AlignCenter)
+        division_layout.addWidget(self.work_status_label)
+        
+        # 구분값 (오른쪽 절반)
+        self.division_label = QLabel(f"구분: {self.division}")
+        self.division_label.setFont(QFont("Arial", 9, QFont.Bold))
+        self.division_label.setStyleSheet("""
+            QLabel {
+                color: white;
+                background-color: #3498DB;
+                border: none;
+                border-radius: 0px;
+                padding: 5px;
+                margin: 0px;
+            }
+        """)
+        self.division_label.setAlignment(Qt.AlignCenter)
+        division_layout.addWidget(self.division_label)
+        
+        info_layout.addWidget(division_frame)
         
         layout.addWidget(info_group)
         
@@ -156,13 +188,35 @@ class ProductionPanel(QWidget):
         scan_btn.clicked.connect(self.show_scan_status)
         status_layout.addWidget(scan_btn)
         
+        # 하위부품 수 아이콘들 (1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣)
+        self.child_parts_icons = []
+        for i in range(6):
+            icon_label = QLabel(f"{i+1}")
+            icon_label.setFont(QFont("Arial", 12))
+            icon_label.setFixedSize(25, 25)
+            icon_label.setAlignment(Qt.AlignCenter)
+            icon_label.setStyleSheet("""
+                QLabel {
+                    background-color: #6C757D;
+                    color: white;
+                    border: 0.5px solid #5A6268;
+                    border-radius: 12px;
+                    padding: 2px;
+                    margin: 1px;
+                }
+            """)
+            icon_label.setVisible(False)  # 기본적으로 숨김
+            self.child_parts_icons.append(icon_label)
+            status_layout.addWidget(icon_label)
+        
         status_layout.addStretch()
         
-        # PLC 상태
-        self.plc_status_label = QLabel("🔧 PLC")
-        self.plc_status_label.setFont(QFont("Arial", 9, QFont.Bold))
-        self.plc_status_label.setFixedSize(70, 25)
+        # PLC 상태 (아이콘만)
+        self.plc_status_label = QLabel("🔧")
+        self.plc_status_label.setFont(QFont("Arial", 10, QFont.Bold))
+        self.plc_status_label.setFixedSize(30, 25)
         self.plc_status_label.setAlignment(Qt.AlignCenter)
+        self.plc_status_label.setToolTip("PLC")
         self.plc_status_label.setStyleSheet("""
             QLabel {
                 background-color: #28A745;
@@ -175,11 +229,12 @@ class ProductionPanel(QWidget):
         """)
         status_layout.addWidget(self.plc_status_label)
         
-        # 스캐너 상태
-        self.scanner_status_label = QLabel("🔢 스캐너")
-        self.scanner_status_label.setFont(QFont("Arial", 9, QFont.Bold))
-        self.scanner_status_label.setFixedSize(80, 25)
+        # 스캐너 상태 (아이콘만)
+        self.scanner_status_label = QLabel("📱")
+        self.scanner_status_label.setFont(QFont("Arial", 10, QFont.Bold))
+        self.scanner_status_label.setFixedSize(30, 25)
         self.scanner_status_label.setAlignment(Qt.AlignCenter)
+        self.scanner_status_label.setToolTip("스캐너")
         self.scanner_status_label.setStyleSheet("""
             QLabel {
                 background-color: #28A745;
@@ -192,11 +247,12 @@ class ProductionPanel(QWidget):
         """)
         status_layout.addWidget(self.scanner_status_label)
         
-        # 프린터 상태
-        self.printer_status_label = QLabel("🖨️ 프린터")
-        self.printer_status_label.setFont(QFont("Arial", 9, QFont.Bold))
-        self.printer_status_label.setFixedSize(80, 25)
+        # 프린터 상태 (아이콘만)
+        self.printer_status_label = QLabel("🖨️")
+        self.printer_status_label.setFont(QFont("Arial", 10, QFont.Bold))
+        self.printer_status_label.setFixedSize(30, 25)
         self.printer_status_label.setAlignment(Qt.AlignCenter)
+        self.printer_status_label.setToolTip("프린터")
         self.printer_status_label.setStyleSheet("""
             QLabel {
                 background-color: #28A745;
@@ -209,11 +265,12 @@ class ProductionPanel(QWidget):
         """)
         status_layout.addWidget(self.printer_status_label)
         
-        # 너트런너1 상태
-        self.nutrunner1_status_label = QLabel("🔩 너트1")
-        self.nutrunner1_status_label.setFont(QFont("Arial", 9, QFont.Bold))
-        self.nutrunner1_status_label.setFixedSize(70, 25)
+        # 너트런너1 상태 (아이콘만)
+        self.nutrunner1_status_label = QLabel("🔩")
+        self.nutrunner1_status_label.setFont(QFont("Arial", 10, QFont.Bold))
+        self.nutrunner1_status_label.setFixedSize(30, 25)
         self.nutrunner1_status_label.setAlignment(Qt.AlignCenter)
+        self.nutrunner1_status_label.setToolTip("너트1")
         self.nutrunner1_status_label.setStyleSheet("""
             QLabel {
                 background-color: #28A745;
@@ -226,11 +283,12 @@ class ProductionPanel(QWidget):
         """)
         status_layout.addWidget(self.nutrunner1_status_label)
         
-        # 너트런너2 상태
-        self.nutrunner2_status_label = QLabel("🔩 너트2")
-        self.nutrunner2_status_label.setFont(QFont("Arial", 9, QFont.Bold))
-        self.nutrunner2_status_label.setFixedSize(70, 25)
+        # 너트런너2 상태 (아이콘만)
+        self.nutrunner2_status_label = QLabel("🔩")
+        self.nutrunner2_status_label.setFont(QFont("Arial", 10, QFont.Bold))
+        self.nutrunner2_status_label.setFixedSize(30, 25)
         self.nutrunner2_status_label.setAlignment(Qt.AlignCenter)
+        self.nutrunner2_status_label.setToolTip("너트2")
         self.nutrunner2_status_label.setStyleSheet("""
             QLabel {
                 background-color: #28A745;
@@ -242,6 +300,13 @@ class ProductionPanel(QWidget):
             }
         """)
         status_layout.addWidget(self.nutrunner2_status_label)
+        
+        # 장비 아이콘 클릭 이벤트 연결
+        self.plc_status_label.mousePressEvent = lambda event: self.toggle_device_label(self.plc_status_label, "PLC")
+        self.scanner_status_label.mousePressEvent = lambda event: self.toggle_device_label(self.scanner_status_label, "스캐너")
+        self.printer_status_label.mousePressEvent = lambda event: self.toggle_device_label(self.printer_status_label, "프린터")
+        self.nutrunner1_status_label.mousePressEvent = lambda event: self.toggle_device_label(self.nutrunner1_status_label, "너트1")
+        self.nutrunner2_status_label.mousePressEvent = lambda event: self.toggle_device_label(self.nutrunner2_status_label, "너트2")
         
         layout.addLayout(status_layout)
         
@@ -458,6 +523,194 @@ class ProductionPanel(QWidget):
         self.accumulated_count = count
         self.accumulated_box.setText(str(count).zfill(5))
     
+    def update_work_status(self, status):
+        """작업완료 상태 업데이트 (0: 작업중, 1: 완료)"""
+        if status == 1:
+            # 작업완료 (녹색)
+            self.work_status_label.setText("작업완료")
+            self.work_status_label.setStyleSheet("""
+                QLabel {
+                    color: white;
+                    background-color: #28A745;
+                    border: none;
+                    border-radius: 0px;
+                    padding: 5px;
+                    margin: 0px;
+                }
+            """)
+        else:
+            # 작업중 (회색)
+            self.work_status_label.setText("작업중")
+            self.work_status_label.setStyleSheet("""
+                QLabel {
+                    color: white;
+                    background-color: #6C757D;
+                    border: none;
+                    border-radius: 0px;
+                    padding: 5px;
+                    margin: 0px;
+                }
+            """)
+    
+    def update_division_status(self, has_value):
+        """구분값 상태 업데이트 (값이 있으면 파란색, 없으면 빨간색)"""
+        if has_value:
+            # 구분값 있음 (파란색)
+            self.division_label.setStyleSheet("""
+                QLabel {
+                    color: white;
+                    background-color: #3498DB;
+                    border: none;
+                    border-radius: 0px;
+                    padding: 5px;
+                    margin: 0px;
+                }
+            """)
+        else:
+            # 구분값 없음 (빨간색)
+            self.division_label.setStyleSheet("""
+                QLabel {
+                    color: white;
+                    background-color: #DC3545;
+                    border: none;
+                    border-radius: 0px;
+                    padding: 5px;
+                    margin: 0px;
+                }
+            """)
+    
+    def update_child_parts_count(self, count):
+        """하위부품 수 업데이트 (1-6개까지 표시)"""
+        # 모든 아이콘 숨김
+        for icon in self.child_parts_icons:
+            icon.setVisible(False)
+        
+        # 하위부품 수만큼 아이콘 표시 (기본적으로 붉은색 - 미매칭 상태)
+        for i in range(min(count, 6)):
+            self.child_parts_icons[i].setVisible(True)
+            # 기본 상태는 붉은색 (미매칭)
+            self.child_parts_icons[i].setStyleSheet("""
+                QLabel {
+                    background-color: #DC3545;
+                    color: white;
+                    border: 0.5px solid #C82333;
+                    border-radius: 12px;
+                    padding: 2px;
+                    margin: 1px;
+                }
+            """)
+    
+    def update_child_part_status(self, part_index, is_matched):
+        """개별 하위부품 상태 업데이트 (0-5 인덱스, 매칭 여부)"""
+        if 0 <= part_index < len(self.child_parts_icons):
+            if is_matched:
+                # 매칭됨 (녹색)
+                self.child_parts_icons[part_index].setStyleSheet("""
+                    QLabel {
+                        background-color: #28A745;
+                        color: white;
+                        border: 0.5px solid #1E7E34;
+                        border-radius: 12px;
+                        padding: 2px;
+                        margin: 1px;
+                    }
+                """)
+            else:
+                # 미매칭 (붉은색)
+                self.child_parts_icons[part_index].setStyleSheet("""
+                    QLabel {
+                        background-color: #DC3545;
+                        color: white;
+                        border: 0.5px solid #C82333;
+                        border-radius: 12px;
+                        padding: 2px;
+                        margin: 1px;
+                    }
+                """)
+    
+    def reset_child_parts_status(self):
+        """모든 하위부품 상태를 미매칭(붉은색)으로 초기화"""
+        for i, icon in enumerate(self.child_parts_icons):
+            if icon.isVisible():
+                self.update_child_part_status(i, False)
+    
+    def update_device_status(self, device_name, is_connected):
+        """장비 연결 상태 업데이트 (연결됨: 녹색, 연결안됨: 적색)"""
+        if device_name == "PLC":
+            self.update_status_label(self.plc_status_label, is_connected)
+        elif device_name == "스캐너":
+            self.update_status_label(self.scanner_status_label, is_connected)
+        elif device_name == "프린터":
+            self.update_status_label(self.printer_status_label, is_connected)
+        elif device_name == "너트1":
+            self.update_status_label(self.nutrunner1_status_label, is_connected)
+        elif device_name == "너트2":
+            self.update_status_label(self.nutrunner2_status_label, is_connected)
+    
+    def update_status_label(self, label, is_connected):
+        """상태 레이블 업데이트"""
+        if is_connected:
+            # 연결됨 (녹색)
+            label.setStyleSheet("""
+                QLabel {
+                    background-color: #28A745;
+                    color: white;
+                    border: 0.5px solid #1E7E34;
+                    border-radius: 3px;
+                    padding: 4px 8px;
+                    font-weight: bold;
+                }
+            """)
+        else:
+            # 연결안됨 (적색)
+            label.setStyleSheet("""
+                QLabel {
+                    background-color: #DC3545;
+                    color: white;
+                    border: 0.5px solid #C82333;
+                    border-radius: 3px;
+                    padding: 4px 8px;
+                    font-weight: bold;
+                }
+            """)
+    
+    def toggle_device_label(self, label, device_name):
+        """장비 아이콘 클릭 시 라벨 텍스트 토글"""
+        current_text = label.text()
+        
+        # 아이콘만 있는 경우 → 아이콘 + 텍스트로 변경
+        if len(current_text) <= 2:  # 이모지만 있는 경우
+            if device_name == "PLC":
+                label.setText("🔧 PLC")
+            elif device_name == "스캐너":
+                label.setText("📱 스캐너")
+            elif device_name == "프린터":
+                label.setText("🖨️ 프린터")
+            elif device_name == "너트1":
+                label.setText("🔩 너트1")
+            elif device_name == "너트2":
+                label.setText("🔩 너트2")
+            
+            # 텍스트가 추가되면 크기 조정
+            label.setFixedSize(70, 25)
+        else:
+            # 아이콘 + 텍스트가 있는 경우 → 아이콘만으로 변경
+            if device_name == "PLC":
+                label.setText("🔧")
+            elif device_name == "스캐너":
+                label.setText("📱")
+            elif device_name == "프린터":
+                label.setText("🖨️")
+            elif device_name == "너트1":
+                label.setText("🔩")
+            elif device_name == "너트2":
+                label.setText("🔩")
+            
+            # 아이콘만 있으면 크기 조정
+            label.setFixedSize(30, 25)
+        
+        print(f"DEBUG: {device_name} 라벨 토글 - {label.text()}")
+    
     def show_scan_status(self):
         """스캔 현황 보기 (각 패널별 독립적)"""
         dialog = ScanStatusDialog([], self)
@@ -470,6 +723,16 @@ class BarcodeMainScreen(QMainWindow):
     def __init__(self):
         super().__init__()
         self.scanned_parts = []
+        
+        # 공통 장비 연결 상태 저장 (실제 연결 상태)
+        self.device_connection_status = {
+            "PLC": False,
+            "스캐너": False,
+            "프린터": False,
+            "너트1": False,
+            "너트2": False
+        }
+        
         self.init_ui()
         self.setup_timer()
         
@@ -678,6 +941,21 @@ class BarcodeMainScreen(QMainWindow):
         
         print(f"DEBUG: 스캔된 부품 추가 - {part_number} ({'OK' if is_ok else 'NG'})")
     
+    def update_device_connection_status(self, device_name, is_connected):
+        """공통 장비 연결 상태 업데이트"""
+        if device_name in self.device_connection_status:
+            self.device_connection_status[device_name] = is_connected
+            
+            # 모든 패널의 해당 장비 상태를 동일하게 업데이트
+            self.front_panel.update_device_status(device_name, is_connected)
+            self.rear_panel.update_device_status(device_name, is_connected)
+            
+            print(f"DEBUG: {device_name} 연결 상태 업데이트 - {'연결됨' if is_connected else '연결안됨'}")
+    
+    def get_device_connection_status(self, device_name):
+        """장비 연결 상태 조회"""
+        return self.device_connection_status.get(device_name, False)
+    
     def show_scan_status(self):
         """스캔 현황 다이얼로그 표시"""
         dialog = ScanStatusDialog(self.scanned_parts, self)
@@ -873,6 +1151,34 @@ def main():
     window.add_scanned_part("444444444", True)
     window.add_scanned_part("66666", True)
     window.add_scanned_part("5555555", True)
+    
+    # 테스트용 작업 상태 업데이트
+    # FRONT/LH 패널: 작업완료 (1), 구분값 있음, 하위부품 3개
+    window.front_panel.update_work_status(1)  # 작업완료
+    window.front_panel.update_division_status(True)  # 구분값 있음
+    window.front_panel.update_child_parts_count(3)  # 하위부품 3개 (1️⃣2️⃣3️⃣)
+    # 하위부품 매칭 상태 시뮬레이션
+    window.front_panel.update_child_part_status(0, True)   # 1️⃣ 매칭됨 (녹색)
+    window.front_panel.update_child_part_status(1, False)  # 2️⃣ 미매칭 (붉은색)
+    window.front_panel.update_child_part_status(2, True)   # 3️⃣ 매칭됨 (녹색)
+    
+    # REAR/RH 패널: 작업중 (0), 구분값 없음, 하위부품 5개
+    window.rear_panel.update_work_status(0)  # 작업중
+    window.rear_panel.update_division_status(False)  # 구분값 없음
+    window.rear_panel.update_child_parts_count(5)  # 하위부품 5개 (1️⃣2️⃣3️⃣4️⃣5️⃣)
+    # 하위부품 매칭 상태 시뮬레이션
+    window.rear_panel.update_child_part_status(0, True)   # 1️⃣ 매칭됨 (녹색)
+    window.rear_panel.update_child_part_status(1, True)   # 2️⃣ 매칭됨 (녹색)
+    window.rear_panel.update_child_part_status(2, False)  # 3️⃣ 미매칭 (붉은색)
+    window.rear_panel.update_child_part_status(3, False)  # 4️⃣ 미매칭 (붉은색)
+    window.rear_panel.update_child_part_status(4, True)   # 5️⃣ 매칭됨 (녹색)
+    
+    # 공통 장비 연결 상태 시뮬레이션 (실제 연결 상태)
+    window.update_device_connection_status("PLC", True)       # PLC 연결됨 (녹색)
+    window.update_device_connection_status("스캐너", True)     # 스캐너 연결됨 (녹색)
+    window.update_device_connection_status("프린터", False)    # 프린터 연결안됨 (적색)
+    window.update_device_connection_status("너트1", True)      # 너트1 연결됨 (녹색)
+    window.update_device_connection_status("너트2", False)     # 너트2 연결안됨 (적색)
     
     sys.exit(app.exec_())
 
