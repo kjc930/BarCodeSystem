@@ -1,0 +1,19 @@
+{
+  "timestamp": "20250911_104947",
+  "operation_type": "update",
+  "index": 0,
+  "data": {
+    "supplier_code": "V2812",
+    "division": "1",
+    "part_number": "89131CU210",
+    "part_name": "TESTETST TEST 0",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B2",
+    "use_status": "Y",
+    "memo": "",
+    "child_parts": [],
+    "modified_time": "2025-09-11 10:49:23"
+  },
+  "backup_id": "update_20250911_104947"
+}

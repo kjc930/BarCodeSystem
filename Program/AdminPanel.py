@@ -836,6 +836,7 @@ class MasterDataTab(QWidget):
         self.master_data_manager = MasterDataManager()
         self.backup_manager = BackupManager()
         self.edit_mode = False  # 수정 모드 상태
+        self.is_loading_data = False  # 데이터 로딩 중 플래그
         self.init_ui()
         self.load_master_data()
         self.set_inputs_enabled(False)  # 초기에는 입력 필드 비활성화
@@ -859,6 +860,10 @@ class MasterDataTab(QWidget):
         self.master_table.setHorizontalHeaderLabels(["업체코드", "구분", "부품번호", "부품이름", "서열코드", "EO번호", "4M정보", "사용유무", "비고", "수정된 시간"])
         self.master_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.master_table.itemSelectionChanged.connect(self.on_selection_changed)
+        
+        # 테이블 편집 가능하도록 설정
+        self.master_table.setEditTriggers(QTableWidget.DoubleClicked | QTableWidget.EditKeyPressed)
+        self.master_table.cellChanged.connect(self.on_cell_changed)
         
         # 컬럼 너비 설정
         self.master_table.setColumnWidth(0, 80)   # 업체코드
@@ -1095,25 +1100,55 @@ class MasterDataTab(QWidget):
         
     def load_master_data(self):
         """마스터 데이터 로드"""
+        self.is_loading_data = True  # 데이터 로딩 시작
         master_data = self.master_data_manager.get_master_data()
         self.master_table.setRowCount(len(master_data))
         
+        # 기존 데이터의 use_status가 빈 값인 경우 Y로 업데이트
+        data_updated = False
+        for data in master_data:
+            if not data.get('use_status') or data.get('use_status').strip() == '':
+                data['use_status'] = 'Y'
+                data_updated = True
+        
+        # 데이터가 업데이트된 경우 저장
+        if data_updated:
+            self.master_data_manager.save_master_data()
+        
         for row, data in enumerate(master_data):
             # 안전하게 아이템 설정
-            def set_item_safe(row, col, value):
+            def set_item_safe(row, col, value, alignment=None):
                 item = QTableWidgetItem(str(value) if value is not None else "")
+                if alignment:
+                    item.setTextAlignment(alignment)
                 self.master_table.setItem(row, col, item)
             
-            set_item_safe(row, 0, data.get('supplier_code', ''))
-            set_item_safe(row, 1, data.get('division', ''))
-            set_item_safe(row, 2, data.get('part_number', ''))
-            set_item_safe(row, 3, data.get('part_name', ''))
-            set_item_safe(row, 4, data.get('sequence_code', ''))
-            set_item_safe(row, 5, data.get('eo_number', ''))
-            set_item_safe(row, 6, data.get('fourm_info', ''))
-            set_item_safe(row, 7, data.get('use_status', 'Y'))
+            from PyQt5.QtCore import Qt
+            
+            set_item_safe(row, 0, data.get('supplier_code', ''), Qt.AlignCenter)  # 업체코드
+            set_item_safe(row, 1, data.get('division', ''), Qt.AlignCenter)       # 구분
+            set_item_safe(row, 2, data.get('part_number', ''))                    # 부품번호
+            set_item_safe(row, 3, data.get('part_name', ''))                      # 부품이름
+            set_item_safe(row, 4, data.get('sequence_code', ''), Qt.AlignCenter) # 서열코드
+            set_item_safe(row, 5, data.get('eo_number', ''))                      # EO번호
+            set_item_safe(row, 6, data.get('fourm_info', ''), Qt.AlignCenter)    # 4M정보
+            
+            # 사용유무는 콤보박스로 설정 (빈 값이면 Y로 기본 설정)
+            use_status = data.get('use_status', 'Y')
+            if not use_status or use_status.strip() == '':
+                use_status = 'Y'
+            
+            use_status_combo = QComboBox()
+            use_status_combo.addItems(["Y", "N"])
+            use_status_combo.setCurrentText(use_status)
+            use_status_combo.setStyleSheet("QComboBox { font-weight: bold; text-align: center; }")
+            use_status_combo.currentTextChanged.connect(lambda text, r=row: self.on_use_status_changed(r, text))
+            self.master_table.setCellWidget(row, 7, use_status_combo)
+            
             set_item_safe(row, 8, data.get('memo', ''))
             set_item_safe(row, 9, data.get('modified_time', ''))
+        
+        self.is_loading_data = False  # 데이터 로딩 완료
     
     def add_master_data(self):
         """마스터 데이터 추가"""
@@ -1303,6 +1338,205 @@ class MasterDataTab(QWidget):
             if current_row < len(master_data):
                 child_parts = master_data[current_row].get('child_parts', [])
                 self.set_child_parts(child_parts)
+    
+    def on_cell_changed(self, row, column):
+        """테이블 셀 변경 시 데이터 자동 저장"""
+        if row < 0 or column < 0:
+            return
+        
+        # 데이터 로딩 중이면 검증하지 않음
+        if self.is_loading_data:
+            return
+        
+        # 수정된 시간 컬럼(9번)은 편집 불가
+        if column == 9:
+            return
+        
+        # 안전하게 아이템 텍스트 가져오기
+        def get_item_text(row, col):
+            item = self.master_table.item(row, col)
+            return item.text() if item else ""
+        
+        # 현재 행의 모든 데이터 수집
+        supplier_code = get_item_text(row, 0)
+        division = get_item_text(row, 1)
+        part_number = get_item_text(row, 2)
+        part_name = get_item_text(row, 3)
+        sequence_code = get_item_text(row, 4)
+        eo_number = get_item_text(row, 5)
+        fourm_info = get_item_text(row, 6)
+        use_status = get_item_text(row, 7)
+        memo = get_item_text(row, 8)
+        
+        # 필수 필드 검증
+        if not supplier_code or not part_number or not division:
+            QMessageBox.warning(self, "경고", "업체코드, 구분, 부품번호는 필수입니다.")
+            return
+        
+        # 구분값 중복 검증 (사용유무가 Y일 때만, 현재 항목 제외)
+        if use_status == 'Y':
+            master_data = self.master_data_manager.get_master_data()
+            for i, data in enumerate(master_data):
+                if (i != row and 
+                    data.get('division', '').strip() == division.strip() and 
+                    data.get('use_status') == 'Y'):
+                    QMessageBox.warning(self, "경고", f"구분값 '{division}'은 이미 사용 중입니다. (사용유무 Y인 항목과 중복) 다른 값을 입력하세요.")
+                    return
+        
+        # 기존 하위 부품번호 유지
+        master_data = self.master_data_manager.get_master_data()
+        child_parts = master_data[row].get('child_parts', []) if row < len(master_data) else []
+        
+        # 수정된 시간 업데이트
+        from datetime import datetime
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # 업데이트할 데이터 구성
+        data = {
+            'supplier_code': supplier_code,
+            'division': division,
+            'part_number': part_number,
+            'part_name': part_name,
+            'sequence_code': sequence_code,
+            'eo_number': eo_number,
+            'fourm_info': fourm_info,
+            'use_status': use_status,
+            'memo': memo,
+            'child_parts': child_parts,
+            'modified_time': current_time
+        }
+        
+        # 데이터 업데이트
+        if self.master_data_manager.update_master_data(row, data):
+            # 수정된 시간 컬럼 업데이트
+            time_item = QTableWidgetItem(current_time)
+            self.master_table.setItem(row, 9, time_item)
+            
+            # 가운데 정렬이 필요한 컬럼들 업데이트
+            from PyQt5.QtCore import Qt
+            
+            # 업체코드, 구분, 서열코드, 4M정보 가운데 정렬
+            supplier_item = self.master_table.item(row, 0)
+            if supplier_item:
+                supplier_item.setTextAlignment(Qt.AlignCenter)
+            
+            division_item = self.master_table.item(row, 1)
+            if division_item:
+                division_item.setTextAlignment(Qt.AlignCenter)
+            
+            sequence_item = self.master_table.item(row, 4)
+            if sequence_item:
+                sequence_item.setTextAlignment(Qt.AlignCenter)
+            
+            fourm_item = self.master_table.item(row, 6)
+            if fourm_item:
+                fourm_item.setTextAlignment(Qt.AlignCenter)
+            
+            # 백업 생성
+            self.backup_manager.create_backup(data, 'update', row)
+            
+            print(f"DEBUG: 테이블에서 직접 수정된 데이터 저장 완료: {data}")
+        else:
+            QMessageBox.warning(self, "오류", "데이터 저장에 실패했습니다.")
+    
+    def on_use_status_changed(self, row, new_status):
+        """사용유무 콤보박스 변경 시 자동 저장"""
+        if row < 0:
+            return
+        
+        # 데이터 로딩 중이면 검증하지 않음
+        if self.is_loading_data:
+            return
+        
+        # 안전하게 아이템 텍스트 가져오기
+        def get_item_text(row, col):
+            item = self.master_table.item(row, col)
+            return item.text() if item else ""
+        
+        # 현재 행의 모든 데이터 수집
+        supplier_code = get_item_text(row, 0)
+        division = get_item_text(row, 1)
+        part_number = get_item_text(row, 2)
+        part_name = get_item_text(row, 3)
+        sequence_code = get_item_text(row, 4)
+        eo_number = get_item_text(row, 5)
+        fourm_info = get_item_text(row, 6)
+        memo = get_item_text(row, 8)
+        
+        # 필수 필드 검증
+        if not supplier_code or not part_number or not division:
+            QMessageBox.warning(self, "경고", "업체코드, 구분, 부품번호는 필수입니다.")
+            return
+        
+        # 구분값 중복 검증 (사용유무가 Y일 때만, 현재 항목 제외)
+        if new_status == 'Y':
+            master_data = self.master_data_manager.get_master_data()
+            for i, data in enumerate(master_data):
+                if (i != row and 
+                    data.get('division', '').strip() == division.strip() and 
+                    data.get('use_status') == 'Y'):
+                    QMessageBox.warning(self, "경고", f"구분값 '{division}'은 이미 사용 중입니다. (사용유무 Y인 항목과 중복) 다른 값을 입력하세요.")
+                    # 콤보박스를 이전 값으로 되돌리기
+                    combo = self.master_table.cellWidget(row, 7)
+                    if combo:
+                        combo.setCurrentText('N')
+                    return
+        
+        # 기존 하위 부품번호 유지
+        master_data = self.master_data_manager.get_master_data()
+        child_parts = master_data[row].get('child_parts', []) if row < len(master_data) else []
+        
+        # 수정된 시간 업데이트
+        from datetime import datetime
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # 업데이트할 데이터 구성
+        data = {
+            'supplier_code': supplier_code,
+            'division': division,
+            'part_number': part_number,
+            'part_name': part_name,
+            'sequence_code': sequence_code,
+            'eo_number': eo_number,
+            'fourm_info': fourm_info,
+            'use_status': new_status,
+            'memo': memo,
+            'child_parts': child_parts,
+            'modified_time': current_time
+        }
+        
+        # 데이터 업데이트
+        if self.master_data_manager.update_master_data(row, data):
+            # 수정된 시간 컬럼 업데이트
+            time_item = QTableWidgetItem(current_time)
+            self.master_table.setItem(row, 9, time_item)
+            
+            # 가운데 정렬이 필요한 컬럼들 업데이트
+            from PyQt5.QtCore import Qt
+            
+            # 업체코드, 구분, 서열코드, 4M정보 가운데 정렬
+            supplier_item = self.master_table.item(row, 0)
+            if supplier_item:
+                supplier_item.setTextAlignment(Qt.AlignCenter)
+            
+            division_item = self.master_table.item(row, 1)
+            if division_item:
+                division_item.setTextAlignment(Qt.AlignCenter)
+            
+            sequence_item = self.master_table.item(row, 4)
+            if sequence_item:
+                sequence_item.setTextAlignment(Qt.AlignCenter)
+            
+            fourm_item = self.master_table.item(row, 6)
+            if fourm_item:
+                fourm_item.setTextAlignment(Qt.AlignCenter)
+            
+            # 백업 생성
+            self.backup_manager.create_backup(data, 'update', row)
+            
+            print(f"DEBUG: 사용유무 변경으로 인한 데이터 저장 완료: {data}")
+        else:
+            QMessageBox.warning(self, "오류", "데이터 저장에 실패했습니다.")
     
     def clear_inputs(self):
         """입력 필드 초기화"""
@@ -1621,10 +1855,119 @@ class MasterDataTab(QWidget):
         if hasattr(self, 'clear_child_btn'):
             self.clear_child_btn.setEnabled(enabled)
     
+    def set_edit_mode_style(self, is_edit_mode):
+        """수정 모드 스타일 설정"""
+        if is_edit_mode:
+            # 수정 모드: 연노랑 배경
+            edit_style = """
+                QLineEdit { 
+                    background-color: #FFF9C4; 
+                    border: 2px solid #FFD54F; 
+                    border-radius: 3px;
+                    padding: 3px;
+                }
+                QComboBox { 
+                    background-color: #FFF9C4; 
+                    border: 2px solid #FFD54F; 
+                    border-radius: 3px;
+                    padding: 3px;
+                }
+                QTextEdit { 
+                    background-color: #FFF9C4; 
+                    border: 2px solid #FFD54F; 
+                    border-radius: 3px;
+                    padding: 3px;
+                }
+            """
+        else:
+            # 일반 모드: 기본 스타일
+            edit_style = """
+                QLineEdit { 
+                    background-color: white; 
+                    border: 1px solid #CCCCCC; 
+                    border-radius: 3px;
+                    padding: 3px;
+                }
+                QComboBox { 
+                    background-color: white; 
+                    border: 1px solid #CCCCCC; 
+                    border-radius: 3px;
+                    padding: 3px;
+                }
+                QTextEdit { 
+                    background-color: white; 
+                    border: 1px solid #CCCCCC; 
+                    border-radius: 3px;
+                    padding: 3px;
+                }
+            """
+        
+        # 입력 필드들에 스타일 적용
+        self.supplier_code_edit.setStyleSheet(edit_style)
+        self.division_edit.setStyleSheet(edit_style)
+        self.part_number_edit.setStyleSheet(edit_style)
+        self.part_name_edit.setStyleSheet(edit_style)
+        self.sequence_code_edit.setStyleSheet(edit_style)
+        self.eo_number_edit.setStyleSheet(edit_style)
+        self.fourm_info_edit.setStyleSheet(edit_style)
+        
+        # 사용유무 콤보박스는 기본 스타일 유지하되 배경만 변경
+        if is_edit_mode:
+            self.use_status_combo.setStyleSheet("""
+                QComboBox { 
+                    background-color: #FFF9C4; 
+                    border: 2px solid #FFD54F; 
+                    border-radius: 3px;
+                    padding: 3px;
+                    font-weight: bold;
+                    text-align: center;
+                }
+            """)
+        else:
+            self.use_status_combo.setStyleSheet("""
+                QComboBox { 
+                    background-color: white; 
+                    border: 1px solid #CCCCCC; 
+                    border-radius: 3px;
+                    padding: 3px;
+                    font-weight: bold;
+                    text-align: center;
+                }
+            """)
+        self.memo_edit.setStyleSheet(edit_style)
+        
+        # 하위 부품번호 관련 필드들
+        if hasattr(self, 'child_part_number_edit'):
+            self.child_part_number_edit.setStyleSheet(edit_style)
+        if hasattr(self, 'child_part_name_edit'):
+            self.child_part_name_edit.setStyleSheet(edit_style)
+        if hasattr(self, 'child_use_status_combo'):
+            if is_edit_mode:
+                self.child_use_status_combo.setStyleSheet("""
+                    QComboBox { 
+                        background-color: #FFF9C4; 
+                        border: 2px solid #FFD54F; 
+                        border-radius: 3px;
+                        padding: 3px;
+                        font-weight: bold;
+                    }
+                """)
+            else:
+                self.child_use_status_combo.setStyleSheet("""
+                    QComboBox { 
+                        background-color: white; 
+                        border: 1px solid #CCCCCC; 
+                        border-radius: 3px;
+                        padding: 3px;
+                        font-weight: bold;
+                    }
+                """)
+    
     def enter_edit_mode(self):
         """수정 모드 진입"""
         self.edit_mode = True
         self.set_inputs_enabled(True)
+        self.set_edit_mode_style(True)  # 수정 모드 스타일 적용
         self.add_btn.setEnabled(False)
         self.update_btn.setEnabled(False)
         self.delete_btn.setEnabled(False)
@@ -1635,6 +1978,7 @@ class MasterDataTab(QWidget):
         """수정 모드 종료"""
         self.edit_mode = False
         self.set_inputs_enabled(False)
+        self.set_edit_mode_style(False)  # 수정 모드 스타일 해제
         self.add_btn.setEnabled(True)
         self.update_btn.setEnabled(True)
         self.delete_btn.setEnabled(True)
