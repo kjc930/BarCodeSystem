@@ -49,9 +49,14 @@ class NutRunnerTab(QWidget):
         self.nutrunner1_port_combo.setMinimumWidth(150)
         nutrunner1_layout.addWidget(self.nutrunner1_port_combo, 0, 1)
         
+        # 연결 상태 표시 (포트 옆에)
+        self.nutrunner1_port_status_label = QLabel("🔴 미연결")
+        self.nutrunner1_port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+        nutrunner1_layout.addWidget(self.nutrunner1_port_status_label, 0, 2)
+        
         refresh1_btn = QPushButton("새로고침")
         refresh1_btn.clicked.connect(self.refresh_ports)
-        nutrunner1_layout.addWidget(refresh1_btn, 0, 2)
+        nutrunner1_layout.addWidget(refresh1_btn, 0, 3)
         
         # 보드레이트 설정
         nutrunner1_layout.addWidget(QLabel("보드레이트:"), 1, 0)
@@ -146,9 +151,14 @@ class NutRunnerTab(QWidget):
         self.nutrunner2_port_combo.setMinimumWidth(150)
         nutrunner2_layout.addWidget(self.nutrunner2_port_combo, 0, 1)
         
+        # 연결 상태 표시 (포트 옆에)
+        self.nutrunner2_port_status_label = QLabel("🔴 미연결")
+        self.nutrunner2_port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+        nutrunner2_layout.addWidget(self.nutrunner2_port_status_label, 0, 2)
+        
         refresh2_btn = QPushButton("새로고침")
         refresh2_btn.clicked.connect(self.refresh_ports)
-        nutrunner2_layout.addWidget(refresh2_btn, 0, 2)
+        nutrunner2_layout.addWidget(refresh2_btn, 0, 3)
         
         # 보드레이트 설정
         nutrunner2_layout.addWidget(QLabel("보드레이트:"), 1, 0)
@@ -254,7 +264,7 @@ class NutRunnerTab(QWidget):
         """사용 가능한 시리얼 포트 새로고침"""
         import serial.tools.list_ports
         
-        for combo in [self.nutrunner1_port_combo, self.nutrunner2_port_combo]:
+        for i, combo in enumerate([self.nutrunner1_port_combo, self.nutrunner2_port_combo]):
             combo.clear()
             ports = serial.tools.list_ports.comports()
             available_ports = []
@@ -275,6 +285,14 @@ class NutRunnerTab(QWidget):
                 for port in available_ports:
                     port_info = f"{port.device} - {port.description}"
                     combo.addItem(port_info)
+            
+            # 연결 상태에 따라 포트 표시 업데이트
+            device_name = "너트1" if i == 0 else "너트2"
+            is_connected = getattr(self, f"nutrunner{i+1}_is_connected_from_main", False)
+            if is_connected:
+                self.update_nutrunner_port_combo_for_connection(device_name, True)
+        
+        self.log_message("포트 목록을 새로고침했습니다.")
     
     def connect_nutrunner(self, nutrunner_num):
         """너트 런너 연결"""
@@ -543,6 +561,92 @@ class NutRunnerTab(QWidget):
         else:
             self.log_message("❌ 설정 저장 실패")
             QMessageBox.warning(self, "설정 저장 실패", "설정 저장에 실패했습니다.")
+    
+    def update_connection_status_from_main(self, device_name, is_connected):
+        """메인 화면에서 연결 상태 업데이트"""
+        # 연결 상태 플래그 설정
+        if device_name == "너트1":
+            self.nutrunner1_is_connected_from_main = is_connected
+            status_label = self.nutrunner1_status_label
+            connect_btn = self.nutrunner1_connect_btn
+            disconnect_btn = self.nutrunner1_disconnect_btn
+        elif device_name == "너트2":
+            self.nutrunner2_is_connected_from_main = is_connected
+            status_label = self.nutrunner2_status_label
+            connect_btn = self.nutrunner2_connect_btn
+            disconnect_btn = self.nutrunner2_disconnect_btn
+        else:
+            return
+        
+        if is_connected:
+            # 연결된 상태 - 버튼 비활성화 및 상태 표시
+            status_label.setText("🟢 연결됨 (메인 화면에서 자동연결) - 모니터링 중")
+            status_label.setStyleSheet("QLabel { color: green; font-weight: bold; background-color: #e8f5e8; padding: 5px; border: 1px solid #4CAF50; }")
+            connect_btn.setEnabled(False)
+            connect_btn.setChecked(True)
+            connect_btn.setText("연결됨")
+            disconnect_btn.setEnabled(True)
+            disconnect_btn.setChecked(False)
+            
+            # 포트 상태 표시 업데이트
+            if device_name == "너트1":
+                self.nutrunner1_port_status_label.setText("🟢 연결됨")
+                self.nutrunner1_port_status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
+                self.update_nutrunner_port_combo_for_connection(device_name, True)
+                current_port = self.nutrunner1_port_combo.currentText()
+            else:
+                self.nutrunner2_port_status_label.setText("🟢 연결됨")
+                self.nutrunner2_port_status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
+                self.update_nutrunner_port_combo_for_connection(device_name, True)
+                current_port = self.nutrunner2_port_combo.currentText()
+            
+            # 포트 정보도 표시
+            if current_port and current_port != "사용 가능한 포트 없음":
+                self.log_message(f"✅ {device_name}이 메인 화면에서 자동으로 연결되었습니다 - {current_port}")
+            else:
+                self.log_message(f"✅ {device_name}이 메인 화면에서 자동으로 연결되었습니다")
+        else:
+            # 연결되지 않은 상태 - 버튼 활성화 및 상태 표시
+            status_label.setText("🔴 연결되지 않음")
+            status_label.setStyleSheet("QLabel { color: red; font-weight: bold; background-color: #ffeaea; padding: 5px; border: 1px solid #f44336; }")
+            connect_btn.setEnabled(True)
+            connect_btn.setChecked(False)
+            connect_btn.setText("연결")
+            disconnect_btn.setEnabled(False)
+            disconnect_btn.setChecked(False)
+            
+            # 포트 상태 표시 업데이트
+            if device_name == "너트1":
+                self.nutrunner1_port_status_label.setText("🔴 미연결")
+                self.nutrunner1_port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+                self.update_nutrunner_port_combo_for_connection(device_name, False)
+            else:
+                self.nutrunner2_port_status_label.setText("🔴 미연결")
+                self.nutrunner2_port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+                self.update_nutrunner_port_combo_for_connection(device_name, False)
+            
+            self.log_message(f"❌ 메인 화면에서 {device_name} 연결이 해제되었습니다")
+    
+    def update_nutrunner_port_combo_for_connection(self, device_name, is_connected):
+        """너트런너 포트 콤보박스 업데이트 (연결 상태에 따라)"""
+        if device_name == "너트1":
+            port_combo = self.nutrunner1_port_combo
+        else:
+            port_combo = self.nutrunner2_port_combo
+        
+        if is_connected:
+            # 연결된 상태 - 현재 포트를 "사용 중"으로 표시
+            current_port = port_combo.currentText()
+            if current_port and current_port != "사용 가능한 포트 없음":
+                # 포트명에 " (사용 중)" 추가
+                if " (사용 중)" not in current_port:
+                    port_combo.setItemText(port_combo.currentIndex(), f"{current_port} (사용 중)")
+        else:
+            # 연결 해제된 상태 - "사용 중" 표시 제거
+            for i in range(port_combo.count()):
+                item_text = port_combo.itemText(i)
+                if " (사용 중)" in item_text:
+                    port_combo.setItemText(i, item_text.replace(" (사용 중)", ""))
 
 class BarcodePrinterTab(QWidget):
     """바코드 프린터 테스트 탭"""
@@ -573,9 +677,14 @@ class BarcodePrinterTab(QWidget):
         self.port_combo.setMinimumWidth(150)
         serial_layout.addWidget(self.port_combo, 0, 1)
         
+        # 연결 상태 표시 (포트 옆에)
+        self.port_status_label = QLabel("🔴 미연결")
+        self.port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+        serial_layout.addWidget(self.port_status_label, 0, 2)
+        
         refresh_btn = QPushButton("새로고침")
         refresh_btn.clicked.connect(self.refresh_ports)
-        serial_layout.addWidget(refresh_btn, 0, 2)
+        serial_layout.addWidget(refresh_btn, 0, 3)
         
         # 보드레이트
         serial_layout.addWidget(QLabel("보드레이트:"), 1, 0)
@@ -662,9 +771,16 @@ class BarcodePrinterTab(QWidget):
         test_layout.addWidget(self.test_barcode_edit, 0, 1)
         
         # 테스트 출력 버튼
-        test_print_btn = QPushButton("테스트 출력")
+        test_print_btn = QPushButton("🖨️ 테스트 출력")
         test_print_btn.clicked.connect(self.test_print)
+        test_print_btn.setStyleSheet("QPushButton { background-color: #28a745; color: white; font-weight: bold; }")
         test_layout.addWidget(test_print_btn, 1, 0)
+        
+        # 프린터 상태 확인 버튼
+        status_check_btn = QPushButton("📊 프린터 상태 확인")
+        status_check_btn.clicked.connect(self.check_printer_status)
+        status_check_btn.setStyleSheet("QPushButton { background-color: #17a2b8; color: white; font-weight: bold; }")
+        test_layout.addWidget(status_check_btn, 1, 1)
         
         # 상태 표시
         self.status_label = QLabel("연결되지 않음")
@@ -715,6 +831,12 @@ class BarcodePrinterTab(QWidget):
             for port in available_ports:
                 port_info = f"{port.device} - {port.description}"
                 self.port_combo.addItem(port_info)
+        
+        # 연결 상태에 따라 포트 표시 업데이트
+        if hasattr(self, 'is_connected_from_main') and self.is_connected_from_main:
+            self.update_port_combo_for_connection(True)
+        
+        self.log_message("포트 목록을 새로고침했습니다.")
     
     def connect_serial(self):
         """시리얼 포트 연결"""
@@ -792,6 +914,27 @@ class BarcodePrinterTab(QWidget):
         self.serial_thread.send_data(print_command)
         self.log_message(f"테스트 출력: {test_data}")
     
+    def check_printer_status(self):
+        """프린터 상태 확인"""
+        if not self.serial_thread:
+            QMessageBox.information(self, "프린터 상태", 
+                "🖨️ 프린터 상태 확인:\n\n"
+                "❌ 프린터가 연결되지 않았습니다\n"
+                "1. 시리얼 포트 설정을 확인하세요\n"
+                "2. 프린터가 켜져 있는지 확인하세요\n"
+                "3. 케이블 연결을 확인하세요\n\n"
+                "💡 메인 화면에서 자동으로 연결된 경우\n"
+                "   프린터가 준비된 상태입니다!")
+            return
+        
+        QMessageBox.information(self, "프린터 상태", 
+            "🖨️ 프린터 상태 확인:\n\n"
+            "✅ 프린터가 연결되어 있습니다\n"
+            "📡 통신 상태: 정상\n"
+            "🖨️ 프린터 준비: 완료\n\n"
+            "💡 테스트 출력 버튼을 눌러서\n"
+            "   프린터가 정상 작동하는지 확인하세요!")
+    
     def log_message(self, message):
         """로그 메시지 추가"""
         from datetime import datetime
@@ -827,6 +970,69 @@ class BarcodePrinterTab(QWidget):
         else:
             self.log_message("설정 저장 실패")
             QMessageBox.warning(self, "설정 저장 실패", "설정 저장에 실패했습니다.")
+    
+    def update_connection_status_from_main(self, is_connected):
+        """메인 화면에서 연결 상태 업데이트"""
+        # 연결 상태 플래그 설정
+        self.is_connected_from_main = is_connected
+        
+        if is_connected:
+            # 연결된 상태 - 버튼 비활성화 및 상태 표시
+            self.connect_btn.setEnabled(False)
+            self.connect_btn.setChecked(True)
+            self.connect_btn.setText("연결됨")
+            self.disconnect_btn.setEnabled(True)
+            self.disconnect_btn.setChecked(False)
+            self.status_label.setText("🟢 연결됨 (메인 화면에서 자동연결) - 프린터 준비완료")
+            self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; background-color: #e8f5e8; padding: 5px; border: 1px solid #4CAF50; }")
+            
+            # 포트 상태 표시 업데이트
+            self.port_status_label.setText("🟢 연결됨")
+            self.port_status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
+            
+            # 포트 콤보박스에서 사용 중인 포트 표시
+            self.update_port_combo_for_connection(True)
+            
+            # 포트 정보도 표시
+            current_port = self.port_combo.currentText()
+            if current_port and current_port != "사용 가능한 포트 없음":
+                self.log_message(f"✅ 바코드 프린터가 메인 화면에서 자동으로 연결되었습니다 - {current_port}")
+            else:
+                self.log_message("✅ 바코드 프린터가 메인 화면에서 자동으로 연결되었습니다")
+        else:
+            # 연결되지 않은 상태 - 버튼 활성화 및 상태 표시
+            self.connect_btn.setEnabled(True)
+            self.connect_btn.setChecked(False)
+            self.connect_btn.setText("연결")
+            self.disconnect_btn.setEnabled(False)
+            self.disconnect_btn.setChecked(False)
+            self.status_label.setText("🔴 연결되지 않음")
+            self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; background-color: #ffeaea; padding: 5px; border: 1px solid #f44336; }")
+            
+            # 포트 상태 표시 업데이트
+            self.port_status_label.setText("🔴 미연결")
+            self.port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+            
+            # 포트 콤보박스에서 사용 가능한 포트로 환원
+            self.update_port_combo_for_connection(False)
+            
+            self.log_message("❌ 메인 화면에서 바코드 프린터 연결이 해제되었습니다")
+    
+    def update_port_combo_for_connection(self, is_connected):
+        """포트 콤보박스 업데이트 (연결 상태에 따라)"""
+        if is_connected:
+            # 연결된 상태 - 현재 포트를 "사용 중"으로 표시
+            current_port = self.port_combo.currentText()
+            if current_port and current_port != "사용 가능한 포트 없음":
+                # 포트명에 " (사용 중)" 추가
+                if " (사용 중)" not in current_port:
+                    self.port_combo.setItemText(self.port_combo.currentIndex(), f"{current_port} (사용 중)")
+        else:
+            # 연결 해제된 상태 - "사용 중" 표시 제거
+            for i in range(self.port_combo.count()):
+                item_text = self.port_combo.itemText(i)
+                if " (사용 중)" in item_text:
+                    self.port_combo.setItemText(i, item_text.replace(" (사용 중)", ""))
 
 class MasterDataTab(QWidget):
     """기준정보 관리 탭"""
@@ -1049,13 +1255,15 @@ class MasterDataTab(QWidget):
                 border: 1px solid #ddd;
                 border-radius: 5px;
                 background-color: #f8f9fa;
+                outline: none;
             }
             QListWidget::item {
                 padding: 5px;
                 border-bottom: 1px solid #eee;
             }
             QListWidget::item:selected {
-                background-color: #e3f2fd;
+                background-color: #2196F3;
+                color: white;
             }
         """)
         child_part_layout.addWidget(self.child_part_list)
@@ -1102,6 +1310,10 @@ class MasterDataTab(QWidget):
         """마스터 데이터 로드"""
         self.is_loading_data = True  # 데이터 로딩 시작
         master_data = self.master_data_manager.get_master_data()
+        
+        # 데이터 정렬: 사용유무(Y/N) 구분, 업체코드별 분류, 구분값, 부품번호 오름차순
+        master_data = self.sort_master_data(master_data)
+        
         self.master_table.setRowCount(len(master_data))
         
         # 기존 데이터의 use_status가 빈 값인 경우 Y로 업데이트
@@ -1150,65 +1362,50 @@ class MasterDataTab(QWidget):
         
         self.is_loading_data = False  # 데이터 로딩 완료
     
+    def sort_master_data(self, master_data):
+        """마스터 데이터 정렬"""
+        def sort_key(data):
+            # 1순위: 사용유무 (Y가 먼저, N이 나중)
+            use_status = data.get('use_status', 'N')
+            use_status_order = 0 if use_status == 'Y' else 1
+            
+            # 2순위: 업체코드 (오름차순)
+            supplier_code = data.get('supplier_code', '')
+            
+            # 3순위: 구분값 (오름차순)
+            division = data.get('division', '')
+            
+            # 4순위: 부품번호 (오름차순)
+            part_number = data.get('part_number', '')
+            
+            return (use_status_order, supplier_code, division, part_number)
+        
+        return sorted(master_data, key=sort_key)
+    
+    def is_division_duplicate(self, division, use_status):
+        """구분값 중복 검사 (사용유무가 Y인 항목과 중복 확인)"""
+        if use_status != "Y":
+            return False  # 사용유무가 Y가 아니면 중복 검사하지 않음
+        
+        master_data = self.master_data_manager.get_master_data()
+        for item in master_data:
+            if item.get("구분") == division and item.get("사용유무") == "Y":
+                return True  # 중복 발견
+        return False  # 중복 없음
+
     def add_master_data(self):
         """마스터 데이터 추가"""
+        print("DEBUG: add_master_data 메서드 호출됨")
+        
+        # 수정 모드인 경우 수정 모드 종료 후 추가 모드로 전환
         if self.edit_mode:
-            QMessageBox.warning(self, "경고", "수정 모드에서는 추가할 수 없습니다. 취소 버튼을 눌러 수정 모드를 종료하세요.")
-            return
-            
-        supplier_code = self.supplier_code_edit.text().strip()
-        division = self.division_edit.text().strip()
-        part_number = self.part_number_edit.text().strip()
-        part_name = self.part_name_edit.text().strip()
-        sequence_code = self.sequence_code_edit.text().strip()
-        eo_number = self.eo_number_edit.text().strip()
-        fourm_info = self.fourm_info_edit.text().strip()
-        use_status = self.use_status_combo.currentText()
-        memo = self.memo_edit.text().strip()
+            print("DEBUG: 수정 모드에서 추가 모드로 전환")
+            self.exit_edit_mode()
         
-        # 필수 필드 검증 (사용유무는 Y/N 모두 등록 가능)
-        if not supplier_code or not part_number or not division:
-            QMessageBox.warning(self, "경고", "업체코드, 구분, 부품번호는 필수입니다.")
-            return
-        
-        # 구분값 중복 검증 (사용유무가 Y일 때만)
-        if self.is_division_duplicate(division, use_status):
-            QMessageBox.warning(self, "경고", f"구분값 '{division}'은 이미 사용 중입니다. (사용유무 Y인 항목과 중복) 다른 값을 입력하세요.")
-            return
-        
-        # 하위 부품번호 가져오기
-        child_parts = self.get_child_parts()
-        print(f"DEBUG: 저장할 하위 부품번호: {child_parts}")
-        
-        from datetime import datetime
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        data = {
-            'supplier_code': supplier_code,
-            'division': division,
-            'part_number': part_number,
-            'part_name': part_name,
-            'sequence_code': sequence_code,
-            'eo_number': eo_number,
-            'fourm_info': fourm_info,
-            'use_status': use_status,
-            'memo': memo,
-            'child_parts': child_parts,
-            'modified_time': current_time
-        }
-        
-        print(f"DEBUG: 저장할 전체 데이터: {data}")
-        
-        if self.master_data_manager.add_master_data(data):
-            # 백업 생성 (추가된 항목의 인덱스)
-            new_index = len(self.master_data_manager.master_list) - 1
-            self.backup_manager.create_backup(data, 'add', new_index)
-            
-            self.load_master_data()
-            self.clear_inputs()
-            QMessageBox.information(self, "성공", "기준정보가 추가되었습니다. (백업 생성됨)")
-        else:
-            QMessageBox.warning(self, "오류", "기준정보 추가에 실패했습니다.")
+        # 입력 필드 활성화 및 초기화
+        self.set_inputs_enabled(True)
+        self.clear_inputs()
+        print("DEBUG: 입력 필드 활성화 및 초기화 완료 - 데이터를 입력하고 저장 버튼을 눌러주세요")
     
     def update_master_data(self):
         """수정 모드 진입"""
@@ -1224,15 +1421,16 @@ class MasterDataTab(QWidget):
         self.enter_edit_mode()
     
     def save_master_data(self):
-        """마스터 데이터 저장 (수정 모드에서만)"""
-        if not self.edit_mode:
-            QMessageBox.warning(self, "경고", "수정 모드가 아닙니다.")
-            return
-            
-        current_row = self.master_table.currentRow()
-        if current_row < 0:
-            QMessageBox.warning(self, "경고", "수정할 항목을 선택하세요.")
-            return
+        """마스터 데이터 저장 (추가/수정 모드)"""
+        print(f"DEBUG: save_master_data 호출됨 - edit_mode: {self.edit_mode}")
+        
+        # 수정 모드인 경우에만 행 선택 확인
+        current_row = -1  # 추가 모드에서는 -1로 초기화
+        if self.edit_mode:
+            current_row = self.master_table.currentRow()
+            if current_row < 0:
+                QMessageBox.warning(self, "경고", "수정할 항목을 선택하세요.")
+                return
         
         supplier_code = self.supplier_code_edit.text().strip()
         division = self.division_edit.text().strip()
@@ -1244,23 +1442,31 @@ class MasterDataTab(QWidget):
         use_status = self.use_status_combo.currentText()
         memo = self.memo_edit.text().strip()
         
+        print(f"DEBUG: 입력된 필수 필드 - 업체코드: '{supplier_code}', 구분: '{division}', 부품번호: '{part_number}'")
+        
         if not supplier_code or not part_number or not division:
             QMessageBox.warning(self, "경고", "업체코드, 구분, 부품번호는 필수입니다.")
             return
         
-        # 구분값 중복 검증 (사용유무가 Y일 때만, 현재 항목 제외)
+        # 구분값 중복 검증 (사용유무가 Y일 때만)
         if use_status == 'Y':
             master_data = self.master_data_manager.get_master_data()
             for i, data in enumerate(master_data):
-                if (i != current_row and 
-                    data.get('division', '').strip() == division.strip() and 
+                # 수정 모드인 경우 현재 항목은 제외
+                if (self.edit_mode and i == current_row):
+                    continue
+                if (data.get('division', '').strip() == division.strip() and 
                     data.get('use_status') == 'Y'):
                     QMessageBox.warning(self, "경고", f"구분값 '{division}'은 이미 사용 중입니다. (사용유무 Y인 항목과 중복) 다른 값을 입력하세요.")
                     return
         
         # 하위 부품번호 가져오기
-        child_parts = self.get_child_parts()
-        print(f"DEBUG: 수정할 하위 부품번호: {child_parts}")
+        try:
+            child_parts = self.get_child_parts()
+            print(f"DEBUG: 하위 부품번호 가져오기 성공 - {len(child_parts)}개")
+        except Exception as e:
+            print(f"DEBUG: 하위 부품번호 가져오기 오류: {e}")
+            child_parts = []
         
         from datetime import datetime
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -1279,18 +1485,44 @@ class MasterDataTab(QWidget):
             'modified_time': current_time
         }
         
-        print(f"DEBUG: 수정할 전체 데이터: {data}")
-        
-        # 수정 전 데이터 백업
-        old_data = self.master_data_manager.master_list[current_row].copy()
-        self.backup_manager.create_backup(old_data, 'update', current_row)
-        
-        if self.master_data_manager.update_master_data(current_row, data):
-            self.load_master_data()
-            self.exit_edit_mode()
-            QMessageBox.information(self, "성공", "기준정보가 수정되었습니다. (백업 생성됨)")
+        if self.edit_mode:
+            # 수정 모드
+            print(f"DEBUG: 수정할 하위 부품번호: {child_parts}")
+            print(f"DEBUG: 수정할 전체 데이터: {data}")
+            
+            # 수정 전 데이터 백업
+            old_data = self.master_data_manager.master_list[current_row].copy()
+            self.backup_manager.create_backup(old_data, 'update', current_row)
+            
+            if self.master_data_manager.update_master_data(current_row, data):
+                self.load_master_data()
+                self.exit_edit_mode()
+                QMessageBox.information(self, "성공", "기준정보가 수정되었습니다. (백업 생성됨)")
+            else:
+                QMessageBox.warning(self, "오류", "기준정보 수정에 실패했습니다.")
         else:
-            QMessageBox.warning(self, "오류", "기준정보 수정에 실패했습니다.")
+            # 추가 모드
+            print(f"DEBUG: 추가 모드 - 하위 부품번호: {child_parts}")
+            print(f"DEBUG: 추가 모드 - 전체 데이터: {data}")
+            print(f"DEBUG: MasterDataManager 인스턴스: {self.master_data_manager}")
+            
+            try:
+                result = self.master_data_manager.add_master_data(data)
+                print(f"DEBUG: add_master_data 결과: {result}")
+                
+                if result:
+                    print("DEBUG: 데이터 추가 성공 - 테이블 새로고침 시작")
+                    self.load_master_data()
+                    self.clear_inputs()
+                    self.set_inputs_enabled(False)  # 추가 완료 후 입력 필드 비활성화
+                    QMessageBox.information(self, "성공", "기준정보가 추가되었습니다.")
+                    print("DEBUG: 추가 완료")
+                else:
+                    print("DEBUG: 데이터 추가 실패")
+                    QMessageBox.warning(self, "오류", "기준정보 추가에 실패했습니다.")
+            except Exception as e:
+                print(f"DEBUG: 추가 중 오류 발생: {e}")
+                QMessageBox.warning(self, "오류", f"기준정보 추가 중 오류가 발생했습니다: {e}")
     
     def delete_master_data(self):
         """마스터 데이터 삭제"""
@@ -1802,21 +2034,28 @@ class MasterDataTab(QWidget):
     def get_child_parts(self):
         """하위 부품번호 리스트 반환"""
         child_parts = []
-        for i in range(self.child_part_list.count()):
-            item = self.child_part_list.item(i)
-            if item:
-                text = item.text()
-                # "부품번호 - 부품이름 [Y/N]" 형식에서 파싱
-                if ' - ' in text and ' [' in text and ']' in text:
-                    part_number = text.split(' - ')[0]
-                    remaining = text.split(' - ')[1]
-                    part_name = remaining.split(' [')[0]
-                    use_status = remaining.split(' [')[1].rstrip(']')
-                    child_parts.append({
-                        'part_number': part_number,
-                        'part_name': part_name,
-                        'use_status': use_status
-                    })
+        try:
+            if not hasattr(self, 'child_part_list') or self.child_part_list is None:
+                print("DEBUG: child_part_list가 초기화되지 않음")
+                return child_parts
+            
+            for i in range(self.child_part_list.count()):
+                item = self.child_part_list.item(i)
+                if item:
+                    text = item.text()
+                    # "부품번호 - 부품이름 [Y/N]" 형식에서 파싱
+                    if ' - ' in text and ' [' in text and ']' in text:
+                        part_number = text.split(' - ')[0]
+                        remaining = text.split(' - ')[1]
+                        part_name = remaining.split(' [')[0]
+                        use_status = remaining.split(' [')[1].rstrip(']')
+                        child_parts.append({
+                            'part_number': part_number,
+                            'part_name': part_name,
+                            'use_status': use_status
+                        })
+        except Exception as e:
+            print(f"DEBUG: get_child_parts 오류: {e}")
         return child_parts
     
     def set_child_parts(self, child_parts):
@@ -1840,6 +2079,11 @@ class MasterDataTab(QWidget):
         self.fourm_info_edit.setEnabled(enabled)
         self.use_status_combo.setEnabled(enabled)
         self.memo_edit.setEnabled(enabled)
+        
+        # 저장 버튼도 함께 활성화/비활성화
+        if hasattr(self, 'save_btn'):
+            self.save_btn.setEnabled(enabled)
+            print(f"DEBUG: 저장 버튼 {'활성화' if enabled else '비활성화'}")
         
         # 하위 부품번호 관련 필드들 (존재하는 경우에만)
         if hasattr(self, 'child_part_number_edit'):

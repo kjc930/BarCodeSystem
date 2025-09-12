@@ -241,9 +241,12 @@ class MasterDataManager:
     
     def save_master_data(self):
         """마스터 데이터 저장"""
+        print(f"DEBUG: save_master_data 호출됨 - 파일: {self.data_file}")
+        print(f"DEBUG: 저장할 데이터 개수: {len(self.master_list)}")
         try:
             with open(self.data_file, 'w', encoding='utf-8') as f:
                 json.dump(self.master_list, f, ensure_ascii=False, indent=2)
+            print("DEBUG: 파일 저장 성공")
             return True
         except Exception as e:
             print(f"마스터 데이터 저장 오류: {e}")
@@ -251,8 +254,11 @@ class MasterDataManager:
     
     def add_master_data(self, data):
         """마스터 데이터 추가"""
+        print(f"DEBUG: MasterDataManager.add_master_data 호출됨 - 데이터: {data}")
         self.master_list.append(data)
-        return self.save_master_data()
+        result = self.save_master_data()
+        print(f"DEBUG: 저장 결과: {result}")
+        return result
     
     def update_master_data(self, index, data):
         """마스터 데이터 업데이트"""

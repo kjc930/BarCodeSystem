@@ -3,160 +3,134 @@
     "supplier_code": "V2812",
     "division": "1",
     "part_number": "89131CU210",
-    "part_name": "TESTETST TEST 0",
-    "sequence_code": "",
-    "eo_number": "",
-    "fourm_info": "S1B2",
-    "use_status": "Y",
-    "memo": "testtest",
-    "child_parts": [],
-    "modified_time": "2025-09-11 10:56:10"
-  },
-  {
-    "supplier_code": "V2812",
-    "division": "3",
-    "part_number": "89131CU211",
-    "part_name": "TESTTESTTE333",
-    "sequence_code": "",
-    "eo_number": "",
-    "fourm_info": "S1B3",
-    "use_status": "Y",
-    "memo": "test2",
-    "child_parts": [
-      {
-        "part_number": "111111111",
-        "part_name": "subassy",
-        "use_status": "Y"
-      },
-      {
-        "part_number": "333333",
-        "part_name": "111",
-        "use_status": "Y"
-      },
-      {
-        "part_number": "44444",
-        "part_name": "4444",
-        "use_status": "Y"
-      },
-      {
-        "part_number": "5555",
-        "part_name": "555",
-        "use_status": "Y"
-      },
-      {
-        "part_number": "6666",
-        "part_name": "6666",
-        "use_status": "Y"
-      }
-    ],
-    "modified_time": "2025-09-12 09:56:33"
-  },
-  {
-    "supplier_code": "V2812",
-    "division": "2",
-    "part_number": "89131CU210",
     "part_name": "TEST1",
     "sequence_code": "",
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
-    "memo": "TEST",
+    "memo": "TEST1",
     "child_parts": [],
-    "modified_time": "2025-09-12 10:33:50"
+    "modified_time": "2025-09-12 10:37:17"
+  },
+  {
+    "supplier_code": "V2812",
+    "division": "2",
+    "part_number": "89131CU211",
+    "part_name": "TEST2",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B1",
+    "use_status": "Y",
+    "memo": "TEST2",
+    "child_parts": [],
+    "modified_time": "2025-09-12 10:37:43"
+  },
+  {
+    "supplier_code": "V2812",
+    "division": "3",
+    "part_number": "89131CU212",
+    "part_name": "TEST3",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B1",
+    "use_status": "Y",
+    "memo": "TEST3",
+    "child_parts": [],
+    "modified_time": "2025-09-12 10:38:20"
   },
   {
     "supplier_code": "V2812",
     "division": "4",
-    "part_number": "89131CU214",
+    "part_number": "89131CU213",
     "part_name": "TEST4",
     "sequence_code": "",
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
     "memo": "TEST4",
-    "child_parts": [
-      {
-        "part_number": "89231CU1002",
-        "part_name": "89231CU1002",
-        "use_status": "Y"
-      }
-    ],
-    "modified_time": "2025-09-12 10:47:11"
+    "child_parts": [],
+    "modified_time": "2025-09-12 10:38:57"
   },
   {
     "supplier_code": "V2812",
     "division": "5",
     "part_number": "89131CU215",
-    "part_name": "89131CU210",
+    "part_name": "TEST5",
     "sequence_code": "",
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
-    "memo": "89131CU210",
+    "memo": "TEST5",
     "child_parts": [],
-    "modified_time": "2025-09-12 10:44:10"
+    "modified_time": "2025-09-12 10:39:29"
   },
   {
     "supplier_code": "V2812",
     "division": "6",
     "part_number": "89131CU216",
-    "part_name": "89131CU216",
+    "part_name": "TEST6",
     "sequence_code": "",
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
-    "memo": "V89131CU21689131CU216",
+    "memo": "TEST6",
     "child_parts": [],
-    "modified_time": "2025-09-12 10:44:38"
+    "modified_time": "2025-09-12 10:39:54"
   },
   {
     "supplier_code": "V2812",
     "division": "7",
     "part_number": "89131CU217",
-    "part_name": "89131CU217",
+    "part_name": "TEST7",
     "sequence_code": "",
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
-    "memo": "TEST 89131CU216",
+    "memo": "TEST7",
     "child_parts": [
       {
         "part_number": "89231CU1000",
-        "part_name": "89231CU1000",
+        "part_name": "하위부품1",
         "use_status": "Y"
       },
       {
-        "part_number": "89231CU1001",
-        "part_name": "89231CU1001",
+        "part_number": "89231CU101",
+        "part_name": "하위부품2",
         "use_status": "Y"
       }
     ],
-    "modified_time": "2025-09-12 12:36:29"
+    "modified_time": "2025-09-12 10:40:28"
   },
   {
     "supplier_code": "V2812",
     "division": "8",
     "part_number": "89131CU218",
-    "part_name": "89131CU218",
+    "part_name": "TEST 8",
     "sequence_code": "",
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
-    "memo": "TEST 89131CU218",
-    "child_parts": [],
-    "modified_time": "2025-09-12 10:45:31"
+    "memo": "TEST8",
+    "child_parts": [
+      {
+        "part_number": "89131cu100",
+        "part_name": "sub test 1",
+        "use_status": "Y"
+      }
+    ],
+    "modified_time": "2025-09-12 12:42:01"
   },
   {
     "supplier_code": "V2812",
     "division": "9",
     "part_number": "89131CU219",
-    "part_name": "89131CU219",
+    "part_name": "TEST9",
     "sequence_code": "",
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
-    "memo": "89131CU219",
+    "memo": "TEST9",
     "child_parts": [],
-    "modified_time": "2025-09-12 10:45:56"
+    "modified_time": "2025-09-12 10:41:31"
   }
 ]

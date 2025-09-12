@@ -1,0 +1,25 @@
+{
+  "timestamp": "20250912_104711",
+  "operation_type": "update",
+  "index": 3,
+  "data": {
+    "supplier_code": "V2812",
+    "division": "4",
+    "part_number": "89131CU214",
+    "part_name": "TEST4",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B1",
+    "use_status": "Y",
+    "memo": "TEST4",
+    "child_parts": [
+      {
+        "part_number": "89231CU1002",
+        "part_name": "89231CU1002",
+        "use_status": "Y"
+      }
+    ],
+    "modified_time": "2025-09-12 10:42:59"
+  },
+  "backup_id": "update_20250912_104711"
+}

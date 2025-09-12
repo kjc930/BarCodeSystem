@@ -47,9 +47,14 @@ class BarcodeScannerTab(QWidget):
         self.port_combo.setMinimumWidth(150)
         serial_layout.addWidget(self.port_combo, 0, 1)
         
+        # 연결 상태 표시 (포트 옆에)
+        self.port_status_label = QLabel("🔴 미연결")
+        self.port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+        serial_layout.addWidget(self.port_status_label, 0, 2)
+        
         refresh_btn = QPushButton("새로고침")
         refresh_btn.clicked.connect(self.refresh_ports)
-        serial_layout.addWidget(refresh_btn, 0, 2)
+        serial_layout.addWidget(refresh_btn, 0, 3)
         
         # 보드레이트 (스캐너는 보통 9600)
         serial_layout.addWidget(QLabel("보드레이트:"), 1, 0)
@@ -140,6 +145,12 @@ class BarcodeScannerTab(QWidget):
         clear_scan_btn.clicked.connect(self.clear_scan_list)
         stats_layout.addWidget(clear_scan_btn)
         
+        # 바코드 스캔 안내 버튼
+        scan_info_btn = QPushButton("📱 스캔 안내")
+        scan_info_btn.clicked.connect(self.show_scan_info)
+        scan_info_btn.setStyleSheet("QPushButton { background-color: #17a2b8; color: white; font-weight: bold; }")
+        stats_layout.addWidget(scan_info_btn)
+        
         scan_list_layout.addLayout(stats_layout)
         layout.addWidget(scan_list_group)
         
@@ -201,6 +212,12 @@ class BarcodeScannerTab(QWidget):
             for port in available_ports:
                 port_info = f"{port.device} - {port.description}"
                 self.port_combo.addItem(port_info)
+        
+        # 연결 상태에 따라 포트 표시 업데이트
+        if hasattr(self, 'is_connected_from_main') and self.is_connected_from_main:
+            self.update_port_combo_for_connection(True)
+        
+        self.log_message("포트 목록을 새로고침했습니다.")
     
     def connect_serial(self):
         """시리얼 포트 연결"""
@@ -280,14 +297,81 @@ class BarcodeScannerTab(QWidget):
         barcode = item.text()
         self.analyze_barcode(barcode)
     
+    def update_connection_status_from_main(self, is_connected):
+        """메인 화면에서 연결 상태 업데이트"""
+        # 연결 상태 플래그 설정
+        self.is_connected_from_main = is_connected
+        
+        if is_connected:
+            # 연결된 상태 - 버튼 비활성화 및 상태 표시
+            self.connect_btn.setEnabled(False)
+            self.connect_btn.setText("연결됨")
+            self.disconnect_btn.setEnabled(True)
+            self.status_label.setText("🟢 연결됨 (메인 화면에서 자동연결) - 바코드 스캔 대기 중")
+            self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; background-color: #e8f5e8; padding: 5px; border: 1px solid #4CAF50; }")
+            
+            # 포트 상태 표시 업데이트
+            self.port_status_label.setText("🟢 연결됨")
+            self.port_status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
+            
+            # 포트 콤보박스에서 사용 중인 포트 표시
+            self.update_port_combo_for_connection(True)
+            
+            # 포트 정보도 표시
+            current_port = self.port_combo.currentText()
+            if current_port and current_port != "사용 가능한 포트 없음":
+                self.log_message(f"✅ 바코드 스캐너가 메인 화면에서 자동으로 연결되었습니다 - {current_port}")
+            else:
+                self.log_message("✅ 바코드 스캐너가 메인 화면에서 자동으로 연결되었습니다")
+        else:
+            # 연결되지 않은 상태 - 버튼 활성화 및 상태 표시
+            self.connect_btn.setEnabled(True)
+            self.connect_btn.setText("연결")
+            self.disconnect_btn.setEnabled(False)
+            self.status_label.setText("🔴 연결되지 않음")
+            self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; background-color: #ffeaea; padding: 5px; border: 1px solid #f44336; }")
+            
+            # 포트 상태 표시 업데이트
+            self.port_status_label.setText("🔴 미연결")
+            self.port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+            
+            # 포트 콤보박스에서 사용 가능한 포트로 환원
+            self.update_port_combo_for_connection(False)
+            
+            self.log_message("❌ 메인 화면에서 바코드 스캐너 연결이 해제되었습니다")
+    
+    def update_port_combo_for_connection(self, is_connected):
+        """포트 콤보박스 업데이트 (연결 상태에 따라)"""
+        if is_connected:
+            # 연결된 상태 - 현재 포트를 "사용 중"으로 표시
+            current_port = self.port_combo.currentText()
+            if current_port and current_port != "사용 가능한 포트 없음":
+                # 포트명에 " (사용 중)" 추가
+                if " (사용 중)" not in current_port:
+                    self.port_combo.setItemText(self.port_combo.currentIndex(), f"{current_port} (사용 중)")
+        else:
+            # 연결 해제된 상태 - "사용 중" 표시 제거
+            for i in range(self.port_combo.count()):
+                item_text = self.port_combo.itemText(i)
+                if " (사용 중)" in item_text:
+                    self.port_combo.setItemText(i, item_text.replace(" (사용 중)", ""))
+    
     def analyze_selected_barcode(self):
         """선택된 바코드 분석"""
         current_item = self.scan_list.currentItem()
         if current_item:
             barcode = current_item.text()
             self.analyze_barcode(barcode)
-        else:
-            QMessageBox.warning(self, "경고", "분석할 바코드를 선택해주세요.")
+    
+    def show_scan_info(self):
+        """바코드 스캔 안내 표시"""
+        QMessageBox.information(self, "바코드 스캔 안내", 
+            "📱 바코드 스캐너 사용법:\n\n"
+            "1. 스캐너가 연결된 상태에서 바코드를 스캔하세요\n"
+            "2. 스캔된 바코드는 자동으로 목록에 추가됩니다\n"
+            "3. 바코드를 클릭하면 자동으로 분석됩니다\n"
+            "4. 자동 스캔 모드가 활성화되어 있습니다\n\n"
+            "💡 팁: 바코드를 스캔하면 즉시 데이터가 표시됩니다!")
     
     def analyze_barcode(self, barcode):
         """바코드 분석 및 결과 표시"""

@@ -1,0 +1,45 @@
+{
+  "timestamp": "20250912_095633",
+  "operation_type": "update",
+  "index": 1,
+  "data": {
+    "supplier_code": "V2812",
+    "division": "2",
+    "part_number": "89131CU211",
+    "part_name": "TESTTESTTE333",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B3",
+    "use_status": "Y",
+    "memo": "test2",
+    "child_parts": [
+      {
+        "part_number": "111111111",
+        "part_name": "subassy",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "333333",
+        "part_name": "111",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "44444",
+        "part_name": "4444",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "5555",
+        "part_name": "555",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "6666",
+        "part_name": "6666",
+        "use_status": "Y"
+      }
+    ],
+    "modified_time": "2025-09-11 16:49:57"
+  },
+  "backup_id": "update_20250912_095633"
+}

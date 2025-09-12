@@ -1,0 +1,19 @@
+{
+  "timestamp": "20250912_103640",
+  "operation_type": "delete",
+  "index": 4,
+  "data": {
+    "supplier_code": "A1234",
+    "division": "A001",
+    "part_number": "111111111",
+    "part_name": "부품A-1",
+    "sequence_code": "SEQ003",
+    "eo_number": "EO003",
+    "fourm_info": "4M003",
+    "use_status": "Y",
+    "memo": "사용 부품A-1",
+    "child_parts": [],
+    "modified_time": "2025-09-12 10:31:00"
+  },
+  "backup_id": "delete_20250912_103640"
+}

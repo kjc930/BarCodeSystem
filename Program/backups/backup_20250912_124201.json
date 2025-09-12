@@ -1,0 +1,25 @@
+{
+  "timestamp": "20250912_124201",
+  "operation_type": "update",
+  "index": 7,
+  "data": {
+    "supplier_code": "V2812",
+    "division": "8",
+    "part_number": "89131CU218",
+    "part_name": "TEST 8",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B1",
+    "use_status": "Y",
+    "memo": "TEST8",
+    "child_parts": [
+      {
+        "part_number": "89131cu100",
+        "part_name": "sub test 1",
+        "use_status": "Y"
+      }
+    ],
+    "modified_time": "2025-09-12 10:40:54"
+  },
+  "backup_id": "update_20250912_124201"
+}

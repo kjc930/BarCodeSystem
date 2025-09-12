@@ -1,0 +1,19 @@
+{
+  "timestamp": "20250912_103647",
+  "operation_type": "delete",
+  "index": 2,
+  "data": {
+    "supplier_code": "V2812",
+    "division": "A001",
+    "part_number": "89131CU211",
+    "part_name": "TEST2",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B1",
+    "use_status": "Y",
+    "memo": "TEST2",
+    "child_parts": [],
+    "modified_time": "2025-09-12 10:35:00"
+  },
+  "backup_id": "delete_20250912_103647"
+}

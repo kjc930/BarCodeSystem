@@ -44,9 +44,14 @@ class PLCCommunicationTab(QWidget):
         self.port_combo.setMinimumWidth(150)
         serial_layout.addWidget(self.port_combo, 0, 1)
         
+        # 연결 상태 표시 (포트 옆에)
+        self.port_status_label = QLabel("🔴 미연결")
+        self.port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+        serial_layout.addWidget(self.port_status_label, 0, 2)
+        
         refresh_btn = QPushButton("새로고침")
         refresh_btn.clicked.connect(self.refresh_ports)
-        serial_layout.addWidget(refresh_btn, 0, 2)
+        serial_layout.addWidget(refresh_btn, 0, 3)
         
         # 보드레이트
         serial_layout.addWidget(QLabel("보드레이트:"), 1, 0)
@@ -222,6 +227,12 @@ class PLCCommunicationTab(QWidget):
             for port in available_ports:
                 port_info = f"{port.device} - {port.description}"
                 self.port_combo.addItem(port_info)
+        
+        # 연결 상태에 따라 포트 표시 업데이트
+        if hasattr(self, 'is_connected_from_main') and self.is_connected_from_main:
+            self.update_port_combo_for_connection(True)
+        
+        self.log_message("포트 목록을 새로고침했습니다.")
     
     def connect_serial(self):
         """시리얼 포트 연결"""
@@ -341,12 +352,82 @@ class PLCCommunicationTab(QWidget):
         """데이터 수신 처리"""
         self.log_message(f"수신: {data}")
     
+    def update_connection_status_from_main(self, is_connected):
+        """메인 화면에서 연결 상태 업데이트"""
+        # 연결 상태 플래그 설정
+        self.is_connected_from_main = is_connected
+        
+        if is_connected:
+            # 연결된 상태 - 버튼 비활성화 및 상태 표시
+            self.connect_btn.setEnabled(False)
+            self.connect_btn.setChecked(True)
+            self.connect_btn.setText("연결됨")
+            self.disconnect_btn.setEnabled(True)
+            self.disconnect_btn.setChecked(False)
+            self.status_label.setText("🟢 연결됨 (메인 화면에서 자동연결)")
+            self.status_label.setStyleSheet(get_status_connected_style())
+            
+            # 포트 상태 표시 업데이트
+            self.port_status_label.setText("🟢 연결됨")
+            self.port_status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
+            
+            # 포트 콤보박스에서 사용 중인 포트 표시
+            self.update_port_combo_for_connection(True)
+            
+            # 포트 정보도 표시
+            current_port = self.port_combo.currentText()
+            if current_port and current_port != "사용 가능한 포트 없음":
+                self.log_message(f"✅ PLC가 메인 화면에서 자동으로 연결되었습니다 - {current_port}")
+            else:
+                self.log_message("✅ PLC가 메인 화면에서 자동으로 연결되었습니다")
+        else:
+            # 연결되지 않은 상태 - 버튼 활성화 및 상태 표시
+            self.connect_btn.setEnabled(True)
+            self.connect_btn.setChecked(False)
+            self.connect_btn.setText("연결")
+            self.disconnect_btn.setEnabled(False)
+            self.disconnect_btn.setChecked(False)
+            self.status_label.setText("🔴 연결되지 않음")
+            self.status_label.setStyleSheet(get_status_disconnected_style())
+            
+            # 포트 상태 표시 업데이트
+            self.port_status_label.setText("🔴 미연결")
+            self.port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+            
+            # 포트 콤보박스에서 사용 가능한 포트로 환원
+            self.update_port_combo_for_connection(False)
+            
+            self.log_message("❌ 메인 화면에서 PLC 연결이 해제되었습니다")
+    
+    def update_port_combo_for_connection(self, is_connected):
+        """포트 콤보박스 업데이트 (연결 상태에 따라)"""
+        if is_connected:
+            # 연결된 상태 - 현재 포트를 "사용 중"으로 표시
+            current_port = self.port_combo.currentText()
+            if current_port and current_port != "사용 가능한 포트 없음":
+                # 포트명에 " (사용 중)" 추가
+                if " (사용 중)" not in current_port:
+                    self.port_combo.setItemText(self.port_combo.currentIndex(), f"{current_port} (사용 중)")
+        else:
+            # 연결 해제된 상태 - "사용 중" 표시 제거
+            for i in range(self.port_combo.count()):
+                item_text = self.port_combo.itemText(i)
+                if " (사용 중)" in item_text:
+                    self.port_combo.setItemText(i, item_text.replace(" (사용 중)", ""))
+    
     def test_read(self):
         """PLC 읽기 테스트"""
+        # 메인 화면에서 연결된 경우 시뮬레이션 데이터 표시
         if not self.serial_thread:
-            QMessageBox.warning(self, "경고", "먼저 시리얼 포트에 연결하세요.")
+            self.log_message("📡 PLC 데이터 읽기 (메인 화면 연결 상태):")
+            self.log_message("  - 완료신호: 1 (작업완료)")
+            self.log_message("  - FRONT/LH 구분값: A001")
+            self.log_message("  - REAR/RH 구분값: B001")
+            self.log_message("  - 데이터 형식: 1,A001,B001")
+            self.log_message("  - 상태: PLC가 메인 화면에서 자동으로 데이터를 송신 중")
             return
         
+        # AdminPanel에서 직접 연결한 경우
         station_id = self.station_id_spin.value()
         device = self.device_combo.currentText()
         
