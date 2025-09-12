@@ -102,15 +102,15 @@ class ChildPartBarcodeValidator:
             else:
                 errors.append("업체코드를 추출할 수 없습니다.")
             
-            # 부품번호 추출 (업체코드 이후 10-15바이트)
+            # Part_No 추출 (업체코드 이후 10-15바이트)
             if len(barcode) > 11:
-                # 부품번호는 공백이나 특수문자로 구분
+                # Part_No는 공백이나 특수문자로 구분
                 part_match = re.search(r'[A-Z0-9]{10,15}', barcode[11:])
                 if part_match:
                     part_number = part_match.group()
                     info['part_number'] = part_number
                 else:
-                    errors.append("부품번호를 추출할 수 없습니다.")
+                    errors.append("Part_No를 추출할 수 없습니다.")
             
             return errors, info
             
@@ -218,12 +218,27 @@ class ProductionPanel(QWidget):
                 background-color: white;
             }
         """)
+        # 두 패널의 부품정보 프레임 높이를 통일
+        info_group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        info_group.setFixedHeight(150)
         info_layout = QVBoxLayout(info_group)
         info_layout.setSpacing(5)
         
-        # 부품번호
-        self.part_number_label = QLabel(f"부품번호: {self.part_number}")
-        self.part_number_label.setFont(QFont("Arial", 10))
+        # 부품정보를 가로로 배치하여 열 정렬
+        info_row_layout = QHBoxLayout()
+        info_row_layout.setSpacing(10)
+        
+        # Part_No 레이블과 값
+        part_no_layout = QVBoxLayout()
+        part_no_layout.setSpacing(2)
+        
+        part_no_title = QLabel("Part_No:")
+        part_no_title.setFont(QFont("Arial", 12, QFont.Bold))
+        part_no_title.setStyleSheet("color: #2C3E50;")
+        part_no_layout.addWidget(part_no_title)
+        
+        self.part_number_label = QLabel(self.part_number)
+        self.part_number_label.setFont(QFont("Arial", 16))
         self.part_number_label.setStyleSheet("""
             QLabel {
                 color: #2C3E50;
@@ -234,11 +249,20 @@ class ProductionPanel(QWidget):
                 margin: 1px;
             }
         """)
-        info_layout.addWidget(self.part_number_label)
+        part_no_layout.addWidget(self.part_number_label)
+        info_row_layout.addLayout(part_no_layout)
         
-        # 부품이름
-        self.part_name_label = QLabel(f"부품이름: {self.part_name}")
-        self.part_name_label.setFont(QFont("Arial", 10))
+        # Part_Name 레이블과 값
+        part_name_layout = QVBoxLayout()
+        part_name_layout.setSpacing(2)
+        
+        part_name_title = QLabel("Part_Name:")
+        part_name_title.setFont(QFont("Arial", 12, QFont.Bold))
+        part_name_title.setStyleSheet("color: #2C3E50;")
+        part_name_layout.addWidget(part_name_title)
+        
+        self.part_name_label = QLabel(self.part_name)
+        self.part_name_label.setFont(QFont("Arial", 16))
         self.part_name_label.setStyleSheet("""
             QLabel {
                 color: #2C3E50;
@@ -249,7 +273,10 @@ class ProductionPanel(QWidget):
                 margin: 1px;
             }
         """)
-        info_layout.addWidget(self.part_name_label)
+        part_name_layout.addWidget(self.part_name_label)
+        info_row_layout.addLayout(part_name_layout)
+        
+        info_layout.addLayout(info_row_layout)
         
         # 구분 프레임 (작업완료 상태 + 구분값)
         division_frame = QFrame()
@@ -343,21 +370,22 @@ class ProductionPanel(QWidget):
         scan_btn.clicked.connect(self.show_scan_status)
         status_layout.addWidget(scan_btn)
         
-        # 하위부품 수 아이콘들 (1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣)
+        # 하위부품 수 아이콘들 (1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣) - 스캔현황 버튼과 동일한 높이
         self.child_parts_icons = []
         for i in range(6):
             icon_label = QLabel(f"{i+1}")
-            icon_label.setFont(QFont("Arial", 12))
-            icon_label.setFixedSize(25, 25)
+            icon_label.setFont(QFont("Arial", 14, QFont.Bold))  # 폰트 크기 증가
+            icon_label.setFixedSize(30, 50)  # 스캔현황 버튼과 동일한 높이 (50px)
             icon_label.setAlignment(Qt.AlignCenter)
             icon_label.setStyleSheet("""
                 QLabel {
                     background-color: #6C757D;
                     color: white;
                     border: 0.5px solid #5A6268;
-                    border-radius: 12px;
-                    padding: 2px;
+                    border-radius: 3px;
+                    padding: 4px;
                     margin: 1px;
+                    font-weight: bold;
                 }
             """)
             icon_label.setVisible(False)  # 기본적으로 숨김
@@ -715,7 +743,8 @@ class ProductionPanel(QWidget):
     
     def update_division_status(self, has_value, division_value=""):
         """구분값 상태 업데이트 (값이 있으면 녹색, 없으면 적색)"""
-        if has_value and division_value:
+        print(f"DEBUG: ProductionPanel.update_division_status - has_value: {has_value}, division_value: '{division_value}'")
+        if has_value:
             # 구분값 있음 (녹색) - 구분값 표시
             self.division_label.setText(f"구분: {division_value}")
             self.division_label.setStyleSheet("""
@@ -728,6 +757,7 @@ class ProductionPanel(QWidget):
                     margin: 0px;
                 }
             """)
+            print(f"DEBUG: 구분값 표시 완료 - 구분: {division_value}")
         else:
             # 구분값 없음 (적색) - 오류 표시
             self.division_label.setText("구분: 오류")
@@ -741,16 +771,24 @@ class ProductionPanel(QWidget):
                     margin: 0px;
                 }
             """)
+            print(f"DEBUG: 구분값 오류 표시")
     
     def update_child_parts_count(self, count):
         """하위부품 수 업데이트 (1-6개까지 표시)"""
+        print(f"DEBUG: {self.title} 하위부품 수 업데이트 - {count}개")
+        print(f"DEBUG: {self.title} child_parts_icons 개수: {len(self.child_parts_icons)}")
+        
         # 모든 아이콘 숨김
-        for icon in self.child_parts_icons:
+        for i, icon in enumerate(self.child_parts_icons):
             icon.setVisible(False)
+            print(f"DEBUG: {self.title} 아이콘[{i}] 숨김")
         
         # 하위부품 수만큼 아이콘 표시 (기본적으로 붉은색 - 미매칭 상태)
+        print(f"DEBUG: {self.title} 아이콘 표시 시작 - count: {count}, min(count, 6): {min(count, 6)}")
         for i in range(min(count, 6)):
+            print(f"DEBUG: {self.title} 아이콘[{i}] 표시 시작")
             self.child_parts_icons[i].setVisible(True)
+            print(f"DEBUG: {self.title} 아이콘[{i}] 표시 완료 (하위부품 {i+1})")
             # 기본 상태는 붉은색 (미매칭)
             self.child_parts_icons[i].setStyleSheet("""
                 QLabel {
@@ -762,6 +800,9 @@ class ProductionPanel(QWidget):
                     margin: 1px;
                 }
             """)
+            print(f"DEBUG: {self.title} 아이콘[{i}] 스타일 적용 완료")
+        
+        print(f"DEBUG: {self.title} 하위부품 아이콘 업데이트 완료 - {count}개 표시")
     
     def update_child_part_status(self, part_index, is_matched):
         """개별 하위부품 상태 업데이트 (0-5 인덱스, 매칭 여부)"""
@@ -880,10 +921,10 @@ class ProductionPanel(QWidget):
         self.part_name = part_name
         
         # UI 업데이트
-        self.part_number_label.setText(f"부품번호: {part_number}")
-        self.part_name_label.setText(f"부품이름: {part_name}")
+        self.part_number_label.setText(part_number)
+        self.part_name_label.setText(part_name)
         
-        print(f"DEBUG: {self.title} 부품정보 업데이트 - 부품번호: {part_number}, 부품이름: {part_name}")
+        print(f"DEBUG: {self.title} 부품정보 업데이트 - Part_No: {part_number}, Part_Name: {part_name}")
     
     def show_scan_status(self):
         """스캔 현황 보기 (각 패널별 독립적)"""
@@ -955,6 +996,17 @@ class BarcodeMainScreen(QMainWindow):
         
         # 현재 작업일
         self.current_date = date.today()
+        
+        # 스캔 로그 데이터
+        self.scan_logs = {
+            "front_lh": [],  # FRONT/LH 스캔 로그
+            "rear_rh": []    # REAR/RH 스캔 로그
+        }
+        
+        # 로그 디렉토리 생성
+        self.log_dir = "scan_logs"
+        if not os.path.exists(self.log_dir):
+            os.makedirs(self.log_dir)
         
         # PLC 데이터 분석용
         self.plc_data = {
@@ -1127,7 +1179,7 @@ class BarcodeMainScreen(QMainWindow):
                             self.plc_data["rear_rh_division"] = ""
                             self.update_plc_data_ui()
                             
-                    time.sleep(0.1)  # 100ms 간격으로 읽기
+                    time.sleep(2)  # 100ms 간격으로 읽기
                 except Exception as e:
                     print(f"PLC 데이터 읽기 오류: {e}")
                     # 연결 오류 시 상태 초기화
@@ -1136,7 +1188,7 @@ class BarcodeMainScreen(QMainWindow):
                         self.plc_data["front_lh_division"] = ""
                         self.plc_data["rear_rh_division"] = ""
                         self.update_plc_data_ui()
-                    time.sleep(1)
+                    time.sleep(2)
         
         # 백그라운드 스레드로 실행
         plc_thread = threading.Thread(target=read_plc_data, daemon=True)
@@ -1192,7 +1244,7 @@ class BarcodeMainScreen(QMainWindow):
     
     def update_division_status(self, panel_name, division_value):
         """구분값 매칭 상태 업데이트"""
-        print(f"DEBUG: update_division_status 호출됨 - 패널: {panel_name}, 구분값: '{division_value}'")
+        print(f"DEBUG: update_division_status 호출됨 - 패널: {panel_name}, 구분값: '{division_value}' (타입: {type(division_value)})")
         
         # 기준정보에서 해당 구분값이 있는지 확인
         has_division = False
@@ -1202,7 +1254,8 @@ class BarcodeMainScreen(QMainWindow):
         
         for i, part_data in enumerate(self.master_data):
             part_division = part_data.get("division")
-            print(f"DEBUG: 기준정보[{i}] 구분값: '{part_division}'")
+            print(f"DEBUG: 기준정보[{i}] 구분값: '{part_division}' (타입: {type(part_division)})")
+            print(f"DEBUG: 비교 결과: '{part_division}' == '{division_value}' ? {part_division == division_value}")
             if part_division == division_value:
                 has_division = True
                 matched_part_data = part_data
@@ -1220,7 +1273,7 @@ class BarcodeMainScreen(QMainWindow):
             if has_division and matched_part_data:
                 part_number = matched_part_data.get("part_number", "")
                 part_name = matched_part_data.get("part_name", "")
-                print(f"DEBUG: FRONT/LH 부품정보 업데이트 - 부품번호: {part_number}, 부품이름: {part_name}")
+                print(f"DEBUG: FRONT/LH 부품정보 업데이트 - Part_No: {part_number}, Part_Name: {part_name}")
                 self.front_panel.update_part_info(part_number, part_name)
                 
                 # FRONT/LH 패널의 하위부품 정보 업데이트
@@ -1237,7 +1290,7 @@ class BarcodeMainScreen(QMainWindow):
             if has_division and matched_part_data:
                 part_number = matched_part_data.get("part_number", "")
                 part_name = matched_part_data.get("part_name", "")
-                print(f"DEBUG: REAR/RH 부품정보 업데이트 - 부품번호: {part_number}, 부품이름: {part_name}")
+                print(f"DEBUG: REAR/RH 부품정보 업데이트 - Part_No: {part_number}, Part_Name: {part_name}")
                 self.rear_panel.update_part_info(part_number, part_name)
                 
                 # REAR/RH 패널의 하위부품 정보 업데이트
@@ -1273,7 +1326,7 @@ class BarcodeMainScreen(QMainWindow):
         # UI 업데이트
         self.update_production_ui(part_number, panel_name)
         
-        print(f"DEBUG: 생산카운터 업데이트 - {panel_name}, 부품번호: {part_number}")
+        print(f"DEBUG: 생산카운터 업데이트 - {panel_name}, Part_No: {part_number}")
         print(f"  - 일자별 누적수량: {self.production_data['daily_total'][today][panel_name]}")
         print(f"  - 부품코드별 생산수량: {self.production_data['part_counts'][part_number][panel_name]}")
     
@@ -1297,13 +1350,13 @@ class BarcodeMainScreen(QMainWindow):
     
     def update_child_parts_from_master_data(self, part_number):
         """기준정보에서 하위부품 정보 업데이트"""
-        print(f"DEBUG: update_child_parts_from_master_data 호출됨 - 부품번호: {part_number}")
+        print(f"DEBUG: update_child_parts_from_master_data 호출됨 - Part_No: {part_number}")
         
         for part_data in self.master_data:
             if part_data.get("part_number") == part_number:
                 child_parts = part_data.get("child_parts", [])
                 child_count = len(child_parts)
-                print(f"DEBUG: 하위부품 정보 발견 - 부품번호: {part_number}, 하위부품 수: {child_count}")
+                print(f"DEBUG: 하위부품 정보 발견 - Part_No: {part_number}, 하위부품 수: {child_count}")
                 print(f"DEBUG: 하위부품 목록: {child_parts}")
                 
                 # 해당 부품번호가 어느 패널에 속하는지 확인
@@ -1320,18 +1373,46 @@ class BarcodeMainScreen(QMainWindow):
                 
                 return
         
-        print(f"DEBUG: 하위부품 정보를 찾을 수 없음 - 부품번호: {part_number}")
+        print(f"DEBUG: 하위부품 정보를 찾을 수 없음 - Part_No: {part_number}")
     
     def check_child_part_match(self, scanned_part_number):
-        """하위부품 매칭 확인"""
+        """하위부품 매칭 확인 - 현재 작업 중인 패널에만 적용"""
+        print(f"DEBUG: 하위부품 매칭 확인 - 스캔된 부품: {scanned_part_number}")
+        
+        # 현재 작업 중인 패널 확인 (완료신호에 따라)
+        current_panel = None
+        if self.plc_data.get("completion_signal") == 1:
+            # FRONT/LH 완료
+            current_panel = self.front_panel
+            print(f"DEBUG: 현재 작업 패널 - FRONT/LH")
+        elif self.plc_data.get("completion_signal") == 2:
+            # REAR/RH 완료
+            current_panel = self.rear_panel
+            print(f"DEBUG: 현재 작업 패널 - REAR/RH")
+        else:
+            print(f"DEBUG: 작업 완료 신호 없음 - 하위부품 매칭 생략")
+            return False
+        
+        # 현재 패널의 부품번호로 기준정보에서 하위부품 찾기
+        current_part_number = current_panel.part_number
+        print(f"DEBUG: 현재 패널 부품번호: {current_part_number}")
+        
         for part_data in self.master_data:
-            child_parts = part_data.get("child_parts", [])
-            for i, child_part in enumerate(child_parts):
-                if child_part.get("part_number") == scanned_part_number:
-                    # 매칭된 하위부품 상태 업데이트
-                    self.front_panel.update_child_part_status(i, True)
-                    self.rear_panel.update_child_part_status(i, True)
-                    return True
+            if part_data.get("part_number") == current_part_number:
+                child_parts = part_data.get("child_parts", [])
+                print(f"DEBUG: 기준정보에서 하위부품 {len(child_parts)}개 발견")
+                
+                for i, child_part in enumerate(child_parts):
+                    child_part_number = child_part.get("part_number")
+                    print(f"DEBUG: 하위부품[{i}]: {child_part_number}")
+                    if child_part_number == scanned_part_number:
+                        # 매칭된 하위부품 상태 업데이트 (현재 패널에만)
+                        current_panel.update_child_part_status(i, True)
+                        print(f"DEBUG: 하위부품 매칭 성공 - 패널: {current_panel.title}, 인덱스: {i}")
+                        return True
+                break
+        
+        print(f"DEBUG: 하위부품 매칭 실패 - {scanned_part_number}")
         return False
         
     def init_ui(self):
@@ -1555,7 +1636,130 @@ class BarcodeMainScreen(QMainWindow):
         if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
             self.scan_status_dialog.update_child_part_scan_status(part_number, is_ok)
         
+        # 스캔 로그 저장
+        self.save_scan_log(part_number, is_ok)
+        
         print(f"DEBUG: 하위부품 스캔 추가 - {part_number} ({'OK' if is_ok else 'NG'})")
+    
+    def save_scan_log(self, part_number, is_ok):
+        """스캔 로그 저장"""
+        try:
+            # 현재 패널 정보 확인
+            panel_name = self.get_current_panel_name()
+            if not panel_name:
+                return
+            
+            # 메인 부품 정보 가져오기
+            main_part_info = self.get_main_part_info(panel_name)
+            
+            # 하위부품 정보 가져오기
+            child_parts_info = self.get_child_parts_info_for_panel(panel_name)
+            
+            # 로그 데이터 생성
+            log_entry = {
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "panel_name": panel_name,
+                "scanned_part": part_number,
+                "scan_result": "OK" if is_ok else "NG",
+                "main_part_info": main_part_info,
+                "child_parts_info": child_parts_info
+            }
+            
+            # 해당 패널의 로그에 추가
+            if panel_name == "FRONT/LH":
+                self.scan_logs["front_lh"].append(log_entry)
+            elif panel_name == "REAR/RH":
+                self.scan_logs["rear_rh"].append(log_entry)
+            
+            # 날짜별 파일로 저장
+            self.save_logs_to_file()
+            
+            print(f"DEBUG: 스캔 로그 저장 완료 - {panel_name}: {part_number}")
+            
+        except Exception as e:
+            print(f"DEBUG: 스캔 로그 저장 오류: {e}")
+    
+    def get_current_panel_name(self):
+        """현재 작업 중인 패널 이름 반환"""
+        # PLC 데이터를 기반으로 현재 작업 패널 판단
+        completion_signal = self.plc_data.get("completion_signal", 0)
+        
+        if completion_signal == 1:
+            return "FRONT/LH"
+        elif completion_signal == 2:
+            return "REAR/RH"
+        else:
+            # 작업중인 경우, 구분값이 있는 패널을 우선으로 판단
+            if self.plc_data.get("front_lh_division"):
+                return "FRONT/LH"
+            elif self.plc_data.get("rear_rh_division"):
+                return "REAR/RH"
+            else:
+                return "FRONT/LH"  # 기본값
+    
+    def get_main_part_info(self, panel_name):
+        """메인 부품 정보 가져오기"""
+        try:
+            if panel_name == "FRONT/LH":
+                panel = self.front_panel
+            elif panel_name == "REAR/RH":
+                panel = self.rear_panel
+            else:
+                return {}
+            
+            return {
+                "part_number": getattr(panel, 'part_number', ''),
+                "part_name": getattr(panel, 'part_name', ''),
+                "division": getattr(panel, 'division', ''),
+                "work_status": getattr(panel, 'work_status', 0)
+            }
+        except Exception as e:
+            print(f"DEBUG: 메인 부품 정보 가져오기 오류: {e}")
+            return {}
+    
+    def get_child_parts_info_for_panel(self, panel_name):
+        """특정 패널의 하위부품 정보 가져오기"""
+        try:
+            if panel_name == "FRONT/LH":
+                panel = self.front_panel
+            elif panel_name == "REAR/RH":
+                panel = self.rear_panel
+            else:
+                return []
+            
+            part_number = getattr(panel, 'part_number', '')
+            if not part_number:
+                return []
+            
+            # 기준정보에서 해당 부품의 하위부품 정보 찾기
+            for part_data in self.master_data:
+                if part_data.get("part_number") == part_number:
+                    return part_data.get("child_parts", [])
+            
+            return []
+        except Exception as e:
+            print(f"DEBUG: 하위부품 정보 가져오기 오류: {e}")
+            return []
+    
+    def save_logs_to_file(self):
+        """로그를 날짜별 파일로 저장"""
+        try:
+            today = datetime.now().strftime("%Y-%m-%d")
+            
+            # FRONT/LH 로그 저장
+            front_log_file = os.path.join(self.log_dir, f"front_lh_{today}.json")
+            with open(front_log_file, 'w', encoding='utf-8') as f:
+                json.dump(self.scan_logs["front_lh"], f, ensure_ascii=False, indent=2)
+            
+            # REAR/RH 로그 저장
+            rear_log_file = os.path.join(self.log_dir, f"rear_rh_{today}.json")
+            with open(rear_log_file, 'w', encoding='utf-8') as f:
+                json.dump(self.scan_logs["rear_rh"], f, ensure_ascii=False, indent=2)
+            
+            print(f"DEBUG: 로그 파일 저장 완료 - {today}")
+            
+        except Exception as e:
+            print(f"DEBUG: 로그 파일 저장 오류: {e}")
     
     def complete_work(self, panel_name):
         """작업완료 시 생산카운트 증가"""
@@ -1570,7 +1774,7 @@ class BarcodeMainScreen(QMainWindow):
         # 생산카운터 업데이트
         self.update_production_counters(part_number, panel_name)
         
-        print(f"DEBUG: {panel_name} 작업완료 - 부품번호: {part_number}")
+        print(f"DEBUG: {panel_name} 작업완료 - Part_No: {part_number}")
     
     def update_device_connection_status(self, device_name, is_connected):
         """공통 장비 연결 상태 업데이트"""
@@ -1683,7 +1887,7 @@ class BarcodeMainScreen(QMainWindow):
                         child_parts = part_data.get("child_parts", [])
                         if child_parts:  # 하위부품이 있는 경우
                             child_parts_info = child_parts
-                            print(f"DEBUG: 메인화면 - {panel_name} 부품번호 {panel.part_number}의 하위부품: {child_parts_info}")
+                            print(f"DEBUG: 메인화면 - {panel_name} Part_No {panel.part_number}의 하위부품: {child_parts_info}")
                             break
                 if child_parts_info:
                     break
@@ -1705,7 +1909,7 @@ class ScanStatusDialog(QDialog):
         self.init_ui()
         
     def init_ui(self):
-        self.setWindowTitle("부품번호 스캔 현황")
+        self.setWindowTitle("Part_No 스캔 현황")
         self.setModal(True)
         self.resize(720, 450)  # 너비 10% 추가 증가 (660→726)
         self.setStyleSheet("""
@@ -1719,7 +1923,7 @@ class ScanStatusDialog(QDialog):
         layout.setContentsMargins(20, 20, 20, 20)
         
         # 제목
-        title_label = QLabel("부품번호 스캔 현황")
+        title_label = QLabel("Part_No 스캔 현황")
         title_label.setFont(QFont("Arial", 14, QFont.Bold))
         title_label.setStyleSheet("""
             QLabel {
@@ -1844,7 +2048,7 @@ class ScanStatusDialog(QDialog):
         # 하위부품 테이블 - 시인성 개선
         self.child_parts_table = QTableWidget()
         self.child_parts_table.setColumnCount(3)
-        self.child_parts_table.setHorizontalHeaderLabels(["하위부품번호", "하위부품명", "스캔상태"])
+        self.child_parts_table.setHorizontalHeaderLabels(["하위부품 Part_No", "하위부품 Part_Name", "스캔상태"])
         
         # 선택 표시기 제거
         self.child_parts_table.setSelectionMode(QTableWidget.NoSelection)
@@ -1891,7 +2095,7 @@ class ScanStatusDialog(QDialog):
         self.child_parts_table.setRowCount(len(self.child_parts_info))
         for i, child_part in enumerate(self.child_parts_info):
             print(f"DEBUG: 하위부품 {i+1} - {child_part}")
-            # 하위부품번호
+            # 하위부품 Part_No
             part_number_item = QTableWidgetItem(child_part.get("part_number", ""))
             part_number_item.setTextAlignment(Qt.AlignCenter)
             part_number_item.setFont(table_font)
@@ -1914,7 +2118,7 @@ class ScanStatusDialog(QDialog):
         self.child_parts_table.resizeColumnsToContents()
         
         # 각 컬럼의 최소 너비 설정 (적절한 크기로)
-        self.child_parts_table.setColumnWidth(0, max(200, self.child_parts_table.columnWidth(0)))  # 하위부품번호
+        self.child_parts_table.setColumnWidth(0, max(200, self.child_parts_table.columnWidth(0)))  # 하위부품 Part_No
         self.child_parts_table.setColumnWidth(1, max(250, self.child_parts_table.columnWidth(1)))  # 하위부품명
         self.child_parts_table.setColumnWidth(2, max(150, self.child_parts_table.columnWidth(2)))  # 스캔상태
         
@@ -1930,7 +2134,7 @@ class ScanStatusDialog(QDialog):
             return
         
         for i in range(self.child_parts_table.rowCount()):
-            item = self.child_parts_table.item(i, 0)  # 하위부품번호 컬럼
+            item = self.child_parts_table.item(i, 0)  # 하위부품 Part_No 컬럼
             if item and item.text() == part_number:
                 status_item = self.child_parts_table.item(i, 2)  # 스캔상태 컬럼
                 if status_item:
@@ -2064,38 +2268,38 @@ def main():
     window = BarcodeMainScreen()
     window.show()
     
-    # 테스트용 하위부품 스캔 데이터 추가 (선행조건)
-    window.add_scanned_part("111111111", True)    # 하위부품 스캔
-    window.add_scanned_part("2223333333", False)  # 하위부품 스캔 (NG)
-    window.add_scanned_part("444444444", True)    # 하위부품 스캔
-    window.add_scanned_part("66666", True)        # 하위부품 스캔
-    window.add_scanned_part("5555555", True)      # 하위부품 스캔
+    # 테스트용 하위부품 스캔 데이터 추가 (선행조건) - 주석 처리
+    # window.add_scanned_part("111111111", True)    # 하위부품 스캔
+    # window.add_scanned_part("2223333333", False)  # 하위부품 스캔 (NG)
+    # window.add_scanned_part("444444444", True)    # 하위부품 스캔
+    # window.add_scanned_part("66666", True)        # 하위부품 스캔
+    # window.add_scanned_part("5555555", True)      # 하위부품 스캔
     
-    # 기준정보에서 하위부품 정보 업데이트
-    window.update_child_parts_from_master_data("89131CU211")  # 기준정보의 부품번호
+    # 기준정보에서 하위부품 정보 업데이트 - 주석 처리
+    # window.update_child_parts_from_master_data("89131CU211")  # 기준정보의 Part_No
     
-    # 테스트용 작업 상태 업데이트
+    # 테스트용 작업 상태 업데이트 - 주석 처리
     # FRONT/LH 패널: 작업완료 (1), 구분값 있음, 하위부품 5개
-    window.front_panel.update_work_status(1)  # 작업완료
-    window.front_panel.update_division_status(True)  # 구분값 있음
-    window.front_panel.update_child_parts_count(5)  # 하위부품 5개 (1️⃣2️⃣3️⃣4️⃣5️⃣)
+    # window.front_panel.update_work_status(1)  # 작업완료
+    # window.front_panel.update_division_status(True)  # 구분값 있음
+    # window.front_panel.update_child_parts_count(5)  # 하위부품 5개 (1️⃣2️⃣3️⃣4️⃣5️⃣)
     # 하위부품 매칭 상태 시뮬레이션
-    window.front_panel.update_child_part_status(0, True)   # 1️⃣ 매칭됨 (녹색)
-    window.front_panel.update_child_part_status(1, False)  # 2️⃣ 미매칭 (붉은색)
-    window.front_panel.update_child_part_status(2, True)   # 3️⃣ 매칭됨 (녹색)
-    window.front_panel.update_child_part_status(3, False)  # 4️⃣ 미매칭 (붉은색)
-    window.front_panel.update_child_part_status(4, True)   # 5️⃣ 매칭됨 (녹색)
+    # window.front_panel.update_child_part_status(0, True)   # 1️⃣ 매칭됨 (녹색)
+    # window.front_panel.update_child_part_status(1, False)  # 2️⃣ 미매칭 (붉은색)
+    # window.front_panel.update_child_part_status(2, True)   # 3️⃣ 매칭됨 (녹색)
+    # window.front_panel.update_child_part_status(3, False)  # 4️⃣ 미매칭 (붉은색)
+    # window.front_panel.update_child_part_status(4, True)   # 5️⃣ 매칭됨 (녹색)
     
     # REAR/RH 패널: 작업중 (0), 구분값 없음, 하위부품 5개
-    window.rear_panel.update_work_status(0)  # 작업중
-    window.rear_panel.update_division_status(False)  # 구분값 없음
-    window.rear_panel.update_child_parts_count(5)  # 하위부품 5개 (1️⃣2️⃣3️⃣4️⃣5️⃣)
+    # window.rear_panel.update_work_status(0)  # 작업중
+    # window.rear_panel.update_division_status(False)  # 구분값 없음
+    # window.rear_panel.update_child_parts_count(5)  # 하위부품 5개 (1️⃣2️⃣3️⃣4️⃣5️⃣)
     # 하위부품 매칭 상태 시뮬레이션
-    window.rear_panel.update_child_part_status(0, True)   # 1️⃣ 매칭됨 (녹색)
-    window.rear_panel.update_child_part_status(1, True)   # 2️⃣ 매칭됨 (녹색)
-    window.rear_panel.update_child_part_status(2, False)  # 3️⃣ 미매칭 (붉은색)
-    window.rear_panel.update_child_part_status(3, False)  # 4️⃣ 미매칭 (붉은색)
-    window.rear_panel.update_child_part_status(4, True)   # 5️⃣ 매칭됨 (녹색)
+    # window.rear_panel.update_child_part_status(0, True)   # 1️⃣ 매칭됨 (녹색)
+    # window.rear_panel.update_child_part_status(1, True)   # 2️⃣ 매칭됨 (녹색)
+    # window.rear_panel.update_child_part_status(2, False)  # 3️⃣ 미매칭 (붉은색)
+    # window.rear_panel.update_child_part_status(3, False)  # 4️⃣ 미매칭 (붉은색)
+    # window.rear_panel.update_child_part_status(4, True)   # 5️⃣ 매칭됨 (녹색)
     
     # 테스트용 작업완료 시뮬레이션 (생산카운트 증가)
     window.complete_work("FRONT/LH")  # FRONT/LH 작업완료 → 생산카운트 +1

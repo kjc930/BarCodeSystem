@@ -48,7 +48,13 @@
     "fourm_info": "S1B1",
     "use_status": "Y",
     "memo": "TEST4",
-    "child_parts": [],
+    "child_parts": [
+      {
+        "part_number": "P89231CU21",
+        "part_name": "하위부품1",
+        "use_status": "Y"
+      }
+    ],
     "modified_time": "2025-09-12 10:38:57"
   },
   {

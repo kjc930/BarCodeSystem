@@ -1063,7 +1063,7 @@ class MasterDataTab(QWidget):
         
         self.master_table = QTableWidget()
         self.master_table.setColumnCount(10)
-        self.master_table.setHorizontalHeaderLabels(["업체코드", "구분", "부품번호", "부품이름", "서열코드", "EO번호", "4M정보", "사용유무", "비고", "수정된 시간"])
+        self.master_table.setHorizontalHeaderLabels(["업체코드", "구분", "Part_No", "Part_Name", "서열코드", "EO번호", "4M정보", "사용유무", "비고", "수정된 시간"])
         self.master_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.master_table.itemSelectionChanged.connect(self.on_selection_changed)
         
@@ -1074,8 +1074,8 @@ class MasterDataTab(QWidget):
         # 컬럼 너비 설정
         self.master_table.setColumnWidth(0, 80)   # 업체코드
         self.master_table.setColumnWidth(1, 60)   # 구분
-        self.master_table.setColumnWidth(2, 100)  # 부품번호
-        self.master_table.setColumnWidth(3, 150)  # 부품이름
+        self.master_table.setColumnWidth(2, 100)  # Part_No
+        self.master_table.setColumnWidth(3, 150)  # Part_Name
         self.master_table.setColumnWidth(4, 80)   # 서열코드
         self.master_table.setColumnWidth(5, 80)   # EO번호
         self.master_table.setColumnWidth(6, 80)   # 4M정보
@@ -1105,13 +1105,13 @@ class MasterDataTab(QWidget):
         input_layout.addWidget(self.division_edit, 0, 3)
         
         # 부품번호
-        input_layout.addWidget(QLabel("부품번호:"), 1, 0)
+        input_layout.addWidget(QLabel("Part_No:"), 1, 0)
         self.part_number_edit = QLineEdit()
         self.part_number_edit.setPlaceholderText("예: P89131CU210")
         input_layout.addWidget(self.part_number_edit, 1, 1)
         
         # 부품이름
-        input_layout.addWidget(QLabel("부품이름:"), 1, 2)
+        input_layout.addWidget(QLabel("Part_Name:"), 1, 2)
         self.part_name_edit = QLineEdit()
         self.part_name_edit.setPlaceholderText("예: SUSPENSION LH")
         input_layout.addWidget(self.part_name_edit, 1, 3)
@@ -1199,11 +1199,11 @@ class MasterDataTab(QWidget):
         layout.addWidget(input_group)
         
         # 하위 부품번호 관리 섹션 (아래로 이동)
-        child_part_group = QGroupBox("하위 부품번호 관리 (0-6개)")
+        child_part_group = QGroupBox("하위 Part_No 관리 (0-6개)")
         child_part_layout = QVBoxLayout(child_part_group)
         
         # 안내 메시지
-        info_label = QLabel("💡 하위 부품번호를 추가하면 자동으로 저장됩니다 | 🗑️ 개별 삭제만 가능합니다")
+        info_label = QLabel("💡 하위 Part_No를 추가하면 자동으로 저장됩니다 | 🗑️ 개별 삭제만 가능합니다")
         info_label.setStyleSheet("QLabel { color: #17a2b8; font-weight: bold; font-size: 12px; }")
         child_part_layout.addWidget(info_label)
         
@@ -1211,13 +1211,13 @@ class MasterDataTab(QWidget):
         child_input_layout = QGridLayout()
         
         # 하위 부품번호
-        child_input_layout.addWidget(QLabel("하위 부품번호:"), 0, 0)
+        child_input_layout.addWidget(QLabel("하위 Part_No:"), 0, 0)
         self.child_part_number_edit = QLineEdit()
         self.child_part_number_edit.setPlaceholderText("예: P89231CU21")
         child_input_layout.addWidget(self.child_part_number_edit, 0, 1)
         
         # 하위 부품이름
-        child_input_layout.addWidget(QLabel("하위 부품이름:"), 0, 2)
+        child_input_layout.addWidget(QLabel("하위 Part_Name:"), 0, 2)
         self.child_part_name_edit = QLineEdit()
         self.child_part_name_edit.setPlaceholderText("예: SUB ASSY")
         child_input_layout.addWidget(self.child_part_name_edit, 0, 3)
@@ -1445,7 +1445,7 @@ class MasterDataTab(QWidget):
         print(f"DEBUG: 입력된 필수 필드 - 업체코드: '{supplier_code}', 구분: '{division}', 부품번호: '{part_number}'")
         
         if not supplier_code or not part_number or not division:
-            QMessageBox.warning(self, "경고", "업체코드, 구분, 부품번호는 필수입니다.")
+            QMessageBox.warning(self, "경고", "업체코드, 구분, Part_No는 필수입니다.")
             return
         
         # 구분값 중복 검증 (사용유무가 Y일 때만)
@@ -1602,7 +1602,7 @@ class MasterDataTab(QWidget):
         
         # 필수 필드 검증
         if not supplier_code or not part_number or not division:
-            QMessageBox.warning(self, "경고", "업체코드, 구분, 부품번호는 필수입니다.")
+            QMessageBox.warning(self, "경고", "업체코드, 구분, Part_No는 필수입니다.")
             return
         
         # 구분값 중복 검증 (사용유무가 Y일 때만, 현재 항목 제외)
@@ -1697,7 +1697,7 @@ class MasterDataTab(QWidget):
         
         # 필수 필드 검증
         if not supplier_code or not part_number or not division:
-            QMessageBox.warning(self, "경고", "업체코드, 구분, 부품번호는 필수입니다.")
+            QMessageBox.warning(self, "경고", "업체코드, 구분, Part_No는 필수입니다.")
             return
         
         # 구분값 중복 검증 (사용유무가 Y일 때만, 현재 항목 제외)
@@ -1903,8 +1903,8 @@ class MasterDataTab(QWidget):
         if data:
             info_text += f"업체코드: {data.get('supplier_code', 'N/A')}\n"
             info_text += f"구분: {data.get('division', 'N/A')}\n"
-            info_text += f"부품번호: {data.get('part_number', 'N/A')}\n"
-            info_text += f"부품이름: {data.get('part_name', 'N/A')}\n"
+            info_text += f"Part_No: {data.get('part_number', 'N/A')}\n"
+            info_text += f"Part_Name: {data.get('part_name', 'N/A')}\n"
             info_text += f"서열코드: {data.get('sequence_code', 'N/A')}\n"
             info_text += f"EO번호: {data.get('eo_number', 'N/A')}\n"
             info_text += f"4M정보: {data.get('fourm_info', 'N/A')}\n"
@@ -1915,7 +1915,7 @@ class MasterDataTab(QWidget):
             # 하위 부품번호 정보 표시
             child_parts = data.get('child_parts', [])
             if child_parts:
-                info_text += "하위 부품번호 목록:\n"
+                info_text += "하위 Part_No 목록:\n"
                 info_text += "=" * 40 + "\n"
                 for i, child_part in enumerate(child_parts, 1):
                     part_number = child_part.get('part_number', 'N/A')
@@ -1924,7 +1924,7 @@ class MasterDataTab(QWidget):
                     info_text += f"{i:2d}. {part_number} - {part_name} [{use_status}]\n"
                 info_text += "=" * 40 + "\n"
             else:
-                info_text += "하위 부품번호: 없음\n"
+                info_text += "하위 Part_No: 없음\n"
         else:
             info_text += "데이터 없음"
         
@@ -1947,18 +1947,18 @@ class MasterDataTab(QWidget):
         use_status = self.child_use_status_combo.currentText()
         
         if not child_part_number:
-            QMessageBox.warning(self, "경고", "하위 부품번호를 입력하세요.")
+            QMessageBox.warning(self, "경고", "하위 Part_No를 입력하세요.")
             return
         
         if self.child_part_list.count() >= 6:
-            QMessageBox.warning(self, "경고", "하위 부품번호는 최대 6개까지 등록할 수 있습니다.")
+            QMessageBox.warning(self, "경고", "하위 Part_No는 최대 6개까지 등록할 수 있습니다.")
             return
         
         # 중복 체크
         for i in range(self.child_part_list.count()):
             item = self.child_part_list.item(i)
             if item and child_part_number in item.text():
-                QMessageBox.warning(self, "경고", "이미 등록된 하위 부품번호입니다.")
+                QMessageBox.warning(self, "경고", "이미 등록된 하위 Part_No입니다.")
                 return
         
         # 리스트에 추가
@@ -1974,12 +1974,12 @@ class MasterDataTab(QWidget):
         current_row = self.master_table.currentRow()
         if current_row >= 0:
             self.auto_save_child_parts(current_row)
-            QMessageBox.information(self, "성공", f"하위 부품번호 '{child_part_number}'가 추가되고 자동 저장되었습니다.")
+            QMessageBox.information(self, "성공", f"하위 Part_No '{child_part_number}'가 추가되고 자동 저장되었습니다.")
         else:
-            QMessageBox.information(self, "성공", f"하위 부품번호 '{child_part_number}'가 추가되었습니다.\n기준정보를 선택하고 '수정' 버튼을 눌러 저장하세요.")
+            QMessageBox.information(self, "성공", f"하위 Part_No '{child_part_number}'가 추가되었습니다.\n기준정보를 선택하고 '수정' 버튼을 눌러 저장하세요.")
     
     def auto_save_child_parts(self, row_index):
-        """하위 부품번호 자동 저장"""
+        """하위 Part_No 자동 저장"""
         try:
             master_data = self.master_data_manager.get_master_data()
             if 0 <= row_index < len(master_data):
@@ -2002,7 +2002,7 @@ class MasterDataTab(QWidget):
             return False
     
     def remove_child_part(self):
-        """선택된 하위 부품번호 삭제"""
+        """선택된 하위 Part_No 삭제"""
         current_row = self.child_part_list.currentRow()
         if current_row >= 0:
             # 삭제할 항목 정보 가져오기
@@ -2013,7 +2013,7 @@ class MasterDataTab(QWidget):
                 
                 # 삭제 확인
                 reply = QMessageBox.question(self, "삭제 확인", 
-                                           f"하위 부품번호 '{part_number}'를 삭제하시겠습니까?",
+                                           f"하위 Part_No '{part_number}'를 삭제하시겠습니까?",
                                            QMessageBox.Yes | QMessageBox.No)
                 
                 if reply == QMessageBox.Yes:
@@ -2023,16 +2023,16 @@ class MasterDataTab(QWidget):
                     master_row = self.master_table.currentRow()
                     if master_row >= 0:
                         self.auto_save_child_parts(master_row)
-                        QMessageBox.information(self, "성공", f"하위 부품번호 '{part_number}'가 삭제되고 자동 저장되었습니다.")
+                        QMessageBox.information(self, "성공", f"하위 Part_No '{part_number}'가 삭제되고 자동 저장되었습니다.")
         else:
-            QMessageBox.warning(self, "경고", "삭제할 하위 부품번호를 선택하세요.")
+            QMessageBox.warning(self, "경고", "삭제할 하위 Part_No를 선택하세요.")
     
     def clear_child_parts(self):
-        """하위 부품번호 리스트 초기화 (UI용)"""
+        """하위 Part_No 리스트 초기화 (UI용)"""
         self.child_part_list.clear()
     
     def get_child_parts(self):
-        """하위 부품번호 리스트 반환"""
+        """하위 Part_No 리스트 반환"""
         child_parts = []
         try:
             if not hasattr(self, 'child_part_list') or self.child_part_list is None:
@@ -2059,7 +2059,7 @@ class MasterDataTab(QWidget):
         return child_parts
     
     def set_child_parts(self, child_parts):
-        """하위 부품번호 리스트 설정"""
+        """하위 Part_No 리스트 설정"""
         self.clear_child_parts()
         for child_part in child_parts:
             part_number = child_part.get('part_number', '')
@@ -2085,7 +2085,7 @@ class MasterDataTab(QWidget):
             self.save_btn.setEnabled(enabled)
             print(f"DEBUG: 저장 버튼 {'활성화' if enabled else '비활성화'}")
         
-        # 하위 부품번호 관련 필드들 (존재하는 경우에만)
+        # 하위 Part_No 관련 필드들 (존재하는 경우에만)
         if hasattr(self, 'child_part_number_edit'):
             self.child_part_number_edit.setEnabled(enabled)
         if hasattr(self, 'child_part_name_edit'):
@@ -2180,7 +2180,7 @@ class MasterDataTab(QWidget):
             """)
         self.memo_edit.setStyleSheet(edit_style)
         
-        # 하위 부품번호 관련 필드들
+        # 하위 Part_No 관련 필드들
         if hasattr(self, 'child_part_number_edit'):
             self.child_part_number_edit.setStyleSheet(edit_style)
         if hasattr(self, 'child_part_name_edit'):

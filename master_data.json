@@ -79,9 +79,14 @@
         "part_number": "89231CU1002",
         "part_name": "89231CU1002",
         "use_status": "Y"
+      },
+      {
+        "part_number": "89331CU1003",
+        "part_name": "TEST 89331CU1003",
+        "use_status": "Y"
       }
     ],
-    "modified_time": "2025-09-12 10:47:11"
+    "modified_time": "2025-09-12 15:43:21"
   },
   {
     "supplier_code": "V2812",
