@@ -3,17 +3,7 @@
 sw_qrcode_prj.py를 참고하여 작성
 """
 
-try:
-    from pylibdmtx.pylibdmtx import encode
-except ImportError:
-    # pylibdmtx가 설치되지 않은 경우 대체 함수 사용
-    def encode(data):
-        class MockEncoded:
-            def __init__(self):
-                self.width = 100
-                self.height = 100
-                self.pixels = b'\x00' * (100 * 100 * 3)
-        return MockEncoded()
+from pylibdmtx.pylibdmtx import encode
 from PIL import Image, ImageDraw, ImageFont
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QObject, pyqtSignal

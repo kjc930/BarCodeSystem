@@ -1353,7 +1353,27 @@ class MasterDataTab(QWidget):
             use_status_combo = QComboBox()
             use_status_combo.addItems(["Y", "N"])
             use_status_combo.setCurrentText(use_status)
-            use_status_combo.setStyleSheet("QComboBox { font-weight: bold; text-align: center; }")
+            use_status_combo.setStyleSheet("""
+                QComboBox { 
+                    font-weight: bold; 
+                    text-align: center; 
+                    border: none;
+                    background-color: transparent;
+                    padding: 2px;
+                }
+                QComboBox::drop-down {
+                    border: none;
+                    width: 0px;
+                }
+                QComboBox::down-arrow {
+                    image: none;
+                }
+                QComboBox QAbstractItemView {
+                    border: 1px solid #ccc;
+                    background-color: white;
+                    selection-background-color: #3498db;
+                }
+            """)
             use_status_combo.currentTextChanged.connect(lambda text, r=row: self.on_use_status_changed(r, text))
             self.master_table.setCellWidget(row, 7, use_status_combo)
             
@@ -2160,22 +2180,46 @@ class MasterDataTab(QWidget):
             self.use_status_combo.setStyleSheet("""
                 QComboBox { 
                     background-color: #FFF9C4; 
-                    border: 2px solid #FFD54F; 
+                    border: none;
                     border-radius: 3px;
                     padding: 3px;
                     font-weight: bold;
                     text-align: center;
+                }
+                QComboBox::drop-down {
+                    border: none;
+                    width: 0px;
+                }
+                QComboBox::down-arrow {
+                    image: none;
+                }
+                QComboBox QAbstractItemView {
+                    border: 1px solid #ccc;
+                    background-color: white;
+                    selection-background-color: #3498db;
                 }
             """)
         else:
             self.use_status_combo.setStyleSheet("""
                 QComboBox { 
                     background-color: white; 
-                    border: 1px solid #CCCCCC; 
+                    border: none;
                     border-radius: 3px;
                     padding: 3px;
                     font-weight: bold;
                     text-align: center;
+                }
+                QComboBox::drop-down {
+                    border: none;
+                    width: 0px;
+                }
+                QComboBox::down-arrow {
+                    image: none;
+                }
+                QComboBox QAbstractItemView {
+                    border: 1px solid #ccc;
+                    background-color: white;
+                    selection-background-color: #3498db;
                 }
             """)
         self.memo_edit.setStyleSheet(edit_style)

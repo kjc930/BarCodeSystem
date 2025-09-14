@@ -41,7 +41,7 @@
   "nutrunner": {
     "nutrunner1_port": "COM6 - USB-Enhanced-SERIAL CH343(COM6)",
     "nutrunner1_baudrate": 9600,
-    "nutrunner2_port": "COM6 - USB-Enhanced-SERIAL CH343(COM6)",
+    "nutrunner2_port": "COM3 - AX99100 PCIe to High Speed Serial Port(COM3)",
     "nutrunner2_baudrate": 9600
   }
 }
