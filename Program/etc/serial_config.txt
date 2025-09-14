@@ -1,0 +1,11 @@
+{
+    "port": "COM3",
+    "baudrate": 9600,
+    "bytesize": 8,
+    "parity": "N",
+    "stopbits": 1,
+    "timeout": 1,
+    "xonxoff": false,
+    "rtscts": false,
+    "dsrdtr": false
+} 

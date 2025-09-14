@@ -1,0 +1,13 @@
+{
+    "current_template": "default",
+    "templates": {
+        "default": {
+            "name": "기본 양식",
+            "zpl": "^XA\n^PW324\n^LL243\n^LH0,0\n^FO15,15^BQN,3,3^FH_^FDLA,{formatted_data}^FS\n^FO120,10^A0N,26,26^FD{part_number}^FS \n^FO120,50^A0N,16,16^FD{display_name}^FS \n^FO120,70^A0N,16,16^FD{date}^FS \n^FO120,90^A0N,16,16^FD{tracking_number}^FS \n^FO120,110^A0N,16,16^FD{initial_mark}^FS\n^XZ\n"
+        },
+        "compact": {
+            "name": "간단 양식",
+            "zpl": "^XA\n^PW324\n^LL243\n^LH0,0\n^FO15,15^BQN,3,3^FH_^FDLA,{formatted_data}^FS\n^FO120,10^A0N,26,26^FD{part_number}^FS \n^FO120,90^A0N,16,16^FD{tracking_number}^FS \n^XZ\n"
+        }
+    }
+}

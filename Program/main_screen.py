@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal
 from PyQt5.QtGui import QFont, QPalette, QColor, QPixmap, QPainter
 from AdminPanel import AdminPanel
+from print_module import PrintManager
 
 class ChildPartBarcodeValidator:
     """하위부품 바코드 검증 클래스 - HKMC 바코드 분석결과 방식과 동일"""
@@ -1008,6 +1009,9 @@ class BarcodeMainScreen(QMainWindow):
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir)
         
+        # 프린트 매니저 초기화
+        self.print_manager = PrintManager(self)
+        
         # PLC 데이터 분석용
         self.plc_data = {
             "completion_signal": 0,  # 첫번째 값: 완료신호 (1:완료, 0:미완료)
@@ -1762,12 +1766,16 @@ class BarcodeMainScreen(QMainWindow):
             print(f"DEBUG: 로그 파일 저장 오류: {e}")
     
     def complete_work(self, panel_name):
-        """작업완료 시 생산카운트 증가"""
+        """작업완료 시 생산카운트 증가 및 자동 프린트"""
         # 현재 부품번호 가져오기
         if panel_name == "FRONT/LH":
             part_number = self.front_panel.part_number
+            part_name = self.front_panel.part_name
+            panel = self.front_panel
         elif panel_name == "REAR/RH":
             part_number = self.rear_panel.part_number
+            part_name = self.rear_panel.part_name
+            panel = self.rear_panel
         else:
             return
         
@@ -1775,6 +1783,53 @@ class BarcodeMainScreen(QMainWindow):
         self.update_production_counters(part_number, panel_name)
         
         print(f"DEBUG: {panel_name} 작업완료 - Part_No: {part_number}")
+        
+        # 자동 프린트 실행
+        self.auto_print_on_completion(panel_name, part_number, part_name, panel)
+    
+    def auto_print_on_completion(self, panel_name, part_number, part_name, panel):
+        """작업완료 시 자동 프린트 실행"""
+        try:
+            # 하위부품 스캔 정보 수집
+            child_parts_list = []
+            
+            # 패널의 하위부품 아이콘 상태 확인
+            if hasattr(panel, 'child_parts_icons'):
+                for i, icon in enumerate(panel.child_parts_icons):
+                    if icon.isVisible():
+                        # 하위부품 번호 생성 (예: part_number_1, part_number_2)
+                        child_part = f"{part_number}_{i+1}"
+                        child_parts_list.append(child_part)
+            
+            # 하위부품이 있는 경우에만 프린트 실행
+            if child_parts_list:
+                print(f"DEBUG: {panel_name} 자동 프린트 시작 - 메인부품: {part_number}, 하위부품: {child_parts_list}")
+                
+                # 프린트 매니저를 통한 자동 프린트
+                success = self.print_manager.print_auto(
+                    panel_name=panel_name,
+                    part_number=part_number,
+                    part_name=part_name,
+                    child_parts_list=child_parts_list
+                )
+                
+                if success:
+                    print(f"DEBUG: {panel_name} 자동 프린트 완료")
+                else:
+                    print(f"DEBUG: {panel_name} 자동 프린트 실패")
+            else:
+                print(f"DEBUG: {panel_name} 하위부품이 없어 프린트 건너뜀")
+                
+        except Exception as e:
+            print(f"DEBUG: {panel_name} 자동 프린트 오류: {e}")
+    
+    def show_message(self, title, message):
+        """메시지 박스 표시"""
+        from PyQt5.QtWidgets import QMessageBox
+        msg = QMessageBox()
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.exec_()
     
     def update_device_connection_status(self, device_name, is_connected):
         """공통 장비 연결 상태 업데이트"""

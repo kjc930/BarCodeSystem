@@ -1,0 +1,41 @@
+서열코드  ALC123
+EO 번호 KETC0102
+
+^XA
+^PW324
+^LL243
+^LH0,0
+^FO15,15^BQN,3,3^FH_^FDLA,{formatted_data}^FS
+^FO120,10^A0N,26,26^FD{part_number}^FS 
+^FO120,50^A0N,16,16^FD{display_name}^FS 
+^FO120,70^A0N,16,16^FD{date}^FS 
+^FO120,90^A0N,16,16^FD{tracking_number}^FS 
+^FO120,110^A0N,16,16^FD{initial_mark}^FS
+^XZ
+
+
+^XA
+^PR0
+^MD3
+^PW324
+^LL243
+^LH0,0
+^FO15,15^BQN,3,3^FH_^FDLA,{formatted_data}^FS
+^FO120,10^A0N,26,26^FD{part_number}^FS 
+^FO120,50^A0N,16,16^FD{display_name}^FS 
+^FO120,70^A0N,16,16^FD{date}^FS 
+^FO120,90^A0N,16,16^FD{tracking_number}^FS 
+^FO120,110^A0N,16,16^FD{initial_mark}^FS
+^XZ
+
+
+
+zpl_data = """
+^XA
+^FO10,10^BY3,3.0^BXN,5,200
+^FH_^FD[)>_1E06_1DVPF30_1DP571003F400
+_1DSALC123_1DEKETC0102
+_1DT15052051B2A0476217_1DMY
+_1D_1E_04^FS
+^XZ
+""".encode()
