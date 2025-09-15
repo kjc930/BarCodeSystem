@@ -843,6 +843,8 @@ class ProductionPanel(QWidget):
         """장비 연결 상태 업데이트 (연결됨: 녹색, 연결안됨: 적색)"""
         if device_name == "PLC":
             self.update_status_label(self.plc_status_label, is_connected)
+            # PLC 연결 상태에 따라 작업완료/구분값 표시 업데이트
+            self.update_plc_connection_display(is_connected)
         elif device_name == "스캐너":
             self.update_status_label(self.scanner_status_label, is_connected)
         elif device_name == "프린터":
@@ -851,6 +853,113 @@ class ProductionPanel(QWidget):
             self.update_status_label(self.nutrunner1_status_label, is_connected)
         elif device_name == "너트2":
             self.update_status_label(self.nutrunner2_status_label, is_connected)
+    
+    def update_plc_connection_display(self, status):
+        """PLC 연결 상태에 따른 작업완료/구분값 표시 업데이트
+        status: 'disconnected', 'connected', 'no_data', 'normal'
+        """
+        if status == 'disconnected':
+            # PLC 연결 끊김 - "PLC LINK OFF" 표시
+            self.work_status_label.setText("PLC LINK OFF")
+            self.work_status_label.setStyleSheet("""
+                QLabel {
+                    color: white;
+                    background-color: #DC3545;
+                    border: none;
+                    border-radius: 0px;
+                    padding: 5px;
+                    margin: 0px;
+                    font-weight: bold;
+                }
+            """)
+            self.division_label.setText("PLC LINK OFF")
+            self.division_label.setStyleSheet("""
+                QLabel {
+                    color: white;
+                    background-color: #DC3545;
+                    border: none;
+                    border-radius: 0px;
+                    padding: 5px;
+                    margin: 0px;
+                    font-weight: bold;
+                }
+            """)
+        elif status == 'connected':
+            # PLC 연결됨 - "PLC 연결됨" 표시
+            self.work_status_label.setText("PLC 연결됨")
+            self.work_status_label.setStyleSheet("""
+                QLabel {
+                    color: white;
+                    background-color: #17A2B8;
+                    border: none;
+                    border-radius: 0px;
+                    padding: 5px;
+                    margin: 0px;
+                    font-weight: bold;
+                }
+            """)
+            self.division_label.setText("데이터 대기중")
+            self.division_label.setStyleSheet("""
+                QLabel {
+                    color: white;
+                    background-color: #17A2B8;
+                    border: none;
+                    border-radius: 0px;
+                    padding: 5px;
+                    margin: 0px;
+                    font-weight: bold;
+                }
+            """)
+        elif status == 'no_data':
+            # PLC 연결됨 but 데이터 수신 불가 - "PLC DATA 수신 불가" 표시
+            self.work_status_label.setText("PLC DATA 수신 불가")
+            self.work_status_label.setStyleSheet("""
+                QLabel {
+                    color: white;
+                    background-color: #FFC107;
+                    border: none;
+                    border-radius: 0px;
+                    padding: 5px;
+                    margin: 0px;
+                    font-weight: bold;
+                }
+            """)
+            self.division_label.setText("데이터 수신 불가")
+            self.division_label.setStyleSheet("""
+                QLabel {
+                    color: white;
+                    background-color: #FFC107;
+                    border: none;
+                    border-radius: 0px;
+                    padding: 5px;
+                    margin: 0px;
+                    font-weight: bold;
+                }
+            """)
+        else:  # status == 'normal'
+            # 정상 상태 - 기본 상태로 복원 (나중에 실제 데이터로 업데이트됨)
+            self.work_status_label.setText("작업완료")
+            self.work_status_label.setStyleSheet("""
+                QLabel {
+                    color: white;
+                    background-color: #28A745;
+                    border: none;
+                    border-radius: 0px;
+                    padding: 5px;
+                    margin: 0px;
+                }
+            """)
+            self.division_label.setText(f"구분: {self.division}")
+            self.division_label.setStyleSheet("""
+                QLabel {
+                    color: white;
+                    background-color: #3498DB;
+                    border: none;
+                    border-radius: 0px;
+                    padding: 5px;
+                    margin: 0px;
+                }
+            """)
     
     def update_status_label(self, label, is_connected):
         """상태 레이블 업데이트"""
@@ -989,10 +1098,14 @@ class BarcodeMainScreen(QMainWindow):
         # 기준정보 로드
         self.master_data = self.load_master_data()
         
+        # 패널 타이틀 로드
+        self.panel_titles = self.load_panel_titles()
+        print(f"DEBUG: 로드된 패널 타이틀: {self.panel_titles}")
+        
         # 생산 카운터 데이터 (일자별, 부품코드별)
         self.production_data = {
-            "daily_total": {},  # {date: {"FRONT/LH": count, "REAR/RH": count}}
-            "part_counts": {}   # {part_number: {"FRONT/LH": count, "REAR/RH": count}}
+            "daily_total": {},  # {date: {panel_title: count}}
+            "part_counts": {}   # {part_number: {panel_title: count}}
         }
         
         # 현재 작업일
@@ -1000,8 +1113,8 @@ class BarcodeMainScreen(QMainWindow):
         
         # 스캔 로그 데이터
         self.scan_logs = {
-            "front_lh": [],  # FRONT/LH 스캔 로그
-            "rear_rh": []    # REAR/RH 스캔 로그
+            "front_lh": [],  # 첫 번째 패널 스캔 로그
+            "rear_rh": []    # 두 번째 패널 스캔 로그
         }
         
         # 로그 디렉토리 생성
@@ -1050,6 +1163,38 @@ class BarcodeMainScreen(QMainWindow):
         except Exception as e:
             print(f"기준정보 로드 오류: {e}")
             return []
+    
+    def load_panel_titles(self):
+        """패널 타이틀 로드"""
+        try:
+            titles_file = 'program/etc/panel_titles.txt'
+            if os.path.exists(titles_file):
+                with open(titles_file, 'r', encoding='utf-8') as f:
+                    content = f.read().strip()
+                    lines = content.split('\n')
+                    print(f"DEBUG: 파일 내용: {repr(content)}")
+                    print(f"DEBUG: 라인 수: {len(lines)}")
+                    
+                    # 최소 2개 라인이 있어야 함
+                    if len(lines) >= 2:
+                        result = {
+                            "front_lh": lines[0].strip(),
+                            "rear_rh": lines[1].strip()
+                        }
+                        print(f"DEBUG: 파일에서 로드된 패널 타이틀: {result}")
+                        return result
+            
+            # 기본값 반환
+            return {
+                "front_lh": "1FRONT/LH",
+                "rear_rh": "1REAR/RH"
+            }
+        except Exception as e:
+            print(f"패널 타이틀 로드 오류: {e}")
+            return {
+                "front_lh": "FRONT/LH",
+                "rear_rh": "REAR/RH"
+            }
     
     def auto_connect_serial_ports(self):
         """시리얼포트 자동연결"""
@@ -1108,9 +1253,32 @@ class BarcodeMainScreen(QMainWindow):
             while True:
                 try:
                     if self.serial_connections["PLC"] and self.serial_connections["PLC"].is_open:
-                        # PLC에서 데이터 읽기 (예시: 3개 값)
-                        raw_data = self.serial_connections["PLC"].readline()
-                        print(f"DEBUG: PLC 원시 데이터 (bytes): {raw_data}")
+                        # PLC 버퍼 클리어 (오래된 데이터 버리기)
+                        try:
+                            self.serial_connections["PLC"].reset_input_buffer()
+                        except:
+                            pass
+                        
+                        # PLC에서 최신 데이터만 읽기
+                        try:
+                            raw_data = self.serial_connections["PLC"].readline()
+                            print(f"DEBUG: PLC 원시 데이터 (bytes): {raw_data}")
+                        except Exception as read_error:
+                            print(f"DEBUG: PLC 데이터 읽기 오류: {read_error}")
+                            # 연결 오류 시 즉시 연결 상태를 False로 설정 (안전한 방식)
+                            try:
+                                self.device_connection_status["PLC"] = False
+                                print(f"DEBUG: PLC 연결 상태를 False로 설정")
+                                # PLC LINK OFF 표시
+                                self.plc_data = {
+                                    "completion_signal": None,
+                                    "front_lh_division": "",
+                                    "rear_rh_division": ""
+                                }
+                                self.update_plc_data_ui()
+                            except Exception as update_error:
+                                print(f"DEBUG: PLC 상태 업데이트 오류: {update_error}")
+                            continue
                         
                         if raw_data:
                             try:
@@ -1171,39 +1339,185 @@ class BarcodeMainScreen(QMainWindow):
                                 else:
                                     print(f"DEBUG: PLC 데이터 길이 부족 - 예상: 3자리 이상, 실제: {len(data) if data else 0}자리")
                                     print(f"  - 데이터: '{data}'")
+                                    # 데이터가 비어있거나 길이가 부족한 경우 PLC LINK OFF 표시
+                                    print(f"DEBUG: PLC 데이터 없음 - PLC LINK OFF 표시")
+                                    self.plc_data = {
+                                        "completion_signal": None,
+                                        "front_lh_division": "",
+                                        "rear_rh_division": ""
+                                    }
+                                    self.update_plc_data_ui()
                             except UnicodeDecodeError as e:
                                 print(f"DEBUG: PLC 데이터 디코딩 오류: {e}")
                                 print(f"  - 원시 데이터 (hex): {raw_data.hex()}")
-                    else:
-                        # PLC 연결이 끊어진 경우
-                        if self.plc_data["completion_signal"] != 0:
-                            print(f"DEBUG: PLC 연결 끊어짐 - 데이터 초기화")
-                            self.plc_data["completion_signal"] = 0
-                            self.plc_data["front_lh_division"] = ""
-                            self.plc_data["rear_rh_division"] = ""
+                        else:
+                            # PLC 연결은 되어있지만 데이터가 비어있는 경우
+                            print(f"DEBUG: PLC 연결됨 but 데이터 없음 - PLC LINK OFF 표시")
+                            self.plc_data = {
+                                "completion_signal": None,
+                                "front_lh_division": "",
+                                "rear_rh_division": ""
+                            }
                             self.update_plc_data_ui()
-                            
-                    time.sleep(2)  # 100ms 간격으로 읽기
-                except Exception as e:
-                    print(f"PLC 데이터 읽기 오류: {e}")
-                    # 연결 오류 시 상태 초기화
-                    if self.plc_data["completion_signal"] != 0:
-                        self.plc_data["completion_signal"] = 0
-                        self.plc_data["front_lh_division"] = ""
-                        self.plc_data["rear_rh_division"] = ""
+                    else:
+                        # PLC 연결이 끊어진 경우 또는 데이터가 비어있는 경우
+                        print(f"DEBUG: PLC 데이터 없음 - PLC LINK OFF 표시")
+                        # PLC 데이터 초기화
+                        self.plc_data = {
+                            "completion_signal": None,
+                            "front_lh_division": "",
+                            "rear_rh_division": ""
+                        }
+                        # UI 업데이트 (메인 스레드에서 실행)
                         self.update_plc_data_ui()
-                    time.sleep(2)
+                            
+                    time.sleep(2)  # 2초 간격으로 읽기
+                except Exception as e:
+                    print(f"DEBUG: PLC 데이터 읽기 스레드 오류: {e}")
+                    # 연결 오류 시 상태 초기화 (안전한 방식)
+                    try:
+                        self.plc_data = {
+                            "completion_signal": None,
+                            "front_lh_division": "",
+                            "rear_rh_division": ""
+                        }
+                        # 연결 상태도 안전하게 업데이트
+                        if hasattr(self, 'device_connection_status'):
+                            self.device_connection_status["PLC"] = False
+                        self.update_plc_data_ui()
+                    except Exception as init_error:
+                        print(f"DEBUG: PLC 상태 초기화 오류: {init_error}")
+                    
+                    try:
+                        time.sleep(2)
+                    except:
+                        break  # time.sleep도 실패하면 스레드 종료
         
         # 백그라운드 스레드로 실행
         plc_thread = threading.Thread(target=read_plc_data, daemon=True)
         plc_thread.start()
+        
+        # PLC 연결 상태 모니터링 스레드 시작
+        self.start_plc_connection_monitor()
+    
+    def start_plc_connection_monitor(self):
+        """PLC 연결 상태 모니터링 스레드 시작"""
+        def monitor_plc_connection():
+            print("DEBUG: PLC 연결 상태 모니터링 스레드 시작")
+            consecutive_no_data = 0
+            max_no_data = 3  # 3번 연속 데이터 없으면 "데이터 수신 불가" 표시
+            last_status = None
+            
+            while True:
+                try:
+                    # PLC 연결 객체 존재 여부 확인
+                    plc_connection = self.serial_connections.get("PLC")
+                    if plc_connection and hasattr(plc_connection, 'is_open') and plc_connection.is_open:
+                        # PLC 연결 상태 확인 (안전한 방식)
+                        try:
+                            # 버퍼 클리어 (오래된 데이터 버리기)
+                            try:
+                                plc_connection.reset_input_buffer()
+                            except:
+                                pass
+                            
+                            # 연결 상태 확인을 위한 간단한 테스트 (타임아웃 설정)
+                            test_data = plc_connection.readline()
+                            if test_data:
+                                consecutive_no_data = 0  # 성공 시 카운터 리셋
+                                current_status = 'connected'
+                                print(f"DEBUG: PLC 데이터 수신 정상 - 카운터 리셋")
+                            else:
+                                consecutive_no_data += 1
+                                print(f"DEBUG: PLC 데이터 없음 - 카운터: {consecutive_no_data}")
+                                
+                                if consecutive_no_data >= max_no_data:
+                                    current_status = 'no_data'
+                                    print(f"DEBUG: PLC 데이터 수신 불가 - {consecutive_no_data}번 연속 데이터 없음")
+                                else:
+                                    current_status = 'connected'
+                        except Exception as e:
+                            consecutive_no_data += 1
+                            print(f"DEBUG: PLC 연결 테스트 실패 - 카운터: {consecutive_no_data}, 오류: {e}")
+                            current_status = 'disconnected'
+                            # 연결 상태를 안전하게 업데이트
+                            try:
+                                self.device_connection_status["PLC"] = False
+                            except:
+                                pass
+                    else:
+                        # PLC 연결이 없는 경우
+                        current_status = 'disconnected'
+                        if self.device_connection_status.get("PLC", False):
+                            print(f"DEBUG: PLC 연결 객체 없음 - 연결 상태를 False로 설정")
+                            try:
+                                self.device_connection_status["PLC"] = False
+                            except:
+                                pass
+                    
+                    # 상태가 변경된 경우에만 UI 업데이트 (안전한 방식)
+                    if current_status != last_status:
+                        print(f"DEBUG: PLC 상태 변경: {last_status} → {current_status}")
+                        try:
+                            if current_status == 'disconnected':
+                                self.plc_data = {
+                                    "completion_signal": None,
+                                    "front_lh_division": "",
+                                    "rear_rh_division": ""
+                                }
+                                if hasattr(self, 'front_panel') and self.front_panel:
+                                    self.front_panel.update_plc_connection_display('disconnected')
+                                if hasattr(self, 'rear_panel') and self.rear_panel:
+                                    self.rear_panel.update_plc_connection_display('disconnected')
+                            elif current_status == 'no_data':
+                                if hasattr(self, 'front_panel') and self.front_panel:
+                                    self.front_panel.update_plc_connection_display('no_data')
+                                if hasattr(self, 'rear_panel') and self.rear_panel:
+                                    self.rear_panel.update_plc_connection_display('no_data')
+                            elif current_status == 'connected':
+                                if hasattr(self, 'front_panel') and self.front_panel:
+                                    self.front_panel.update_plc_connection_display('connected')
+                                if hasattr(self, 'rear_panel') and self.rear_panel:
+                                    self.rear_panel.update_plc_connection_display('connected')
+                            last_status = current_status
+                        except Exception as ui_error:
+                            print(f"DEBUG: UI 업데이트 오류: {ui_error}")
+                    
+                    time.sleep(1)  # 1초마다 확인
+                except Exception as e:
+                    print(f"DEBUG: PLC 연결 모니터링 오류: {e}")
+                    # 오류 발생 시에도 스레드가 종료되지 않도록 계속 실행
+                    try:
+                        time.sleep(1)
+                    except:
+                        break  # time.sleep도 실패하면 스레드 종료
+        
+        # 백그라운드 스레드로 실행
+        monitor_thread = threading.Thread(target=monitor_plc_connection, daemon=True)
+        monitor_thread.start()
     
     def update_plc_data_ui(self):
         """PLC 데이터에 따른 UI 업데이트"""
         print(f"DEBUG: update_plc_data_ui 호출됨")
         print(f"  - 현재 PLC 데이터: {self.plc_data}")
         
+        # PLC 연결 상태 확인
+        plc_connected = self.device_connection_status.get("PLC", False)
+        print(f"DEBUG: PLC 연결 상태: {plc_connected}")
+        
+        # PLC 데이터가 비어있거나 연결이 끊어진 경우
+        if not plc_connected or self.plc_data.get("completion_signal") is None:
+            # PLC 연결 끊김 또는 데이터 없음 - 상태는 모니터링 스레드에서 처리
+            print(f"DEBUG: PLC 연결 끊김 또는 데이터 없음 - 모니터링 스레드에서 처리")
+            return
+        
+        # PLC 연결됨 - 정상 데이터 처리
         completion_signal = self.plc_data["completion_signal"]
+        
+        # PLC 데이터가 정상적으로 수신되면 정상 상태로 표시
+        print(f"DEBUG: PLC 데이터 정상 수신 - 정상 상태로 표시")
+        self.front_panel.update_plc_connection_display('normal')
+        self.rear_panel.update_plc_connection_display('normal')
         
         # 작업완료 상태 업데이트 (완료신호에 따라 개별 처리)
         print(f"DEBUG: 작업완료 상태 업데이트 - 완료신호: {completion_signal}")
@@ -1464,7 +1778,6 @@ class BarcodeMainScreen(QMainWindow):
         self.update_title_image()
         header_layout.addWidget(self.title_label)
         
-        
         header_layout.addStretch()
         
         # 날짜/시간 (현재 화면 스타일과 일치하는 모던 디자인)
@@ -1524,14 +1837,17 @@ class BarcodeMainScreen(QMainWindow):
     
     def create_production_panels(self, layout):
         """생산 패널들 생성"""
+        print(f"DEBUG: create_production_panels 호출됨")
+        print(f"DEBUG: 현재 패널 타이틀: {self.panel_titles}")
         
         # 생산 패널들
         panels_layout = QHBoxLayout()
         panels_layout.setSpacing(20)
         
         # FRONT/LH 패널
+        print(f"DEBUG: front_panel 생성 - 타이틀: {self.panel_titles['front_lh']}")
         self.front_panel = ProductionPanel(
-            "FRONT/LH", 
+            self.panel_titles["front_lh"], 
             "123456789", 
             "프론트 도어 핸들", 
             "A001",
@@ -1540,8 +1856,9 @@ class BarcodeMainScreen(QMainWindow):
         panels_layout.addWidget(self.front_panel)
         
         # REAR/RH 패널
+        print(f"DEBUG: rear_panel 생성 - 타이틀: {self.panel_titles['rear_rh']}")
         self.rear_panel = ProductionPanel(
-            "REAR/RH", 
+            self.panel_titles["rear_rh"], 
             "987654321", 
             "리어 도어 핸들", 
             "B001",
@@ -1689,24 +2006,24 @@ class BarcodeMainScreen(QMainWindow):
         completion_signal = self.plc_data.get("completion_signal", 0)
         
         if completion_signal == 1:
-            return "FRONT/LH"
+            return self.panel_titles["front_lh"]
         elif completion_signal == 2:
-            return "REAR/RH"
+            return self.panel_titles["rear_rh"]
         else:
             # 작업중인 경우, 구분값이 있는 패널을 우선으로 판단
             if self.plc_data.get("front_lh_division"):
-                return "FRONT/LH"
+                return self.panel_titles["front_lh"]
             elif self.plc_data.get("rear_rh_division"):
-                return "REAR/RH"
+                return self.panel_titles["rear_rh"]
             else:
-                return "FRONT/LH"  # 기본값
+                return self.panel_titles["front_lh"]  # 기본값
     
     def get_main_part_info(self, panel_name):
         """메인 부품 정보 가져오기"""
         try:
-            if panel_name == "FRONT/LH":
+            if panel_name == self.panel_titles["front_lh"]:
                 panel = self.front_panel
-            elif panel_name == "REAR/RH":
+            elif panel_name == self.panel_titles["rear_rh"]:
                 panel = self.rear_panel
             else:
                 return {}
@@ -1724,9 +2041,9 @@ class BarcodeMainScreen(QMainWindow):
     def get_child_parts_info_for_panel(self, panel_name):
         """특정 패널의 하위부품 정보 가져오기"""
         try:
-            if panel_name == "FRONT/LH":
+            if panel_name == self.panel_titles["front_lh"]:
                 panel = self.front_panel
-            elif panel_name == "REAR/RH":
+            elif panel_name == self.panel_titles["rear_rh"]:
                 panel = self.rear_panel
             else:
                 return []
@@ -1935,7 +2252,7 @@ class BarcodeMainScreen(QMainWindow):
         child_parts_info = []
         
         # FRONT/LH와 REAR/RH 패널 중에서 하위부품이 있는 패널 찾기
-        for panel_name, panel in [("FRONT/LH", self.front_panel), ("REAR/RH", self.rear_panel)]:
+        for panel_name, panel in [(self.panel_titles["front_lh"], self.front_panel), (self.panel_titles["rear_rh"], self.rear_panel)]:
             if hasattr(panel, 'part_number') and panel.part_number:
                 for part_data in self.master_data:
                     if part_data.get("part_number") == panel.part_number:

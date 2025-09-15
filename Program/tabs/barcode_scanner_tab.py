@@ -24,6 +24,7 @@ class BarcodeScannerTab(QWidget):
         self.serial_thread = None
         self.scanned_codes = []
         self.barcode_utils = HKMCBarcodeUtils()  # HKMC 바코드 유틸리티 초기화
+        self.shared_scan_history = []  # 공유 스캔 이력 저장소
         self.init_ui()
         self.load_settings()
         
@@ -386,6 +387,8 @@ class BarcodeScannerTab(QWidget):
                 
                 # 새로운 UI 창 열기
                 dialog = BarcodeAnalysisDialog(barcode_data, barcode_info, self)
+                # 공유 이력을 다이얼로그에 설정
+                dialog.scan_history = self.shared_scan_history
                 # 이력에 추가
                 dialog.add_to_history(barcode_data, barcode_info)
                 dialog.exec_()

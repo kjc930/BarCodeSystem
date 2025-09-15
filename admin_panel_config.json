@@ -1,6 +1,6 @@
 {
   "plc": {
-    "port": "COM6 - USB-Enhanced-SERIAL CH343(COM6)",
+    "port": "COM4 - AX99100 PCIe to High Speed Serial Port(COM4)",
     "baudrate": 9600,
     "parity": "None",
     "station_id": 1,
@@ -33,7 +33,7 @@
     "4m_info": []
   },
   "scanner": {
-    "port": "COM3 - AX99100 PCIe to High Speed Serial Port(COM3)",
+    "port": "COM4 - AX99100 PCIe to High Speed Serial Port(COM4)",
     "baudrate": 9600,
     "terminator": "\\r\\n (CRLF)",
     "auto_scan": true

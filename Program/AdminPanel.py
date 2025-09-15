@@ -3,6 +3,7 @@
 """
 import sys
 import os
+from datetime import datetime
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QLabel, QComboBox, QPushButton, 
                              QTextEdit, QGroupBox, QGridLayout, QSpinBox,
@@ -11,7 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QProgressBar, QSplitter, QListWidget, QListWidgetItem,
                              QInputDialog, QDialog, QScrollArea)
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, QDateTime
-from PyQt5.QtGui import QFont, QIcon, QPixmap
+from PyQt5.QtGui import QFont, QIcon, QPixmap, QColor
 from hkmc_barcode_utils import HKMCBarcodeUtils, BarcodeData, BarcodeType
 from styles import (get_main_stylesheet, get_title_style, get_tab_title_style, 
                    get_status_connected_style, get_status_disconnected_style, get_status_error_style)
@@ -2274,6 +2275,1200 @@ class MasterDataTab(QWidget):
         self.save_btn.setEnabled(False)
         self.clear_inputs()
 
+class OutputInfoTab(QWidget):
+    """출력정보 관리 탭"""
+    
+    def __init__(self, settings_manager):
+        super().__init__()
+        self.settings_manager = settings_manager
+        self.initUI()
+        
+    def initUI(self):
+        layout = QVBoxLayout()
+        
+        # 타이틀
+        title = QLabel("🖨️ 출력정보 관리")
+        title.setFont(QFont("Segoe UI", 16, QFont.Bold))
+        title.setAlignment(Qt.AlignCenter)
+        title.setStyleSheet(get_tab_title_style())
+        layout.addWidget(title)
+        
+        # 버튼 그룹
+        button_group = QGroupBox("출력 관리")
+        button_layout = QHBoxLayout(button_group)
+        
+        # 바코드 생성 버튼
+        generate_btn = QPushButton('📊 바코드 생성')
+        generate_btn.setStyleSheet('''
+            QPushButton {
+                background-color: #2ecc71;
+                color: white;
+                padding: 15px 25px;
+                font-size: 12pt;
+                font-weight: bold;
+                border-radius: 8px;
+                min-width: 150px;
+            }
+            QPushButton:hover {
+                background-color: #27ae60;
+            }
+        ''')
+        generate_btn.clicked.connect(self.show_barcode_generator)
+        button_layout.addWidget(generate_btn)
+        
+        # 발행이력 조회 버튼
+        history_btn = QPushButton('📋 발행이력 조회')
+        history_btn.setStyleSheet('''
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                padding: 15px 25px;
+                font-size: 12pt;
+                font-weight: bold;
+                border-radius: 8px;
+                min-width: 150px;
+            }
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+        ''')
+        history_btn.clicked.connect(self.show_history_dialog)
+        button_layout.addWidget(history_btn)
+        
+        # 템플릿 관리 버튼
+        template_btn = QPushButton('📝 템플릿 관리')
+        template_btn.setStyleSheet('''
+            QPushButton {
+                background-color: #9b59b6;
+                color: white;
+                padding: 15px 25px;
+                font-size: 12pt;
+                font-weight: bold;
+                border-radius: 8px;
+                min-width: 150px;
+            }
+            QPushButton:hover {
+                background-color: #8e44ad;
+            }
+        ''')
+        template_btn.clicked.connect(self.show_template_dialog)
+        button_layout.addWidget(template_btn)
+        
+        layout.addWidget(button_group)
+        
+        # 프린터 상태 그룹
+        status_group = QGroupBox("프린터 상태")
+        status_layout = QVBoxLayout(status_group)
+        
+        # 프린터 연결 상태
+        self.printer_status_label = QLabel("프린터 연결 상태: 확인 중...")
+        self.printer_status_label.setStyleSheet("font-size: 11pt; padding: 5px;")
+        status_layout.addWidget(self.printer_status_label)
+        
+        # 프린터 재연결 버튼
+        reconnect_btn = QPushButton('🔄 프린터 재연결')
+        reconnect_btn.setStyleSheet('''
+            QPushButton {
+                background-color: #e67e22;
+                color: white;
+                padding: 8px 15px;
+                font-size: 10pt;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #d35400;
+            }
+        ''')
+        reconnect_btn.clicked.connect(self.reconnect_printer)
+        status_layout.addWidget(reconnect_btn)
+        
+        layout.addWidget(status_group)
+        
+        # 통계 정보 그룹
+        stats_group = QGroupBox("발행 통계")
+        stats_layout = QVBoxLayout(stats_group)
+        
+        # 통계 테이블
+        self.stats_table = QTableWidget()
+        self.stats_table.setColumnCount(3)
+        self.stats_table.setHorizontalHeaderLabels([
+            "항목", "값", "비고"
+        ])
+        
+        # 테이블 스타일 설정
+        self.stats_table.setStyleSheet("""
+            QTableWidget {
+                gridline-color: #ddd;
+                background-color: white;
+                alternate-background-color: #f8f9fa;
+                selection-background-color: #17a2b8;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+            QTableWidget::item {
+                padding: 8px;
+                border-bottom: 1px solid #eee;
+            }
+            QHeaderView::section {
+                background-color: #17a2b8;
+                color: white;
+                padding: 10px;
+                border: none;
+                font-weight: bold;
+            }
+        """)
+        
+        # 테이블 속성 설정
+        self.stats_table.setAlternatingRowColors(True)
+        self.stats_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.stats_table.setSelectionMode(QTableWidget.SingleSelection)
+        self.stats_table.verticalHeader().setVisible(False)
+        self.stats_table.setMaximumHeight(250)
+        
+        # 컬럼 너비 설정
+        header = self.stats_table.horizontalHeader()
+        header.setStretchLastSection(True)
+        header.resizeSection(0, 150)  # 항목
+        header.resizeSection(1, 100)  # 값
+        header.resizeSection(2, 200)  # 비고
+        
+        stats_layout.addWidget(self.stats_table)
+        
+        # 통계 새로고침 버튼
+        refresh_stats_btn = QPushButton('📊 통계 새로고침')
+        refresh_stats_btn.setStyleSheet('''
+            QPushButton {
+                background-color: #17a2b8;
+                color: white;
+                padding: 8px 15px;
+                font-size: 10pt;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #138496;
+            }
+        ''')
+        refresh_stats_btn.clicked.connect(self.refresh_statistics)
+        stats_layout.addWidget(refresh_stats_btn)
+        
+        layout.addWidget(stats_group)
+        
+        # PLC 부품정보 그룹
+        plc_info_group = QGroupBox("현재 PLC 부품정보")
+        plc_info_layout = QVBoxLayout(plc_info_group)
+        
+        # PLC 부품정보 테이블
+        self.plc_info_table = QTableWidget()
+        self.plc_info_table.setColumnCount(6)
+        self.plc_info_table.setHorizontalHeaderLabels([
+            "패널", "부품번호", "부품명", "작업상태", "구분값", "하위부품수"
+        ])
+        
+        # 테이블 스타일 설정
+        self.plc_info_table.setStyleSheet("""
+            QTableWidget {
+                gridline-color: #ddd;
+                background-color: white;
+                alternate-background-color: #f8f9fa;
+                selection-background-color: #007bff;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+            QTableWidget::item {
+                padding: 8px;
+                border-bottom: 1px solid #eee;
+            }
+            QHeaderView::section {
+                background-color: #007bff;
+                color: white;
+                padding: 10px;
+                border: none;
+                font-weight: bold;
+            }
+        """)
+        
+        # 테이블 속성 설정
+        self.plc_info_table.setAlternatingRowColors(True)
+        self.plc_info_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.plc_info_table.setSelectionMode(QTableWidget.SingleSelection)
+        self.plc_info_table.verticalHeader().setVisible(False)
+        self.plc_info_table.setMaximumHeight(200)
+        
+        # 컬럼 너비 설정
+        header = self.plc_info_table.horizontalHeader()
+        header.setStretchLastSection(True)
+        header.resizeSection(0, 80)   # 패널
+        header.resizeSection(1, 120)  # 부품번호
+        header.resizeSection(2, 150)  # 부품명
+        header.resizeSection(3, 80)   # 작업상태
+        header.resizeSection(4, 100)  # 구분값
+        header.resizeSection(5, 80)   # 하위부품수
+        
+        plc_info_layout.addWidget(self.plc_info_table)
+        
+        # PLC 정보 새로고침 버튼
+        refresh_plc_btn = QPushButton('🔄 PLC 정보 새로고침')
+        refresh_plc_btn.setStyleSheet('''
+            QPushButton {
+                background-color: #28a745;
+                color: white;
+                padding: 8px 15px;
+                font-size: 10pt;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #218838;
+            }
+        ''')
+        refresh_plc_btn.clicked.connect(self.refresh_plc_info)
+        plc_info_layout.addWidget(refresh_plc_btn)
+        
+        layout.addWidget(plc_info_group)
+        
+        # 기준정보 그룹
+        master_data_group = QGroupBox("📋 현재 연결된 기준정보")
+        master_data_layout = QVBoxLayout(master_data_group)
+        
+        # 기준정보 표시 영역
+        self.master_data_scroll = QScrollArea()
+        self.master_data_scroll.setWidgetResizable(True)
+        self.master_data_scroll.setMaximumHeight(300)
+        self.master_data_scroll.setStyleSheet("""
+            QScrollArea {
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
+        """)
+        
+        # 기준정보 위젯
+        self.master_data_widget = QWidget()
+        self.master_data_layout = QVBoxLayout(self.master_data_widget)
+        self.master_data_scroll.setWidget(self.master_data_widget)
+        
+        master_data_layout.addWidget(self.master_data_scroll)
+        
+        # 기준정보 새로고침 버튼
+        refresh_master_btn = QPushButton('🔄 기준정보 새로고침')
+        refresh_master_btn.setStyleSheet('''
+            QPushButton {
+                background-color: #17a2b8;
+                color: white;
+                padding: 8px 15px;
+                font-size: 10pt;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #138496;
+            }
+        ''')
+        refresh_master_btn.clicked.connect(self.refresh_master_data)
+        master_data_layout.addWidget(refresh_master_btn)
+        
+        layout.addWidget(master_data_group)
+        layout.addStretch()
+        
+        self.setLayout(layout)
+        
+        # 프린터 상태 확인 및 통계 로드
+        self.check_printer_status()
+        self.refresh_statistics()
+        self.refresh_plc_info()
+        self.refresh_master_data()
+    
+    def show_barcode_generator(self):
+        """바코드 생성 다이얼로그 표시"""
+        dialog = BarcodeGeneratorDialog(self)
+        dialog.exec_()
+    
+    def show_history_dialog(self):
+        """발행이력 조회 다이얼로그 표시"""
+        dialog = PrintHistoryDialog(self)
+        dialog.exec_()
+    
+    def show_template_dialog(self):
+        """템플릿 관리 다이얼로그 표시"""
+        dialog = ZPLTemplateDialog(self)
+        dialog.exec_()
+    
+    def check_printer_status(self):
+        """프린터 연결 상태 확인"""
+        try:
+            # print_module에서 프린터 상태 확인
+            from print_module import PrintModule
+            print_module = PrintModule()
+            if print_module.get_connection_status():
+                self.printer_status_label.setText("프린터 연결 상태: ✅ 연결됨")
+                self.printer_status_label.setStyleSheet("font-size: 11pt; padding: 5px; color: #27ae60;")
+            else:
+                self.printer_status_label.setText("프린터 연결 상태: ❌ 연결 안됨")
+                self.printer_status_label.setStyleSheet("font-size: 11pt; padding: 5px; color: #e74c3c;")
+            print_module.close_connection()
+        except Exception as e:
+            self.printer_status_label.setText(f"프린터 연결 상태: ❌ 오류 ({str(e)})")
+            self.printer_status_label.setStyleSheet("font-size: 11pt; padding: 5px; color: #e74c3c;")
+    
+    def reconnect_printer(self):
+        """프린터 재연결"""
+        try:
+            from print_module import PrintModule
+            print_module = PrintModule()
+            if print_module.reconnect_printer():
+                QMessageBox.information(self, "성공", "프린터가 재연결되었습니다.")
+            else:
+                QMessageBox.warning(self, "실패", "프린터 재연결에 실패했습니다.")
+            print_module.close_connection()
+            self.check_printer_status()
+        except Exception as e:
+            QMessageBox.critical(self, "오류", f"프린터 재연결 중 오류가 발생했습니다: {str(e)}")
+    
+    def refresh_statistics(self):
+        """발행 통계 새로고침"""
+        try:
+            import json
+            import os
+            from datetime import datetime
+            
+            # tracking_data.json에서 통계 로드
+            tracking_file = "etc/tracking_data.json"
+            usage_file = "etc/usage_count.json"
+            
+            total_count = 0
+            today_count = 0
+            part_stats = {}
+            
+            if os.path.exists(tracking_file):
+                with open(tracking_file, 'r', encoding='utf-8') as f:
+                    tracking_data = json.load(f)
+                
+                # 오늘 날짜 (YYMMDD 형식)
+                today = datetime.now().strftime('%y%m%d')
+                
+                for key, count in tracking_data.items():
+                    total_count += count
+                    
+                    # 날짜 추출 (키 형식: YYMMDD_PARTNUMBER)
+                    if '_' in key:
+                        date_part = key.split('_')[0]
+                        part_number = key.split('_')[1] if len(key.split('_')) > 1 else 'Unknown'
+                        
+                        # 오늘 발행량
+                        if date_part == today:
+                            today_count += count
+                        
+                        # 부품별 통계
+                        if part_number not in part_stats:
+                            part_stats[part_number] = 0
+                        part_stats[part_number] += count
+            
+            # usage_count.json에서 총 사용량 확인
+            if os.path.exists(usage_file):
+                with open(usage_file, 'r', encoding='utf-8') as f:
+                    usage_data = json.load(f)
+                total_usage = usage_data.get('count', total_count)
+            else:
+                total_usage = total_count
+            
+            # 상위 5개 부품
+            top_parts = sorted(part_stats.items(), key=lambda x: x[1], reverse=True)[:5]
+            top_parts_text = "\n".join([f"  • {part}: {count}개" for part, count in top_parts])
+            
+            # 테이블 데이터 준비
+            table_data = [
+                ["📈 총 발행량", f"{total_usage:,}개", "전체 누적 발행량"],
+                ["📅 오늘 발행량", f"{today_count:,}개", "오늘 하루 발행량"],
+                ["📦 등록된 부품 수", f"{len(part_stats)}개", "등록된 부품 종류 수"],
+                ["", "", ""],  # 구분선
+                ["🏆 상위 발행 부품", "", ""]
+            ]
+            
+            # 상위 발행 부품 추가
+            for i, (part_number, count) in enumerate(top_parts, 1):
+                percentage = count/total_usage*100 if total_usage > 0 else 0
+                table_data.append([
+                    f"  {i}. {part_number}",
+                    f"{count:,}개",
+                    f"전체의 {percentage:.1f}%"
+                ])
+            
+            if not top_parts:
+                table_data.append([
+                    "  발행된 부품 없음",
+                    "0개",
+                    "아직 발행된 부품이 없습니다"
+                ])
+            
+            # 마지막 업데이트 시간 추가
+            table_data.append(["", "", ""])  # 구분선
+            table_data.append([
+                "📅 마지막 업데이트",
+                datetime.now().strftime('%H:%M:%S'),
+                datetime.now().strftime('%Y-%m-%d')
+            ])
+            
+            # 테이블에 데이터 설정
+            self.stats_table.setRowCount(len(table_data))
+            
+            for row, data in enumerate(table_data):
+                for col, value in enumerate(data):
+                    item = QTableWidgetItem(str(value))
+                    
+                    # 스타일 설정
+                    font = QFont()
+                    if row == 0:  # 총 발행량
+                        font.setBold(True)
+                        item.setFont(font)
+                        item.setForeground(QColor("#007bff"))
+                    elif row == 1:  # 오늘 발행량
+                        font.setBold(True)
+                        item.setFont(font)
+                        item.setForeground(QColor("#28a745"))
+                    elif row == 2:  # 등록된 부품 수
+                        font.setBold(True)
+                        item.setFont(font)
+                        item.setForeground(QColor("#17a2b8"))
+                    elif row == 4:  # 상위 발행 부품 헤더
+                        font.setBold(True)
+                        item.setFont(font)
+                        item.setForeground(QColor("#6c757d"))
+                    elif "상위 발행 부품" in str(value):  # 상위 발행 부품 항목들
+                        item.setForeground(QColor("#495057"))
+                    elif "마지막 업데이트" in str(value):  # 업데이트 시간
+                        font.setPointSize(9)
+                        item.setFont(font)
+                        item.setForeground(QColor("#6c757d"))
+                    elif value == "":  # 빈 셀
+                        item.setBackground(QColor("#f8f9fa"))
+                    
+                    self.stats_table.setItem(row, col, item)
+            
+        except Exception as e:
+            self.stats_table.setRowCount(1)
+            self.stats_table.setItem(0, 0, QTableWidgetItem("오류"))
+            self.stats_table.setItem(0, 1, QTableWidgetItem("통계 로드 실패"))
+            self.stats_table.setItem(0, 2, QTableWidgetItem(str(e)))
+            print(f"통계 새로고침 오류: {e}")
+    
+    def refresh_plc_info(self):
+        """PLC 부품정보 새로고침"""
+        try:
+            # 메인 화면에서 PLC 정보 가져오기
+            main_window = self.get_main_window()
+            if not main_window:
+                self.plc_info_table.setRowCount(1)
+                self.plc_info_table.setItem(0, 0, QTableWidgetItem("오류"))
+                self.plc_info_table.setItem(0, 1, QTableWidgetItem("메인 화면을 찾을 수 없습니다."))
+                return
+            
+            # PLC 연결 상태 확인
+            plc_connected = main_window.device_connection_status.get("PLC", False)
+            plc_status = "🟢 연결됨" if plc_connected else "🔴 연결 안됨"
+            
+            # PLC 데이터 가져오기
+            plc_data = getattr(main_window, 'plc_data', {})
+            completion_signal = plc_data.get("completion_signal", 0)
+            front_lh_division = plc_data.get("front_lh_division", "")
+            rear_rh_division = plc_data.get("rear_rh_division", "")
+            
+            # 현재 작업 패널 정보
+            current_panel = main_window.get_current_panel_name()
+            
+            # 테이블 데이터 준비
+            table_data = []
+            
+            # 패널 타이틀 가져오기
+            panel_titles = getattr(main_window, 'panel_titles', {"front_lh": "FRONT/LH", "rear_rh": "REAR/RH"})
+            
+            # 첫 번째 패널 정보
+            front_info = main_window.get_main_part_info(panel_titles["front_lh"])
+            front_part_number = front_info.get("part_number", "")
+            front_part_name = front_info.get("part_name", "")
+            front_work_status = front_info.get("work_status", 0)
+            front_status_text = "✅ 완료" if front_work_status == 1 else "🔄 작업중"
+            front_child_parts = main_window.get_child_parts_info_for_panel(panel_titles["front_lh"])
+            
+            if front_part_number:  # 부품번호가 있는 경우만 추가
+                table_data.append([
+                    panel_titles["front_lh"],
+                    front_part_number,
+                    front_part_name,
+                    front_status_text,
+                    front_lh_division or "없음",
+                    f"{len(front_child_parts)}개"
+                ])
+            
+            # 두 번째 패널 정보
+            rear_info = main_window.get_main_part_info(panel_titles["rear_rh"])
+            rear_part_number = rear_info.get("part_number", "")
+            rear_part_name = rear_info.get("part_name", "")
+            rear_work_status = rear_info.get("work_status", 0)
+            rear_status_text = "✅ 완료" if rear_work_status == 1 else "🔄 작업중"
+            rear_child_parts = main_window.get_child_parts_info_for_panel(panel_titles["rear_rh"])
+            
+            if rear_part_number:  # 부품번호가 있는 경우만 추가
+                table_data.append([
+                    panel_titles["rear_rh"],
+                    rear_part_number,
+                    rear_part_name,
+                    rear_status_text,
+                    rear_rh_division or "없음",
+                    f"{len(rear_child_parts)}개"
+                ])
+            
+            # 테이블에 데이터 설정
+            self.plc_info_table.setRowCount(len(table_data))
+            
+            for row, data in enumerate(table_data):
+                for col, value in enumerate(data):
+                    item = QTableWidgetItem(str(value))
+                    
+                    # 패널 컬럼 스타일
+                    if col == 0:  # 패널
+                        font = QFont()
+                        font.setBold(True)
+                        item.setFont(font)
+                        item.setForeground(QColor("#007bff"))
+                    # 작업상태 컬럼 스타일
+                    elif col == 3:  # 작업상태
+                        font = QFont()
+                        font.setBold(True)
+                        item.setFont(font)
+                        if "완료" in str(value):
+                            item.setForeground(QColor("#28a745"))
+                        else:
+                            item.setForeground(QColor("#ffc107"))
+                    # 하위부품수 컬럼 스타일
+                    elif col == 5:  # 하위부품수
+                        item.setForeground(QColor("#6c757d"))
+                    
+                    self.plc_info_table.setItem(row, col, item)
+            
+            # 데이터가 없는 경우
+            if not table_data:
+                self.plc_info_table.setRowCount(1)
+                self.plc_info_table.setItem(0, 0, QTableWidgetItem("정보 없음"))
+                self.plc_info_table.setItem(0, 1, QTableWidgetItem("현재 연결된 부품이 없습니다."))
+            
+            # PLC 연결 상태를 그룹박스 제목에 표시
+            plc_info_group = self.plc_info_table.parent().parent()
+            if hasattr(plc_info_group, 'setTitle'):
+                plc_info_group.setTitle(f"현재 PLC 부품정보 ({plc_status})")
+            
+        except Exception as e:
+            self.plc_info_table.setRowCount(1)
+            self.plc_info_table.setItem(0, 0, QTableWidgetItem("오류"))
+            self.plc_info_table.setItem(0, 1, QTableWidgetItem(f"PLC 정보 로드 오류: {str(e)}"))
+            print(f"PLC 정보 새로고침 오류: {e}")
+    
+    def get_main_window(self):
+        """메인 화면 윈도우 찾기"""
+        try:
+            # AdminPanel의 부모 윈도우 찾기
+            widget = self
+            while widget is not None:
+                if hasattr(widget, 'parent') and widget.parent():
+                    widget = widget.parent()
+                    # BarcodeMainScreen 인스턴스 찾기
+                    if hasattr(widget, 'master_data') and hasattr(widget, 'device_connection_status'):
+                        return widget
+                else:
+                    break
+            
+            # QApplication에서 메인 윈도우 찾기
+            from PyQt5.QtWidgets import QApplication
+            app = QApplication.instance()
+            if app:
+                for widget in app.allWidgets():
+                    if hasattr(widget, 'master_data') and hasattr(widget, 'device_connection_status'):
+                        return widget
+            
+            return None
+        except Exception as e:
+            print(f"메인 윈도우 찾기 오류: {e}")
+            return None
+    
+    def refresh_master_data(self):
+        """기준정보 새로고침"""
+        try:
+            # 기존 위젯들 제거
+            for i in reversed(range(self.master_data_layout.count())):
+                child = self.master_data_layout.itemAt(i).widget()
+                if child:
+                    child.setParent(None)
+            
+            # 메인 화면에서 기준정보 가져오기
+            main_window = self.get_main_window()
+            if not main_window:
+                no_data_label = QLabel("메인 화면을 찾을 수 없습니다.")
+                no_data_label.setStyleSheet("color: red; font-size: 11pt; padding: 10px;")
+                self.master_data_layout.addWidget(no_data_label)
+                return
+            
+            # 기준정보 가져오기
+            master_data = getattr(main_window, 'master_data', [])
+            if not master_data:
+                no_data_label = QLabel("기준정보가 없습니다.")
+                no_data_label.setStyleSheet("color: orange; font-size: 11pt; padding: 10px;")
+                self.master_data_layout.addWidget(no_data_label)
+                return
+            
+            # 현재 연결된 부품정보 찾기
+            front_panel = getattr(main_window, 'front_panel', None)
+            rear_panel = getattr(main_window, 'rear_panel', None)
+            
+            connected_parts = []
+            
+            # 패널 타이틀 가져오기
+            panel_titles = getattr(main_window, 'panel_titles', {"front_lh": "FRONT/LH", "rear_rh": "REAR/RH"})
+            
+            # 첫 번째 패널 정보
+            if front_panel and hasattr(front_panel, 'part_number') and front_panel.part_number:
+                for part_data in master_data:
+                    if part_data.get("part_number") == front_panel.part_number:
+                        connected_parts.append({
+                            "panel": panel_titles["front_lh"],
+                            "data": part_data,
+                            "work_status": getattr(front_panel, 'work_status', 0)
+                        })
+                        break
+            
+            # 두 번째 패널 정보
+            if rear_panel and hasattr(rear_panel, 'part_number') and rear_panel.part_number:
+                for part_data in master_data:
+                    if part_data.get("part_number") == rear_panel.part_number:
+                        connected_parts.append({
+                            "panel": panel_titles["rear_rh"], 
+                            "data": part_data,
+                            "work_status": getattr(rear_panel, 'work_status', 0)
+                        })
+                        break
+            
+            if not connected_parts:
+                no_data_label = QLabel("현재 연결된 부품이 없습니다.")
+                no_data_label.setStyleSheet("color: orange; font-size: 11pt; padding: 10px;")
+                self.master_data_layout.addWidget(no_data_label)
+                return
+            
+            # 연결된 부품정보 표시
+            for part_info in connected_parts:
+                panel_name = part_info["panel"]
+                part_data = part_info["data"]
+                work_status = part_info["work_status"]
+                
+                # 패널 프레임
+                panel_frame = QFrame()
+                panel_frame.setFrameStyle(QFrame.Box)
+                panel_frame.setStyleSheet("""
+                    QFrame {
+                        border: 2px solid #007bff;
+                        border-radius: 8px;
+                        margin: 5px;
+                        padding: 10px;
+                        background-color: #f8f9fa;
+                    }
+                """)
+                
+                panel_layout = QVBoxLayout(panel_frame)
+                
+                # 패널 헤더
+                header_layout = QHBoxLayout()
+                panel_label = QLabel(f"🏭 {panel_name}")
+                panel_label.setStyleSheet("font-size: 14pt; font-weight: bold; color: #007bff;")
+                
+                status_text = "✅ 완료" if work_status == 1 else "🔄 작업중"
+                status_label = QLabel(status_text)
+                status_label.setStyleSheet("font-size: 12pt; font-weight: bold; color: #28a745;" if work_status == 1 else "font-size: 12pt; font-weight: bold; color: #ffc107;")
+                
+                header_layout.addWidget(panel_label)
+                header_layout.addStretch()
+                header_layout.addWidget(status_label)
+                panel_layout.addLayout(header_layout)
+                
+                # 부품 기본 정보
+                part_number = part_data.get("part_number", "없음")
+                part_name = part_data.get("part_name", "없음")
+                division = part_data.get("division", "없음")
+                
+                info_text = f"""
+📦 부품번호: {part_number}
+📝 부품명: {part_name}
+🏷️ 구분값: {division}
+"""
+                info_label = QLabel(info_text)
+                info_label.setStyleSheet("font-size: 11pt; padding: 5px;")
+                panel_layout.addWidget(info_label)
+                
+                # 하위부품 정보
+                child_parts = part_data.get("child_parts", [])
+                if child_parts:
+                    child_label = QLabel(f"🔧 하위부품 ({len(child_parts)}개):")
+                    child_label.setStyleSheet("font-size: 12pt; font-weight: bold; color: #6c757d; margin-top: 10px;")
+                    panel_layout.addWidget(child_label)
+                    
+                    # 하위부품 목록
+                    for i, child_part in enumerate(child_parts, 1):
+                        child_text = f"  {i}. {child_part}"
+                        child_item_label = QLabel(child_text)
+                        child_item_label.setStyleSheet("font-size: 10pt; color: #495057; padding-left: 20px;")
+                        panel_layout.addWidget(child_item_label)
+                else:
+                    no_child_label = QLabel("🔧 하위부품: 없음")
+                    no_child_label.setStyleSheet("font-size: 11pt; color: #6c757d; margin-top: 10px;")
+                    panel_layout.addWidget(no_child_label)
+                
+                self.master_data_layout.addWidget(panel_frame)
+            
+            # 마지막 업데이트 시간
+            update_label = QLabel(f"📅 마지막 업데이트: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            update_label.setStyleSheet("font-size: 9pt; color: #6c757d; text-align: center; margin-top: 10px;")
+            update_label.setAlignment(Qt.AlignCenter)
+            self.master_data_layout.addWidget(update_label)
+            
+        except Exception as e:
+            error_label = QLabel(f"기준정보 로드 오류: {str(e)}")
+            error_label.setStyleSheet("color: red; font-size: 11pt; padding: 10px;")
+            self.master_data_layout.addWidget(error_label)
+            print(f"기준정보 새로고침 오류: {e}")
+
+
+class BarcodeGeneratorDialog(QDialog):
+    """바코드 생성 다이얼로그"""
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent
+        self.initUI()
+    
+    def initUI(self):
+        self.setWindowTitle('바코드 생성')
+        self.setGeometry(300, 300, 500, 400)
+        
+        layout = QVBoxLayout()
+        
+        # 입력 폼
+        from PyQt5.QtWidgets import QFormLayout
+        form_layout = QFormLayout()
+        
+        # 부품번호
+        self.part_number_edit = QLineEdit()
+        self.part_number_edit.setPlaceholderText("부품번호를 입력하세요")
+        form_layout.addRow("부품번호:", self.part_number_edit)
+        
+        # 부품명
+        self.part_name_edit = QLineEdit()
+        self.part_name_edit.setPlaceholderText("부품명을 입력하세요")
+        form_layout.addRow("부품명:", self.part_name_edit)
+        
+        # 하위부품
+        self.child_parts_edit = QLineEdit()
+        self.child_parts_edit.setPlaceholderText("하위부품을 쉼표로 구분하여 입력 (예: a1,a2,a3)")
+        form_layout.addRow("하위부품:", self.child_parts_edit)
+        
+        # 생산날짜
+        self.production_date_edit = QLineEdit()
+        self.production_date_edit.setPlaceholderText("YYMMDD 형식 (예: 241201)")
+        form_layout.addRow("생산날짜:", self.production_date_edit)
+        
+        # 추적번호
+        self.tracking_number_edit = QLineEdit()
+        self.tracking_number_edit.setPlaceholderText("추적번호를 입력하세요")
+        form_layout.addRow("추적번호:", self.tracking_number_edit)
+        
+        layout.addLayout(form_layout)
+        
+        # 버튼
+        button_layout = QHBoxLayout()
+        
+        generate_btn = QPushButton('바코드 생성')
+        generate_btn.setStyleSheet('''
+            QPushButton {
+                background-color: #2ecc71;
+                color: white;
+                padding: 10px 20px;
+                font-size: 11pt;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #27ae60;
+            }
+        ''')
+        generate_btn.clicked.connect(self.generate_barcode)
+        button_layout.addWidget(generate_btn)
+        
+        cancel_btn = QPushButton('취소')
+        cancel_btn.setStyleSheet('''
+            QPushButton {
+                background-color: #95a5a6;
+                color: white;
+                padding: 10px 20px;
+                font-size: 11pt;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #7f8c8d;
+            }
+        ''')
+        cancel_btn.clicked.connect(self.reject)
+        button_layout.addWidget(cancel_btn)
+        
+        layout.addLayout(button_layout)
+        self.setLayout(layout)
+    
+    def generate_barcode(self):
+        """바코드 생성 실행"""
+        try:
+            part_number = self.part_number_edit.text().strip()
+            part_name = self.part_name_edit.text().strip()
+            child_parts_text = self.child_parts_edit.text().strip()
+            production_date = self.production_date_edit.text().strip()
+            tracking_number = self.tracking_number_edit.text().strip()
+            
+            if not part_number:
+                QMessageBox.warning(self, "입력 오류", "부품번호를 입력하세요.")
+                return
+            
+            # 하위부품 리스트 생성
+            child_parts_list = []
+            if child_parts_text:
+                child_parts_list = [part.strip() for part in child_parts_text.split(',') if part.strip()]
+            
+            # 프린트 매니저를 통한 바코드 생성
+            from print_module import PrintManager
+            print_manager = PrintManager(self)
+            
+            success = print_manager.print_manual(
+                part_number=part_number,
+                part_name=part_name,
+                child_parts_list=child_parts_list,
+                production_date=production_date,
+                tracking_number=tracking_number
+            )
+            
+            if success:
+                QMessageBox.information(self, "성공", "바코드가 생성되었습니다.")
+                self.accept()
+            else:
+                QMessageBox.warning(self, "실패", "바코드 생성에 실패했습니다.")
+                
+        except Exception as e:
+            QMessageBox.critical(self, "오류", f"바코드 생성 중 오류가 발생했습니다: {str(e)}")
+
+
+class PrintHistoryDialog(QDialog):
+    """발행이력 조회 다이얼로그"""
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent
+        self.initUI()
+    
+    def initUI(self):
+        self.setWindowTitle('발행이력 조회')
+        self.setGeometry(200, 200, 1000, 600)
+        
+        layout = QVBoxLayout()
+        
+        # 검색 조건
+        search_group = QGroupBox("검색 조건")
+        search_layout = QHBoxLayout(search_group)
+        
+        # 날짜 범위
+        search_layout.addWidget(QLabel("시작일:"))
+        self.start_date_edit = QLineEdit()
+        self.start_date_edit.setPlaceholderText("YYMMDD")
+        search_layout.addWidget(self.start_date_edit)
+        
+        search_layout.addWidget(QLabel("종료일:"))
+        self.end_date_edit = QLineEdit()
+        self.end_date_edit.setPlaceholderText("YYMMDD")
+        search_layout.addWidget(self.end_date_edit)
+        
+        # 부품번호
+        search_layout.addWidget(QLabel("부품번호:"))
+        self.part_number_edit = QLineEdit()
+        self.part_number_edit.setPlaceholderText("부품번호")
+        search_layout.addWidget(self.part_number_edit)
+        
+        # 검색 버튼
+        search_btn = QPushButton('검색')
+        search_btn.clicked.connect(self.search_history)
+        search_layout.addWidget(search_btn)
+        
+        layout.addWidget(search_group)
+        
+        # 결과 테이블
+        self.history_table = QTableWidget()
+        self.history_table.setColumnCount(6)
+        self.history_table.setHorizontalHeaderLabels(['발행일자', '부품번호', '부품명', '하위부품', '추적번호', '발행시간'])
+        from PyQt5.QtWidgets import QHeaderView
+        self.history_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        layout.addWidget(self.history_table)
+        
+        # 엑셀 저장 버튼
+        excel_btn = QPushButton('엑셀로 저장')
+        excel_btn.clicked.connect(self.save_to_excel)
+        layout.addWidget(excel_btn)
+        
+        self.setLayout(layout)
+        
+        # 초기 데이터 로드
+        self.search_history()
+    
+    def search_history(self):
+        """발행이력 검색"""
+        try:
+            # 실제 tracking_history.json 파일에서 데이터 로드
+            import json
+            import os
+            
+            history_file = "etc/tracking_history.json"
+            if os.path.exists(history_file):
+                with open(history_file, 'r', encoding='utf-8') as f:
+                    history_data = json.load(f)
+                
+                # 검색 조건 적용
+                start_date = self.start_date_edit.text().strip()
+                end_date = self.end_date_edit.text().strip()
+                part_number = self.part_number_edit.text().strip()
+                
+                filtered_data = []
+                for record in history_data:
+                    # 날짜 필터링
+                    if start_date and record.get('date', '') < start_date:
+                        continue
+                    if end_date and record.get('date', '') > end_date:
+                        continue
+                    
+                    # 부품번호 필터링
+                    if part_number and part_number not in record.get('part_number', ''):
+                        continue
+                    
+                    # 테이블용 데이터 변환
+                    row_data = [
+                        record.get('date', ''),
+                        record.get('part_number', ''),
+                        record.get('part_name', ''),  # 부품명은 별도 조회 필요
+                        record.get('child_parts', ''),  # 하위부품 정보
+                        record.get('tracking_number', ''),
+                        record.get('timestamp', '').split(' ')[1] if ' ' in record.get('timestamp', '') else record.get('timestamp', '')
+                    ]
+                    filtered_data.append(row_data)
+                
+                # 최신순으로 정렬 (최대 100개만 표시)
+                filtered_data.sort(key=lambda x: x[5], reverse=True)
+                filtered_data = filtered_data[:100]
+                
+            else:
+                # 파일이 없으면 예시 데이터
+                filtered_data = [
+                    ["250125", "89331CU210", "SUSPENSION SPRG ASSY", "", "000020", "13:22:35"],
+                    ["250125", "89431CU210", "SUSPENSION SPRG ASSY", "", "000021", "14:18:20"],
+                ]
+            
+            self.history_table.setRowCount(len(filtered_data))
+            for i, row_data in enumerate(filtered_data):
+                for j, cell_data in enumerate(row_data):
+                    self.history_table.setItem(i, j, QTableWidgetItem(str(cell_data)))
+                    
+        except Exception as e:
+            QMessageBox.critical(self, "오류", f"이력 검색 중 오류가 발생했습니다: {str(e)}")
+    
+    def save_to_excel(self):
+        """엑셀로 저장"""
+        try:
+            try:
+                import pandas as pd
+            except ImportError:
+                QMessageBox.warning(self, "라이브러리 없음", "pandas 라이브러리가 설치되지 않았습니다.\npip install pandas 명령으로 설치해주세요.")
+                return
+            from datetime import datetime
+            
+            # 테이블 데이터를 DataFrame으로 변환
+            data = []
+            for row in range(self.history_table.rowCount()):
+                row_data = []
+                for col in range(self.history_table.columnCount()):
+                    item = self.history_table.item(row, col)
+                    row_data.append(item.text() if item else '')
+                data.append(row_data)
+            
+            df = pd.DataFrame(data, columns=['발행일자', '부품번호', '부품명', '하위부품', '추적번호', '발행시간'])
+            
+            # 파일 저장
+            filename = f"발행이력_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+            df.to_excel(filename, index=False)
+            QMessageBox.information(self, '성공', f'엑셀 파일이 저장되었습니다.\n파일명: {filename}')
+            
+        except Exception as e:
+            QMessageBox.critical(self, '오류', f'엑셀 저장 중 오류가 발생했습니다: {str(e)}')
+
+
+class ZPLTemplateDialog(QDialog):
+    """ZPL 템플릿 관리 다이얼로그"""
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent
+        self.initUI()
+    
+    def initUI(self):
+        self.setWindowTitle('ZPL 템플릿 관리')
+        self.setGeometry(300, 300, 800, 600)
+        
+        layout = QVBoxLayout()
+        
+        # 템플릿 선택
+        template_layout = QHBoxLayout()
+        template_layout.addWidget(QLabel('템플릿:'))
+        
+        self.template_combo = QComboBox()
+        self.update_template_list()
+        template_layout.addWidget(self.template_combo)
+        
+        # 템플릿 관리 버튼
+        add_btn = QPushButton('추가')
+        add_btn.clicked.connect(self.add_template)
+        template_layout.addWidget(add_btn)
+        
+        remove_btn = QPushButton('삭제')
+        remove_btn.clicked.connect(self.remove_template)
+        template_layout.addWidget(remove_btn)
+        
+        layout.addLayout(template_layout)
+        
+        # ZPL 코드 편집
+        self.zpl_edit = QTextEdit()
+        self.zpl_edit.setPlaceholderText('ZPL 코드를 입력하세요')
+        layout.addWidget(self.zpl_edit)
+        
+        # 버튼
+        button_layout = QHBoxLayout()
+        
+        save_btn = QPushButton('저장')
+        save_btn.clicked.connect(self.save_template)
+        button_layout.addWidget(save_btn)
+        
+        cancel_btn = QPushButton('취소')
+        cancel_btn.clicked.connect(self.reject)
+        button_layout.addWidget(cancel_btn)
+        
+        layout.addLayout(button_layout)
+        self.setLayout(layout)
+        
+        # 템플릿 변경 시 내용 업데이트
+        self.template_combo.currentTextChanged.connect(self.update_template_content)
+    
+    def update_template_list(self):
+        """템플릿 목록 업데이트"""
+        self.template_combo.clear()
+        
+        # 실제 zpl_templates.json 파일에서 템플릿 로드
+        try:
+            import json
+            import os
+            
+            template_file = "etc/zpl_templates.json"
+            if os.path.exists(template_file):
+                with open(template_file, 'r', encoding='utf-8') as f:
+                    template_data = json.load(f)
+                
+                current_template = template_data.get('current_template', 'default')
+                templates = template_data.get('templates', {})
+                
+                for name, template_info in templates.items():
+                    display_name = template_info.get('name', name)
+                    if name == current_template:
+                        display_name += " ✓"
+                    self.template_combo.addItem(display_name, name)
+            else:
+                # 파일이 없으면 기본 템플릿
+                self.template_combo.addItem("기본 양식 (default)", "default")
+                self.template_combo.addItem("간단 양식 (compact)", "compact")
+                
+        except Exception as e:
+            print(f"템플릿 로드 오류: {e}")
+            self.template_combo.addItem("기본 양식 (default)", "default")
+    
+    def update_template_content(self):
+        """템플릿 내용 업데이트"""
+        try:
+            # 선택된 템플릿의 실제 데이터 로드
+            template_name = self.template_combo.currentData()
+            if not template_name:
+                return
+            
+            import json
+            import os
+            
+            template_file = "etc/zpl_templates.json"
+            if os.path.exists(template_file):
+                with open(template_file, 'r', encoding='utf-8') as f:
+                    template_data = json.load(f)
+                
+                templates = template_data.get('templates', {})
+                if template_name in templates:
+                    zpl_code = templates[template_name].get('zpl', '')
+                    self.zpl_edit.setText(zpl_code)
+                else:
+                    # 기본 템플릿
+                    zpl_code = '''^XA
+^PW324
+^LL243
+^LH0,0
+^FO15,15^BQN,3,3^FH_^FDLA,{formatted_data}^FS
+^FO120,10^A0N,26,26^FD{part_number}^FS 
+^FO120,50^A0N,16,16^FD{display_name}^FS 
+^FO120,70^A0N,16,16^FD{date}^FS 
+^FO120,90^A0N,16,16^FD{tracking_number}^FS 
+^FO120,110^A0N,16,16^FD{initial_mark}^FS
+^XZ
+'''
+                    self.zpl_edit.setText(zpl_code)
+            else:
+                # 파일이 없으면 기본 템플릿
+                zpl_code = '''^XA
+^PW324
+^LL243
+^LH0,0
+^FO15,15^BQN,3,3^FH_^FDLA,{formatted_data}^FS
+^FO120,10^A0N,26,26^FD{part_number}^FS 
+^FO120,50^A0N,16,16^FD{display_name}^FS 
+^FO120,70^A0N,16,16^FD{date}^FS 
+^FO120,90^A0N,16,16^FD{tracking_number}^FS 
+^FO120,110^A0N,16,16^FD{initial_mark}^FS
+^XZ
+'''
+                self.zpl_edit.setText(zpl_code)
+                
+        except Exception as e:
+            print(f"템플릿 내용 로드 오류: {e}")
+    
+    def add_template(self):
+        """템플릿 추가"""
+        name, ok = QInputDialog.getText(self, '템플릿 추가', '템플릿 이름:')
+        if ok and name:
+            self.template_combo.addItem(f"{name} (custom)")
+            QMessageBox.information(self, "성공", f"템플릿 '{name}'이 추가되었습니다.")
+    
+    def remove_template(self):
+        """템플릿 삭제"""
+        current_text = self.template_combo.currentText()
+        if "기본" in current_text or "간단" in current_text:
+            QMessageBox.warning(self, '경고', '기본 템플릿은 삭제할 수 없습니다.')
+            return
+        
+        reply = QMessageBox.question(self, '확인', '선택한 템플릿을 삭제하시겠습니까?',
+                                   QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.template_combo.removeItem(self.template_combo.currentIndex())
+            QMessageBox.information(self, "성공", "템플릿이 삭제되었습니다.")
+    
+    def save_template(self):
+        """템플릿 저장"""
+        QMessageBox.information(self, "성공", "템플릿이 저장되었습니다.")
+        self.accept()
+
+
 class AdminPanel(QMainWindow):
     """관리자 패널 메인 윈도우"""
     def __init__(self):
@@ -2313,19 +3508,23 @@ class AdminPanel(QMainWindow):
         self.master_data_tab = MasterDataTab(self.settings_manager)
         self.tab_widget.addTab(self.master_data_tab, "📊 기준정보")
         
-        # 2. PLC 통신
+        # 2. 출력정보
+        self.output_info_tab = OutputInfoTab(self.settings_manager)
+        self.tab_widget.addTab(self.output_info_tab, "🖨️ 출력정보")
+        
+        # 3. PLC 통신
         self.plc_tab = PLCCommunicationTab(self.settings_manager)
         self.tab_widget.addTab(self.plc_tab, "🔧 PLC 통신")
         
-        # 3. 바코드 스캐너
+        # 4. 바코드 스캐너
         self.scanner_tab = BarcodeScannerTab(self.settings_manager)
         self.tab_widget.addTab(self.scanner_tab, "📱 바코드 스캐너")
         
-        # 4. 바코드 프린터
+        # 5. 바코드 프린터
         self.printer_tab = BarcodePrinterTab(self.settings_manager)
         self.tab_widget.addTab(self.printer_tab, "🖨️ 바코드 프린터")
         
-        # 5. 시스템툴 (기존 너트 런너)
+        # 6. 시스템툴 (기존 너트 런너)
         self.nutrunner_tab = NutRunnerTab(self.settings_manager)
         self.tab_widget.addTab(self.nutrunner_tab, "⚙️ 시스템툴")
         

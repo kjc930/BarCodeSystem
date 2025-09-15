@@ -414,167 +414,218 @@ class BarcodeAnalysisDialog(QDialog):
     
     def toggle_language(self):
         """언어 전환 (한국어 ↔ 영어)"""
-        self.is_english = not self.is_english
-        
-        if self.is_english:
-            self.setWindowTitle("H/KMC Parts 2D Barcode Analysis Result")
-            self.update_ui_to_english()
-        else:
-            self.setWindowTitle("H/KMC 부품 2D 바코드 분석 결과")
-            self.update_ui_to_korean()
+        try:
+            self.is_english = not self.is_english
+            
+            if self.is_english:
+                self.setWindowTitle("H/KMC Parts 2D Barcode Analysis Result")
+                self.update_ui_to_english()
+            else:
+                self.setWindowTitle("H/KMC 부품 2D 바코드 분석 결과")
+                self.update_ui_to_korean()
+        except Exception as e:
+            print(f"DEBUG: 언어 전환 중 오류 발생: {e}")
+            # 오류 발생 시 원래 상태로 복구
+            self.is_english = not self.is_english
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.warning(self, "오류", f"언어 전환 중 오류가 발생했습니다: {str(e)}")
     
     def update_ui_to_english(self):
         """UI를 영어로 업데이트"""
-        # 바코드 내용 헤더 업데이트
-        for i in range(self.layout().count()):
-            widget = self.layout().itemAt(i).widget()
-            if isinstance(widget, QLabel) and widget.text() == "바코드내용":
-                widget.setText("Barcode Content")
-                break
-        
-        # 테이블 헤더 업데이트
-        for i in range(self.layout().count()):
-            widget = self.layout().itemAt(i).widget()
-            if isinstance(widget, QLabel) and widget.text() == "H/KMC부품 2D 바코드 표준":
-                widget.setText("H/KMC Parts 2D Barcode Standard")
-                break
-        
-        # 섹션 제목들 업데이트
-        self.spec_label.setText("Spec Info")
-        self.trace_label.setText("Traceability Info")
-        self.additional_label.setText("Additional Info")
-        
-        # 테이블 내용 업데이트
-        self.update_table_to_english()
-        
-        # 버튼 텍스트 업데이트
-        self.language_btn.setText("Language")
-        self.history_btn.setText("History")
-        self.scan_btn.setText("Scan")
+        try:
+            # 바코드 내용 헤더 업데이트
+            for i in range(self.layout().count()):
+                widget = self.layout().itemAt(i).widget()
+                if isinstance(widget, QLabel) and widget.text() == "바코드내용":
+                    widget.setText("Barcode Content")
+                    break
+            
+            # 테이블 헤더 업데이트
+            for i in range(self.layout().count()):
+                widget = self.layout().itemAt(i).widget()
+                if isinstance(widget, QLabel) and widget.text() == "H/KMC부품 2D 바코드 표준":
+                    widget.setText("H/KMC Parts 2D Barcode Standard")
+                    break
+            
+            # 섹션 제목들 업데이트
+            if hasattr(self, 'spec_label'):
+                self.spec_label.setText("Spec Info")
+            if hasattr(self, 'trace_label'):
+                self.trace_label.setText("Traceability Info")
+            if hasattr(self, 'additional_label'):
+                self.additional_label.setText("Additional Info")
+            
+            # 테이블 내용 업데이트
+            self.update_table_to_english()
+            
+            # 버튼 텍스트 업데이트
+            if hasattr(self, 'language_btn'):
+                self.language_btn.setText("Language")
+            if hasattr(self, 'history_btn'):
+                self.history_btn.setText("History")
+            if hasattr(self, 'scan_btn'):
+                self.scan_btn.setText("Scan")
+        except Exception as e:
+            print(f"DEBUG: 영어 UI 업데이트 중 오류 발생: {e}")
+            raise
     
     def update_ui_to_korean(self):
         """UI를 한국어로 업데이트"""
-        # 바코드 내용 헤더 업데이트
-        for i in range(self.layout().count()):
-            widget = self.layout().itemAt(i).widget()
-            if isinstance(widget, QLabel) and widget.text() == "Barcode Content":
-                widget.setText("바코드내용")
-                break
-        
-        # 테이블 헤더 업데이트
-        for i in range(self.layout().count()):
-            widget = self.layout().itemAt(i).widget()
-            if isinstance(widget, QLabel) and widget.text() == "H/KMC Parts 2D Barcode Standard":
-                widget.setText("H/KMC부품 2D 바코드 표준")
-                break
-        
-        # 섹션 제목들 업데이트
-        self.spec_label.setText("사양정보")
-        self.trace_label.setText("추적정보")
-        self.additional_label.setText("부가정보")
-        
-        # 테이블 내용 업데이트
-        self.update_table_to_korean()
-        
-        # 버튼 텍스트 업데이트
-        self.language_btn.setText("언어")
-        self.history_btn.setText("이력")
-        self.scan_btn.setText("스캔")
+        try:
+            # 바코드 내용 헤더 업데이트
+            for i in range(self.layout().count()):
+                widget = self.layout().itemAt(i).widget()
+                if isinstance(widget, QLabel) and widget.text() == "Barcode Content":
+                    widget.setText("바코드내용")
+                    break
+            
+            # 테이블 헤더 업데이트
+            for i in range(self.layout().count()):
+                widget = self.layout().itemAt(i).widget()
+                if isinstance(widget, QLabel) and widget.text() == "H/KMC Parts 2D Barcode Standard":
+                    widget.setText("H/KMC부품 2D 바코드 표준")
+                    break
+            
+            # 섹션 제목들 업데이트
+            if hasattr(self, 'spec_label'):
+                self.spec_label.setText("사양정보")
+            if hasattr(self, 'trace_label'):
+                self.trace_label.setText("추적정보")
+            if hasattr(self, 'additional_label'):
+                self.additional_label.setText("부가정보")
+            
+            # 테이블 내용 업데이트
+            self.update_table_to_korean()
+            
+            # 버튼 텍스트 업데이트
+            if hasattr(self, 'language_btn'):
+                self.language_btn.setText("언어")
+            if hasattr(self, 'history_btn'):
+                self.history_btn.setText("이력")
+            if hasattr(self, 'scan_btn'):
+                self.scan_btn.setText("스캔")
+        except Exception as e:
+            print(f"DEBUG: 한국어 UI 업데이트 중 오류 발생: {e}")
+            raise
     
     def update_table_to_english(self):
         """테이블 내용을 영어로 업데이트"""
-        if not self.table_widget:
-            return
+        try:
+            if not self.table_widget:
+                return
+                
+            # 특정 행들의 데이터 직접 업데이트
+            if hasattr(self, 'sequence_code_row'):
+                self.update_table_row_data(self.sequence_code_row, "해당시 필수", "Required if applicable")
             
-        # 특정 행들의 데이터 직접 업데이트
-        self.update_table_row_data(self.sequence_code_row, "해당시 필수", "Required if applicable")
-        
-        # 테이블 위젯의 레이아웃을 순회하며 라벨 텍스트 업데이트
-        layout = self.table_widget.layout()
-        if layout:
-            for i in range(layout.count()):
-                item = layout.itemAt(i)
-                if item and item.widget():
-                    widget = item.widget()
-                    if isinstance(widget, QLabel):
-                        current_text = widget.text()
-                        translated_text = self.translate_to_english(current_text)
-                        if translated_text != current_text:
-                            widget.setText(translated_text)
-                    elif hasattr(widget, 'layout'):  # 행 위젯인 경우
-                        self.update_table_row_to_english(widget)
+            # 테이블 위젯의 레이아웃을 순회하며 라벨 텍스트 업데이트
+            layout = self.table_widget.layout()
+            if layout:
+                for i in range(layout.count()):
+                    item = layout.itemAt(i)
+                    if item and item.widget():
+                        widget = item.widget()
+                        if isinstance(widget, QLabel):
+                            current_text = widget.text()
+                            translated_text = self.translate_to_english(current_text)
+                            if translated_text != current_text:
+                                widget.setText(translated_text)
+                        elif hasattr(widget, 'layout'):  # 행 위젯인 경우
+                            self.update_table_row_to_english(widget)
+        except Exception as e:
+            print(f"DEBUG: 테이블 영어 업데이트 중 오류 발생: {e}")
+            raise
     
     def update_table_to_korean(self):
         """테이블 내용을 한국어로 업데이트"""
-        if not self.table_widget:
-            return
+        try:
+            if not self.table_widget:
+                return
+                
+            # 특정 행들의 데이터 직접 업데이트
+            if hasattr(self, 'sequence_code_row'):
+                self.update_table_row_data(self.sequence_code_row, "Required if applicable", "해당시 필수")
             
-        # 특정 행들의 데이터 직접 업데이트
-        self.update_table_row_data(self.sequence_code_row, "Required if applicable", "해당시 필수")
-        
-        # 테이블 위젯의 레이아웃을 순회하며 라벨 텍스트 업데이트
-        layout = self.table_widget.layout()
-        if layout:
-            for i in range(layout.count()):
-                item = layout.itemAt(i)
-                if item and item.widget():
-                    widget = item.widget()
-                    if isinstance(widget, QLabel):
-                        current_text = widget.text()
-                        translated_text = self.translate_to_korean(current_text)
-                        if translated_text != current_text:
-                            widget.setText(translated_text)
-                    elif hasattr(widget, 'layout'):  # 행 위젯인 경우
-                        self.update_table_row_to_korean(widget)
+            # 테이블 위젯의 레이아웃을 순회하며 라벨 텍스트 업데이트
+            layout = self.table_widget.layout()
+            if layout:
+                for i in range(layout.count()):
+                    item = layout.itemAt(i)
+                    if item and item.widget():
+                        widget = item.widget()
+                        if isinstance(widget, QLabel):
+                            current_text = widget.text()
+                            translated_text = self.translate_to_korean(current_text)
+                            if translated_text != current_text:
+                                widget.setText(translated_text)
+                        elif hasattr(widget, 'layout'):  # 행 위젯인 경우
+                            self.update_table_row_to_korean(widget)
+        except Exception as e:
+            print(f"DEBUG: 테이블 한국어 업데이트 중 오류 발생: {e}")
+            raise
     
     def update_table_row_to_english(self, row_widget):
         """테이블 행을 영어로 업데이트"""
-        if not hasattr(row_widget, 'layout'):
-            return
-            
-        row_layout = row_widget.layout()
-        if not row_layout:
-            return
-            
-        # 첫 번째 라벨(구분) 업데이트
-        category_label = row_layout.itemAt(0).widget()
-        if isinstance(category_label, QLabel):
-            current_text = category_label.text()
-            translated_text = self.translate_to_english(current_text)
-            if translated_text != current_text:
-                category_label.setText(translated_text)
+        try:
+            if not hasattr(row_widget, 'layout'):
+                return
+                
+            row_layout = row_widget.layout()
+            if not row_layout:
+                return
+                
+            # 첫 번째 라벨(구분) 업데이트
+            if row_layout.count() > 0:
+                category_label = row_layout.itemAt(0).widget()
+                if isinstance(category_label, QLabel):
+                    current_text = category_label.text()
+                    translated_text = self.translate_to_english(current_text)
+                    if translated_text != current_text:
+                        category_label.setText(translated_text)
+        except Exception as e:
+            print(f"DEBUG: 테이블 행 영어 업데이트 중 오류 발생: {e}")
+            # 개별 행 업데이트 실패는 전체 프로세스를 중단시키지 않음
     
     def update_table_row_to_korean(self, row_widget):
         """테이블 행을 한국어로 업데이트"""
-        if not hasattr(row_widget, 'layout'):
-            return
-            
-        row_layout = row_widget.layout()
-        if not row_layout:
-            return
-            
-        # 첫 번째 라벨(구분) 업데이트
-        category_label = row_layout.itemAt(0).widget()
-        if isinstance(category_label, QLabel):
-            current_text = category_label.text()
-            translated_text = self.translate_to_korean(current_text)
-            if translated_text != current_text:
-                category_label.setText(translated_text)
+        try:
+            if not hasattr(row_widget, 'layout'):
+                return
+                
+            row_layout = row_widget.layout()
+            if not row_layout:
+                return
+                
+            # 첫 번째 라벨(구분) 업데이트
+            if row_layout.count() > 0:
+                category_label = row_layout.itemAt(0).widget()
+                if isinstance(category_label, QLabel):
+                    current_text = category_label.text()
+                    translated_text = self.translate_to_korean(current_text)
+                    if translated_text != current_text:
+                        category_label.setText(translated_text)
+        except Exception as e:
+            print(f"DEBUG: 테이블 행 한국어 업데이트 중 오류 발생: {e}")
+            # 개별 행 업데이트 실패는 전체 프로세스를 중단시키지 않음
     
     def update_table_row_data(self, row_widget, old_data, new_data):
         """특정 행의 데이터 부분을 업데이트"""
-        if not hasattr(row_widget, 'layout'):
-            return
-            
-        row_layout = row_widget.layout()
-        if not row_layout:
-            return
-            
-        # 세 번째 라벨(데이터) 업데이트
-        if row_layout.count() >= 3:
-            data_label = row_layout.itemAt(2).widget()
-            if isinstance(data_label, QLabel) and data_label.text() == old_data:
-                data_label.setText(new_data)
+        try:
+            if not hasattr(row_widget, 'layout'):
+                return
+                
+            row_layout = row_widget.layout()
+            if not row_layout:
+                return
+                
+            # 세 번째 라벨(데이터) 업데이트
+            if row_layout.count() >= 3:
+                data_label = row_layout.itemAt(2).widget()
+                if isinstance(data_label, QLabel) and data_label.text() == old_data:
+                    data_label.setText(new_data)
+        except Exception as e:
+            print(f"DEBUG: 테이블 행 데이터 업데이트 중 오류 발생: {e}")
+            # 개별 행 데이터 업데이트 실패는 전체 프로세스를 중단시키지 않음
     
     def translate_to_english(self, text):
         """한국어를 영어로 번역"""
@@ -622,6 +673,13 @@ class BarcodeAnalysisDialog(QDialog):
             QMessageBox.information(self, "알림", "스캔 이력이 없습니다.")
             return
         
+        print(f"DEBUG: 현재 스캔 이력 개수: {len(self.scan_history)}")
+        for i, item in enumerate(self.scan_history):
+            timestamp = item.get('timestamp', 'N/A')
+            barcode_data = item.get('barcode_data')
+            supplier_code = barcode_data.supplier_code if barcode_data else 'N/A'
+            print(f"DEBUG: 이력 {i}: {timestamp} - {supplier_code}")
+        
         dialog = ScanHistoryDialog(self.scan_history, self)
         if dialog.exec_() == QDialog.Accepted:
             selected_data = dialog.get_selected_data()
@@ -657,9 +715,9 @@ class BarcodeAnalysisDialog(QDialog):
                 if item and item.widget():
                     widget = item.widget()
                     if hasattr(widget, 'layout'):  # 행 위젯인 경우
-                        self.update_table_row_data(widget, i)
+                        self.update_table_row_data_by_index(widget, i)
     
-    def update_table_row_data(self, row_widget, row_index):
+    def update_table_row_data_by_index(self, row_widget, row_index):
         """특정 테이블 행의 데이터 업데이트"""
         if not hasattr(row_widget, 'layout'):
             return
@@ -722,6 +780,8 @@ class BarcodeAnalysisDialog(QDialog):
         self.scan_history.insert(0, history_item)
         if len(self.scan_history) > 50:
             self.scan_history = self.scan_history[:50]
+        
+        print(f"DEBUG: 이력 추가됨 - 총 {len(self.scan_history)}개, 업체코드: {barcode_data.supplier_code}")
 
 
 class ScanHistoryDialog(QDialog):
@@ -757,18 +817,28 @@ class ScanHistoryDialog(QDialog):
         
         # 이력 목록
         self.history_list = QListWidget()
+        self.history_list.setFocusPolicy(Qt.NoFocus)  # 포커스 표시기 제거
         self.history_list.setStyleSheet("""
             QListWidget {
                 border: 1px solid #E0E0E0;
                 border-radius: 5px;
                 padding: 5px;
+                outline: none;
             }
             QListWidget::item {
                 padding: 10px;
                 border-bottom: 1px solid #F0F0F0;
+                border: none;
+                outline: none;
             }
             QListWidget::item:selected {
                 background-color: #E3F2FD;
+                border: none;
+                outline: none;
+            }
+            QListWidget::item:focus {
+                border: none;
+                outline: none;
             }
         """)
         

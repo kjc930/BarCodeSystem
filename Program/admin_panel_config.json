@@ -1,7 +1,7 @@
 {
   "serial_ports": {
     "PLC": "COM6",
-    "스캐너": "COM2", 
+    "스캐너": "COM2",
     "프린터": "COM3",
     "너트1": "COM4",
     "너트2": "COM5"
@@ -12,6 +12,11 @@
     "프린터": 9600,
     "너트1": 9600,
     "너트2": 9600
+  },
+  "scanner": {
+    "port": "COM4 - AX99100 PCIe to High Speed Serial Port(COM4)",
+    "baudrate": 9600,
+    "terminator": "\\r\\n (CRLF)",
+    "auto_scan": true
   }
 }
-
