@@ -1,6 +1,6 @@
 {
   "plc": {
-    "port": "COM4 - AX99100 PCIe to High Speed Serial Port(COM4)",
+    "port": "COM6 - USB-Enhanced-SERIAL CH343(COM6)",
     "baudrate": 9600,
     "parity": "None",
     "station_id": 1,
@@ -43,5 +43,9 @@
     "nutrunner1_baudrate": 9600,
     "nutrunner2_port": "COM3 - AX99100 PCIe to High Speed Serial Port(COM3)",
     "nutrunner2_baudrate": 9600
+  },
+  "printer": {
+    "port": "COM3 - AX99100 PCIe to High Speed Serial Port(COM3)",
+    "baudrate": 9600
   }
 }

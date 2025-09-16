@@ -10,6 +10,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 import sys
 import os
+from datetime import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from styles import get_tab_title_style
 from utils import SerialConnectionThread
@@ -27,6 +28,7 @@ class BarcodeScannerTab(QWidget):
         self.shared_scan_history = []  # 공유 스캔 이력 저장소
         self.init_ui()
         self.load_settings()
+        self.ensure_scan_logs_directory()  # 스캔 로그 디렉토리 확인
         
     def init_ui(self):
         layout = QVBoxLayout(self)
@@ -391,6 +393,10 @@ class BarcodeScannerTab(QWidget):
                 dialog.scan_history = self.shared_scan_history
                 # 이력에 추가
                 dialog.add_to_history(barcode_data, barcode_info)
+                
+                # 자동으로 텍스트 파일에 저장
+                self.save_scan_to_file(barcode_data, barcode_info)
+                
                 dialog.exec_()
                 
                 # 기존 텍스트 결과도 유지 (로그에 표시)
@@ -520,3 +526,51 @@ Trailer            OK      RSEOT
         else:
             self.log_message("설정 저장 실패")
             QMessageBox.warning(self, "설정 저장 실패", "설정 저장에 실패했습니다.")
+    
+    def ensure_scan_logs_directory(self):
+        """스캔 로그 디렉토리 확인 및 생성"""
+        try:
+            scan_logs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scan_logs")
+            if not os.path.exists(scan_logs_dir):
+                os.makedirs(scan_logs_dir)
+                print(f"스캔 로그 디렉토리 생성: {scan_logs_dir}")
+        except Exception as e:
+            print(f"스캔 로그 디렉토리 생성 실패: {e}")
+    
+    def save_scan_to_file(self, barcode_data, barcode_info):
+        """스캔 결과를 자동으로 텍스트 파일에 저장"""
+        try:
+            # 현재 날짜로 파일명 생성
+            today = datetime.now().strftime('%Y-%m-%d')
+            filename = f"scan_history_{today}.txt"
+            
+            # 파일 경로 설정
+            scan_logs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scan_logs")
+            file_path = os.path.join(scan_logs_dir, filename)
+            
+            # 파일이 존재하지 않으면 헤더 작성
+            is_new_file = not os.path.exists(file_path)
+            
+            with open(file_path, 'a', encoding='utf-8') as f:
+                if is_new_file:
+                    # 새 파일인 경우 헤더 작성
+                    f.write("=" * 80 + "\n")
+                    f.write("H/KMC Parts 2D Barcode 스캔 이력\n")
+                    f.write("=" * 80 + "\n")
+                    f.write(f"생성일시: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    f.write("=" * 80 + "\n\n")
+                
+                # 스캔 데이터 작성
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                f.write(f"[{len(self.shared_scan_history)+1:03d}] 스캔 시간: {timestamp}\n")
+                f.write(f"     업체코드: {barcode_data.supplier_code}\n")
+                f.write(f"     부품번호: {barcode_data.part_number}\n")
+                f.write(f"     추적번호: {barcode_data.traceability_number}\n")
+                f.write(f"     바코드타입: {barcode_data.barcode_type.value if hasattr(barcode_data.barcode_type, 'value') else barcode_data.barcode_type}\n")
+                f.write(f"     원본바코드: {barcode_data.raw_barcode}\n")
+                f.write("-" * 60 + "\n")
+            
+            print(f"스캔 결과 자동 저장 완료: {file_path}")
+            
+        except Exception as e:
+            print(f"스캔 결과 자동 저장 실패: {e}")

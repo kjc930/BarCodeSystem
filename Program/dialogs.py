@@ -2,8 +2,10 @@
 바코드 분석 관련 다이얼로그 모듈
 """
 import sys
+import os
+from datetime import datetime
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QPushButton, QScrollArea, QListWidget, QListWidgetItem, QWidget)
+                             QPushButton, QScrollArea, QListWidget, QListWidgetItem, QWidget, QFileDialog, QMessageBox)
 from PyQt5.QtCore import Qt, QDateTime
 from PyQt5.QtGui import QFont
 from hkmc_barcode_utils import BarcodeData, BarcodeType
@@ -871,6 +873,7 @@ class ScanHistoryDialog(QDialog):
         select_btn.clicked.connect(self.select_item)
         button_layout.addWidget(select_btn)
         
+        
         cancel_btn = QPushButton("취소")
         cancel_btn.setStyleSheet("""
             QPushButton {
@@ -897,6 +900,7 @@ class ScanHistoryDialog(QDialog):
         if current_item:
             self.selected_data = current_item.data(Qt.UserRole)
             self.accept()
+    
     
     def get_selected_data(self):
         """선택된 데이터 반환"""
