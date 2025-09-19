@@ -33,19 +33,19 @@
     "4m_info": []
   },
   "scanner": {
-    "port": "COM4 - AX99100 PCIe to High Speed Serial Port(COM4)",
+    "port": "COM7 - Prolific PL2303GC USB Serial COM Port(COM7)",
     "baudrate": 9600,
     "terminator": "\\r\\n (CRLF)",
     "auto_scan": true
   },
   "nutrunner": {
-    "nutrunner1_port": "COM6 - USB-Enhanced-SERIAL CH343(COM6)",
+    "nutrunner1_port": "COM1 - 통신 포트(COM1) (사용 중)",
     "nutrunner1_baudrate": 9600,
-    "nutrunner2_port": "COM3 - AX99100 PCIe to High Speed Serial Port(COM3)",
+    "nutrunner2_port": "COM1 - 통신 포트(COM1)",
     "nutrunner2_baudrate": 9600
   },
   "printer": {
-    "port": "COM3 - AX99100 PCIe to High Speed Serial Port(COM3)",
+    "port": "COM7 - Prolific PL2303GC USB Serial COM Port(COM7)",
     "baudrate": 9600
   }
 }

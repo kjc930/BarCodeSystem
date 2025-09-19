@@ -1071,80 +1071,129 @@ class BarcodeMainScreen(QMainWindow):
     """바코드 시스템 메인 화면 - 실용적 디자인"""
     
     def __init__(self):
-        super().__init__()
-        self.scanned_parts = []
-        
-        # 공통 장비 연결 상태 저장 (실제 연결 상태)
-        self.device_connection_status = {
-            "PLC": False,
-            "스캐너": False,
-            "프린터": False,
-            "너트1": False,
-            "너트2": False
-        }
-        
-        # 시리얼 연결 객체들
-        self.serial_connections = {
-            "PLC": None,
-            "스캐너": None,
-            "프린터": None,
-            "너트1": None,
-            "너트2": None
-        }
-        
-        # 설정 파일 로드
-        self.config = self.load_config()
-        
-        # 기준정보 로드
-        self.master_data = self.load_master_data()
-        
-        # 패널 타이틀 로드
-        self.panel_titles = self.load_panel_titles()
-        print(f"DEBUG: 로드된 패널 타이틀: {self.panel_titles}")
-        
-        # 생산 카운터 데이터 (일자별, 부품코드별)
-        self.production_data = {
-            "daily_total": {},  # {date: {panel_title: count}}
-            "part_counts": {}   # {part_number: {panel_title: count}}
-        }
-        
-        # 현재 작업일
-        self.current_date = date.today()
-        
-        # 스캔 로그 데이터
-        self.scan_logs = {
-            "front_lh": [],  # 첫 번째 패널 스캔 로그
-            "rear_rh": []    # 두 번째 패널 스캔 로그
-        }
-        
-        # 로그 디렉토리 생성
-        self.log_dir = "scan_logs"
-        if not os.path.exists(self.log_dir):
-            os.makedirs(self.log_dir)
-        
-        # 프린트 매니저 초기화
-        self.print_manager = PrintManager(self)
-        
-        # PLC 데이터 분석용
-        self.plc_data = {
-            "completion_signal": 0,  # 첫번째 값: 완료신호 (1:완료, 0:미완료)
-            "front_lh_division": "",  # 두번째 값: FRONT/LH 구분값
-            "rear_rh_division": ""   # 세번째 값: REAR/RH 구분값
-        }
-        
-        # 하위부품 바코드 검증기 초기화
-        self.child_part_validator = ChildPartBarcodeValidator()
-        
-        # AdminPanel 인스턴스
-        self.admin_panel = None
-        
-        # 3초 누르기 타이머들
-        self.press_timers = {}
-        self.press_start_time = {}
-        
-        self.init_ui()
-        self.setup_timer()
-        self.auto_connect_serial_ports()
+        try:
+            super().__init__()
+            self.scanned_parts = []
+            
+            # 공통 장비 연결 상태 저장 (실제 연결 상태)
+            self.device_connection_status = {
+                "PLC": False,
+                "스캐너": False,
+                "프린터": False,
+                "너트1": False,
+                "너트2": False
+            }
+            
+            # 시리얼 연결 객체들
+            self.serial_connections = {
+                "PLC": None,
+                "스캐너": None,
+                "프린터": None,
+                "너트1": None,
+                "너트2": None
+            }
+            
+            # 설정 파일 로드
+            try:
+                self.config = self.load_config()
+            except Exception as e:
+                print(f"⚠️ 설정 파일 로드 실패: {e}")
+                self.config = {}
+            
+            # 기준정보 로드
+            try:
+                self.master_data = self.load_master_data()
+            except Exception as e:
+                print(f"⚠️ 기준정보 로드 실패: {e}")
+                self.master_data = []
+            
+            # 패널 타이틀 로드
+            try:
+                self.panel_titles = self.load_panel_titles()
+                print(f"DEBUG: 로드된 패널 타이틀: {self.panel_titles}")
+            except Exception as e:
+                print(f"⚠️ 패널 타이틀 로드 실패: {e}")
+                self.panel_titles = {
+                    "front_lh": "FRONT/LH",
+                    "rear_rh": "REAR/RH"
+                }
+            
+            # 생산 카운터 데이터 (일자별, 부품코드별)
+            self.production_data = {
+                "daily_total": {},  # {date: {panel_title: count}}
+                "part_counts": {}   # {part_number: {panel_title: count}}
+            }
+            
+            # 현재 작업일
+            self.current_date = date.today()
+            
+            # 스캔 로그 데이터
+            self.scan_logs = {
+                "front_lh": [],  # 첫 번째 패널 스캔 로그
+                "rear_rh": []    # 두 번째 패널 스캔 로그
+            }
+            
+            # 로그 디렉토리 생성
+            try:
+                self.log_dir = "scan_logs"
+                if not os.path.exists(self.log_dir):
+                    os.makedirs(self.log_dir)
+            except Exception as e:
+                print(f"⚠️ 로그 디렉토리 생성 실패: {e}")
+                self.log_dir = "."
+            
+            # 프린트 매니저 초기화
+            try:
+                self.print_manager = PrintManager(self)
+            except Exception as e:
+                print(f"⚠️ 프린트 매니저 초기화 실패: {e}")
+                self.print_manager = None
+            
+            # PLC 데이터 분석용
+            self.plc_data = {
+                "completion_signal": 0,  # 첫번째 값: 완료신호 (1:완료, 0:미완료)
+                "front_lh_division": "",  # 두번째 값: FRONT/LH 구분값
+                "rear_rh_division": ""   # 세번째 값: REAR/RH 구분값
+            }
+            
+            # 하위부품 바코드 검증기 초기화
+            try:
+                self.child_part_validator = ChildPartBarcodeValidator()
+            except Exception as e:
+                print(f"⚠️ 바코드 검증기 초기화 실패: {e}")
+                self.child_part_validator = None
+            
+            # AdminPanel 인스턴스
+            self.admin_panel = None
+            
+            # 3초 누르기 타이머들
+            self.press_timers = {}
+            self.press_start_time = {}
+            
+            # UI 초기화
+            try:
+                self.init_ui()
+            except Exception as e:
+                print(f"❌ UI 초기화 실패: {e}")
+                raise
+            
+            # 타이머 설정
+            try:
+                self.setup_timer()
+            except Exception as e:
+                print(f"⚠️ 타이머 설정 실패: {e}")
+            
+            # 시리얼 포트 자동 연결
+            try:
+                self.auto_connect_serial_ports()
+            except Exception as e:
+                print(f"⚠️ 시리얼 포트 자동 연결 실패: {e}")
+                
+        except Exception as e:
+            print(f"❌ 메인 화면 초기화 실패: {e}")
+            import traceback
+            traceback.print_exception(type(e), e, e.__traceback__)
+            raise
     
     def load_config(self):
         """설정 파일 로드"""
@@ -1198,23 +1247,45 @@ class BarcodeMainScreen(QMainWindow):
     
     def auto_connect_serial_ports(self):
         """시리얼포트 자동연결"""
-        # PLC 연결
-        self.connect_serial_port("PLC", self.config.get("plc", {}).get("port", "COM6"))
-        
-        # 스캐너 연결
-        self.connect_serial_port("스캐너", self.config.get("barcode_scanner", {}).get("port", "COM2"))
-        
-        # 프린터 연결
-        self.connect_serial_port("프린터", self.config.get("barcode_printer", {}).get("port", "COM3"))
-        
-        # 너트런너1 연결
-        self.connect_serial_port("너트1", self.config.get("nutrunner1", {}).get("port", "COM4"))
-        
-        # 너트런너2 연결
-        self.connect_serial_port("너트2", self.config.get("nutrunner2", {}).get("port", "COM5"))
-        
-        # PLC 데이터 읽기 스레드 시작
-        self.start_plc_data_thread()
+        try:
+            # PLC 연결
+            try:
+                self.connect_serial_port("PLC", self.config.get("plc", {}).get("port", "COM6"))
+            except Exception as e:
+                print(f"⚠️ PLC 연결 실패: {e}")
+            
+            # 스캐너 연결
+            try:
+                self.connect_serial_port("스캐너", self.config.get("barcode_scanner", {}).get("port", "COM2"))
+            except Exception as e:
+                print(f"⚠️ 스캐너 연결 실패: {e}")
+            
+            # 프린터 연결
+            try:
+                self.connect_serial_port("프린터", self.config.get("barcode_printer", {}).get("port", "COM3"))
+            except Exception as e:
+                print(f"⚠️ 프린터 연결 실패: {e}")
+            
+            # 너트런너1 연결
+            try:
+                self.connect_serial_port("너트1", self.config.get("nutrunner1", {}).get("port", "COM4"))
+            except Exception as e:
+                print(f"⚠️ 너트런너1 연결 실패: {e}")
+            
+            # 너트런너2 연결
+            try:
+                self.connect_serial_port("너트2", self.config.get("nutrunner2", {}).get("port", "COM5"))
+            except Exception as e:
+                print(f"⚠️ 너트런너2 연결 실패: {e}")
+            
+            # PLC 데이터 읽기 스레드 시작
+            try:
+                self.start_plc_data_thread()
+            except Exception as e:
+                print(f"⚠️ PLC 데이터 스레드 시작 실패: {e}")
+                
+        except Exception as e:
+            print(f"❌ 시리얼 포트 자동 연결 전체 실패: {e}")
     
     def connect_serial_port(self, device_name, port):
         """개별 시리얼포트 연결"""
@@ -1250,6 +1321,9 @@ class BarcodeMainScreen(QMainWindow):
         """PLC 데이터 읽기 스레드 시작"""
         def read_plc_data():
             print("DEBUG: PLC 데이터 읽기 스레드 시작")
+            consecutive_errors = 0
+            max_consecutive_errors = 10  # 연속 오류 제한
+            
             while True:
                 try:
                     if self.serial_connections["PLC"] and self.serial_connections["PLC"].is_open:
@@ -1373,7 +1447,14 @@ class BarcodeMainScreen(QMainWindow):
                             
                     time.sleep(2)  # 2초 간격으로 읽기
                 except Exception as e:
-                    print(f"DEBUG: PLC 데이터 읽기 스레드 오류: {e}")
+                    consecutive_errors += 1
+                    print(f"DEBUG: PLC 데이터 읽기 스레드 오류 ({consecutive_errors}/{max_consecutive_errors}): {e}")
+                    
+                    # 연속 오류가 너무 많으면 스레드 종료
+                    if consecutive_errors >= max_consecutive_errors:
+                        print(f"❌ PLC 스레드 연속 오류 {max_consecutive_errors}회 초과 - 스레드 종료")
+                        break
+                    
                     # 연결 오류 시 상태 초기화 (안전한 방식)
                     try:
                         self.plc_data = {
@@ -1391,11 +1472,48 @@ class BarcodeMainScreen(QMainWindow):
                     try:
                         time.sleep(2)
                     except:
-                        break  # time.sleep도 실패하면 스레드 종료
+                        print("❌ time.sleep 실패 - 스레드 종료")
+                        break
         
         # 백그라운드 스레드로 실행
         plc_thread = threading.Thread(target=read_plc_data, daemon=True)
         plc_thread.start()
+    
+    def closeEvent(self, event):
+        """프로그램 종료 시 리소스 정리"""
+        try:
+            print("DEBUG: 프로그램 종료 - 리소스 정리 시작")
+            
+            # 시리얼 연결 정리
+            for device_name, connection in self.serial_connections.items():
+                if connection and connection.is_open:
+                    try:
+                        connection.close()
+                        print(f"DEBUG: {device_name} 시리얼 연결 종료")
+                    except Exception as e:
+                        print(f"⚠️ {device_name} 시리얼 연결 종료 실패: {e}")
+            
+            # 프린트 매니저 정리
+            if hasattr(self, 'print_manager') and self.print_manager:
+                try:
+                    self.print_manager.close_connection()
+                    print("DEBUG: 프린트 매니저 연결 종료")
+                except Exception as e:
+                    print(f"⚠️ 프린트 매니저 정리 실패: {e}")
+            
+            # 로그 저장
+            try:
+                self.save_logs_to_file()
+                print("DEBUG: 로그 파일 저장 완료")
+            except Exception as e:
+                print(f"⚠️ 로그 저장 실패: {e}")
+            
+            print("DEBUG: 리소스 정리 완료")
+            event.accept()
+            
+        except Exception as e:
+            print(f"❌ 프로그램 종료 중 오류: {e}")
+            event.accept()  # 오류가 있어도 종료는 진행
         
         # PLC 연결 상태 모니터링 스레드 시작
         self.start_plc_connection_monitor()
@@ -2632,52 +2750,74 @@ class ScanStatusDialog(QDialog):
             self.create_scan_table(self.layout())
 
 def main():
-    app = QApplication(sys.argv)
-    
-    # 애플리케이션 스타일 설정
-    app.setStyle('Fusion')
-    
-    window = BarcodeMainScreen()
-    window.show()
-    
-    # 테스트용 하위부품 스캔 데이터 추가 (선행조건) - 주석 처리
-    # window.add_scanned_part("111111111", True)    # 하위부품 스캔
-    # window.add_scanned_part("2223333333", False)  # 하위부품 스캔 (NG)
-    # window.add_scanned_part("444444444", True)    # 하위부품 스캔
-    # window.add_scanned_part("66666", True)        # 하위부품 스캔
-    # window.add_scanned_part("5555555", True)      # 하위부품 스캔
-    
-    # 기준정보에서 하위부품 정보 업데이트 - 주석 처리
-    # window.update_child_parts_from_master_data("89131CU211")  # 기준정보의 Part_No
-    
-    # 테스트용 작업 상태 업데이트 - 주석 처리
-    # FRONT/LH 패널: 작업완료 (1), 구분값 있음, 하위부품 5개
-    # window.front_panel.update_work_status(1)  # 작업완료
-    # window.front_panel.update_division_status(True)  # 구분값 있음
-    # window.front_panel.update_child_parts_count(5)  # 하위부품 5개 (1️⃣2️⃣3️⃣4️⃣5️⃣)
-    # 하위부품 매칭 상태 시뮬레이션
-    # window.front_panel.update_child_part_status(0, True)   # 1️⃣ 매칭됨 (녹색)
-    # window.front_panel.update_child_part_status(1, False)  # 2️⃣ 미매칭 (붉은색)
-    # window.front_panel.update_child_part_status(2, True)   # 3️⃣ 매칭됨 (녹색)
-    # window.front_panel.update_child_part_status(3, False)  # 4️⃣ 미매칭 (붉은색)
-    # window.front_panel.update_child_part_status(4, True)   # 5️⃣ 매칭됨 (녹색)
-    
-    # REAR/RH 패널: 작업중 (0), 구분값 없음, 하위부품 5개
-    # window.rear_panel.update_work_status(0)  # 작업중
-    # window.rear_panel.update_division_status(False)  # 구분값 없음
-    # window.rear_panel.update_child_parts_count(5)  # 하위부품 5개 (1️⃣2️⃣3️⃣4️⃣5️⃣)
-    # 하위부품 매칭 상태 시뮬레이션
-    # window.rear_panel.update_child_part_status(0, True)   # 1️⃣ 매칭됨 (녹색)
-    # window.rear_panel.update_child_part_status(1, True)   # 2️⃣ 매칭됨 (녹색)
-    # window.rear_panel.update_child_part_status(2, False)  # 3️⃣ 미매칭 (붉은색)
-    # window.rear_panel.update_child_part_status(3, False)  # 4️⃣ 미매칭 (붉은색)
-    # window.rear_panel.update_child_part_status(4, True)   # 5️⃣ 매칭됨 (녹색)
-    
-    # 테스트용 작업완료 시뮬레이션 (생산카운트 증가)
-    window.complete_work("FRONT/LH")  # FRONT/LH 작업완료 → 생산카운트 +1
-    window.complete_work("REAR/RH")   # REAR/RH 작업완료 → 생산카운트 +1
-    
-    sys.exit(app.exec_())
+    try:
+        app = QApplication(sys.argv)
+        
+        # 애플리케이션 스타일 설정
+        app.setStyle('Fusion')
+        
+        # 전역 예외 처리 설정
+        def handle_exception(exc_type, exc_value, exc_traceback):
+            if issubclass(exc_type, KeyboardInterrupt):
+                sys.__excepthook__(exc_type, exc_value, exc_traceback)
+                return
+            
+            print(f"❌ 예상치 못한 오류 발생: {exc_type.__name__}: {exc_value}")
+            import traceback
+            traceback.print_exception(exc_type, exc_value, exc_traceback)
+        
+        sys.excepthook = handle_exception
+        
+        window = BarcodeMainScreen()
+        window.show()
+        
+        # 테스트용 하위부품 스캔 데이터 추가 (선행조건) - 주석 처리
+        # window.add_scanned_part("111111111", True)    # 하위부품 스캔
+        # window.add_scanned_part("2223333333", False)  # 하위부품 스캔 (NG)
+        # window.add_scanned_part("444444444", True)    # 하위부품 스캔
+        # window.add_scanned_part("66666", True)        # 하위부품 스캔
+        # window.add_scanned_part("5555555", True)      # 하위부품 스캔
+        
+        # 기준정보에서 하위부품 정보 업데이트 - 주석 처리
+        # window.update_child_parts_from_master_data("89131CU211")  # 기준정보의 Part_No
+        
+        # 테스트용 작업 상태 업데이트 - 주석 처리
+        # FRONT/LH 패널: 작업완료 (1), 구분값 있음, 하위부품 5개
+        # window.front_panel.update_work_status(1)  # 작업완료
+        # window.front_panel.update_division_status(True)  # 구분값 있음
+        # window.front_panel.update_child_parts_count(5)  # 하위부품 5개 (1️⃣2️⃣3️⃣4️⃣5️⃣)
+        # 하위부품 매칭 상태 시뮬레이션
+        # window.front_panel.update_child_part_status(0, True)   # 1️⃣ 매칭됨 (녹색)
+        # window.front_panel.update_child_part_status(1, False)  # 2️⃣ 미매칭 (붉은색)
+        # window.front_panel.update_child_part_status(2, True)   # 3️⃣ 매칭됨 (녹색)
+        # window.front_panel.update_child_part_status(3, False)  # 4️⃣ 미매칭 (붉은색)
+        # window.front_panel.update_child_part_status(4, True)   # 5️⃣ 매칭됨 (녹색)
+        
+        # REAR/RH 패널: 작업중 (0), 구분값 없음, 하위부품 5개
+        # window.rear_panel.update_work_status(0)  # 작업중
+        # window.rear_panel.update_division_status(False)  # 구분값 없음
+        # window.rear_panel.update_child_parts_count(5)  # 하위부품 5개 (1️⃣2️⃣3️⃣4️⃣5️⃣)
+        # 하위부품 매칭 상태 시뮬레이션
+        # window.rear_panel.update_child_part_status(0, True)   # 1️⃣ 매칭됨 (녹색)
+        # window.rear_panel.update_child_part_status(1, True)   # 2️⃣ 매칭됨 (녹색)
+        # window.rear_panel.update_child_part_status(2, False)  # 3️⃣ 미매칭 (붉은색)
+        # window.rear_panel.update_child_part_status(3, False)  # 4️⃣ 미매칭 (붉은색)
+        # window.rear_panel.update_child_part_status(4, True)   # 5️⃣ 매칭됨 (녹색)
+        
+        # 테스트용 작업완료 시뮬레이션 (생산카운트 증가)
+        try:
+            window.complete_work("FRONT/LH")  # FRONT/LH 작업완료 → 생산카운트 +1
+            window.complete_work("REAR/RH")   # REAR/RH 작업완료 → 생산카운트 +1
+        except Exception as e:
+            print(f"DEBUG: 테스트 작업완료 시뮬레이션 오류: {e}")
+        
+        sys.exit(app.exec_())
+        
+    except Exception as e:
+        print(f"❌ 프로그램 시작 오류: {e}")
+        import traceback
+        traceback.print_exception(type(e), e, e.__traceback__)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
