@@ -13,14 +13,19 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from styles import get_tab_title_style, get_status_connected_style, get_status_disconnected_style, get_status_error_style
-from utils import SerialConnectionThread
+from modules import SerialConnectionManager
 
 class PLCCommunicationTab(QWidget):
     """PLC 통신 테스트 탭"""
     def __init__(self, settings_manager):
         super().__init__()
         self.settings_manager = settings_manager
-        self.serial_thread = None
+        
+        # 공용 시리얼 연결 관리자 초기화
+        self.connection_manager = SerialConnectionManager("PLC", settings_manager)
+        self.connection_manager.connection_status_changed.connect(self.on_connection_status)
+        self.connection_manager.data_received.connect(self.on_plc_data_received)
+        
         self.init_ui()
         self.load_settings()
         
@@ -72,23 +77,28 @@ class PLCCommunicationTab(QWidget):
         self.connect_btn.setCheckable(True)  # 버튼을 체크 가능하게 설정
         self.connect_btn.setStyleSheet("""
             QPushButton {
-                background-color: #4CAF50;
+                background-color: #f44336;
                 color: white;
                 font-weight: bold;
-                border: 2px solid #45a049;
+                border: 2px solid #da190b;
                 border-radius: 5px;
                 padding: 8px;
             }
             QPushButton:hover {
-                background-color: #45a049;
+                background-color: #da190b;
             }
             QPushButton:pressed {
-                background-color: #3d8b40;
-                border: 2px inset #45a049;
+                background-color: #c62828;
+                border: 2px inset #da190b;
             }
             QPushButton:checked {
-                background-color: #3d8b40;
-                border: 2px inset #45a049;
+                background-color: #c62828;
+                border: 2px inset #da190b;
+            }
+            QPushButton:disabled {
+                background-color: #cccccc;
+                color: #666666;
+                border: 2px solid #999999;
             }
         """)
         serial_layout.addWidget(self.connect_btn, 3, 0)
@@ -236,121 +246,48 @@ class PLCCommunicationTab(QWidget):
     
     def connect_serial(self):
         """시리얼 포트 연결"""
-        if self.port_combo.currentText() == "사용 가능한 포트 없음":
-            QMessageBox.warning(self, "경고", "연결할 포트를 선택하세요.")
-            self.connect_btn.setChecked(False)  # 연결 실패 시 버튼 상태 해제
-            return
-        
-        port_name = self.port_combo.currentText().split(" - ")[0]
-        baudrate = int(self.baudrate_combo.currentText())
-        
-        import serial
-        parity_map = {"None": serial.PARITY_NONE, "Even": serial.PARITY_EVEN, "Odd": serial.PARITY_ODD}
-        parity = parity_map[self.parity_combo.currentText()]
-        
-        # 연결 전 상세 진단
-        self.log_message(f"🔍 {port_name} 연결 진단 시작...")
-        self.log_message(f"📍 포트: {port_name}")
-        self.log_message(f"📍 보드레이트: {baudrate}")
-        self.log_message(f"📍 패리티: {self.parity_combo.currentText()}")
-        
-        # 포트 사용 가능 여부 확인
-        try:
-            import serial.tools.list_ports
-            ports = serial.tools.list_ports.comports()
-            port_found = False
-            for port in ports:
-                if port.device == port_name:
-                    port_found = True
-                    self.log_message(f"✅ {port_name} 포트 발견: {port.description}")
-                    break
-            
-            if not port_found:
-                self.log_message(f"❌ {port_name} 포트를 찾을 수 없습니다!")
-                QMessageBox.warning(self, "연결 실패", f"{port_name} 포트를 찾을 수 없습니다.")
-                self.connect_btn.setChecked(False)
-                return
-                
-        except Exception as e:
-            self.log_message(f"⚠️ 포트 검색 오류: {e}")
-        
-        # 시리얼 연결 시도
-        try:
-            # 직접 시리얼 연결 테스트
-            test_ser = serial.Serial(
-                port=port_name,
-                baudrate=baudrate,
-                parity=parity,
-                stopbits=1,
-                bytesize=8,
-                timeout=3
-            )
-            test_ser.close()
-            self.log_message(f"✅ {port_name} 포트 연결 테스트 성공")
-            
-        except serial.SerialException as e:
-            self.log_message(f"❌ {port_name} 포트 연결 실패: {e}")
-            QMessageBox.warning(self, "연결 실패", f"포트 연결 실패:\n{e}")
-            self.connect_btn.setChecked(False)
-            return
-        except Exception as e:
-            self.log_message(f"❌ 예상치 못한 오류: {e}")
-            QMessageBox.warning(self, "연결 실패", f"예상치 못한 오류:\n{e}")
-            self.connect_btn.setChecked(False)
-            return
-        
-        # SerialConnectionThread 생성 및 시작
-        self.serial_thread = SerialConnectionThread(
-            port_name, baudrate, parity, 8, 1, 3
+        # SerialConnectionManager를 사용하여 연결
+        success = self.connection_manager.connect_serial(
+            self.port_combo, 
+            self.baudrate_combo, 
+            self.connect_btn, 
+            self.disconnect_btn, 
+            self.status_label, 
+            self.log_message
         )
-        self.serial_thread.data_received.connect(self.on_data_received)
-        self.serial_thread.connection_status.connect(self.on_connection_status)
-        self.serial_thread.start()
         
-        # 버튼 상태 업데이트
-        self.connect_btn.setChecked(True)
-        self.disconnect_btn.setChecked(False)
-        
-        self.log_message(f"🚀 {port_name} 연결 스레드 시작...")
+        if success:
+            self.log_message(f"🚀 PLC 연결 시도 중...")
     
     def disconnect_serial(self):
         """시리얼 포트 연결 해제"""
-        if self.serial_thread:
-            self.serial_thread.stop()
-            self.serial_thread.wait()
-            self.serial_thread = None
-        
-        self.connect_btn.setEnabled(True)
-        self.disconnect_btn.setEnabled(False)
-        self.status_label.setText("연결되지 않음")
-        self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
-        self.log_message("연결이 해제되었습니다.")
+        # SerialConnectionManager를 사용하여 연결 해제
+        self.connection_manager.disconnect_serial(
+            self.connect_btn, 
+            self.disconnect_btn, 
+            self.status_label, 
+            self.log_message
+        )
     
     def on_connection_status(self, success, message):
         """연결 상태 변경 처리"""
-        if success:
-            self.connect_btn.setEnabled(False)
-            self.connect_btn.setChecked(True)
-            self.disconnect_btn.setEnabled(True)
-            self.disconnect_btn.setChecked(False)
-            self.status_label.setText("🟢 연결됨")
-            self.status_label.setStyleSheet(get_status_connected_style())
-            
-            # 연결 성공 시 설정 자동 저장
-            self.save_plc_settings()
-        else:
-            self.connect_btn.setEnabled(True)
-            self.connect_btn.setChecked(False)
-            self.disconnect_btn.setEnabled(False)
-            self.disconnect_btn.setChecked(False)
-            self.status_label.setText("🔴 연결 실패")
-            self.status_label.setStyleSheet(get_status_error_style())
+        # SerialConnectionManager의 UI 업데이트 메서드 사용
+        self.connection_manager.update_ui_on_connection(
+            success,
+            message, 
+            self.connect_btn, 
+            self.disconnect_btn, 
+            self.status_label, 
+            self.log_message
+        )
         
-        self.log_message(message)
+        # 연결 성공 시 설정 자동 저장
+        if success:
+            self.save_plc_settings()
     
-    def on_data_received(self, data):
-        """데이터 수신 처리"""
-        self.log_message(f"수신: {data}")
+    def on_plc_data_received(self, data):
+        """PLC 데이터 수신 처리 (SerialConnectionManager용)"""
+        self.log_message(f"PLC 수신: {data}")
     
     def update_connection_status_from_main(self, is_connected):
         """메인 화면에서 연결 상태 업데이트"""
@@ -417,13 +354,13 @@ class PLCCommunicationTab(QWidget):
     
     def test_read(self):
         """PLC 읽기 테스트"""
-        # 메인 화면에서 연결된 경우 시뮬레이션 데이터 표시
-        if not self.serial_thread:
-            self.log_message("📡 PLC 데이터 읽기 (메인 화면 연결 상태):")
-            self.log_message("  - 완료신호: 1 (작업완료)")
-            self.log_message("  - FRONT/LH 구분값: A001")
-            self.log_message("  - REAR/RH 구분값: B001")
-            self.log_message("  - 데이터 형식: 1,A001,B001")
+        # SerialConnectionManager를 통해 연결 상태 확인
+        if not self.connection_manager.is_device_connected():
+            self.log_message("📡 PLC 데이터 읽기 (시뮬레이션):")
+            self.log_message("  - 완료신호: 1,2 (Lh:1,Rh:2,작업완료)")
+            self.log_message("  - FRONT/LH 구분값: part_no_SW: 4")
+            self.log_message("  - REAR/RH 구분값: part_no_SW: 7")
+            self.log_message("  - 데이터 형식: (0,1,2),4,7")
             self.log_message("  - 상태: PLC가 메인 화면에서 자동으로 데이터를 송신 중")
             return
         
@@ -433,11 +370,11 @@ class PLCCommunicationTab(QWidget):
         
         cmd = f"\x05{station_id:02d}RSS010{len(device):02d}{device}\x04"
         self.log_message(f"읽기 명령: {cmd}")
-        self.serial_thread.send_data(cmd)
+        self.connection_manager.send_data(cmd)
     
     def test_write(self):
         """PLC 쓰기 테스트"""
-        if not self.serial_thread:
+        if not self.connection_manager.is_device_connected():
             QMessageBox.warning(self, "경고", "먼저 시리얼 포트에 연결하세요.")
             return
         
@@ -447,11 +384,11 @@ class PLCCommunicationTab(QWidget):
         
         cmd = f"\x05{station_id:02d}WSS010{len(device):02d}{device}{value:04X}\x04"
         self.log_message(f"쓰기 명령: {cmd}")
-        self.serial_thread.send_data(cmd)
+        self.connection_manager.send_data(cmd)
     
     def auto_test(self):
         """자동 테스트"""
-        if not self.serial_thread:
+        if not self.connection_manager.is_device_connected():
             QMessageBox.warning(self, "경고", "먼저 시리얼 포트에 연결하세요.")
             return
         

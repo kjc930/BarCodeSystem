@@ -298,3 +298,75 @@ def get_status_error_style():
             margin: 3px 0px;
         }
     """
+
+def get_main_window_style():
+    """메인 윈도우 스타일"""
+    return get_main_stylesheet()
+
+def get_tab_widget_style():
+    """탭 위젯 스타일"""
+    return """
+        QTabWidget::pane {
+            border: none;
+            background: white;
+            border-radius: 6px;
+            margin-top: 2px;
+            padding: 5px;
+        }
+        
+        QTabBar::tab {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                stop:0 #ffffff, stop:1 #f1f3f4);
+            border: 1px solid #dadce0;
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            padding: 8px 16px;
+            margin-right: 2px;
+            color: #5f6368;
+            font-weight: 500;
+            min-width: 100px;
+        }
+        
+        QTabBar::tab:selected {
+            background: white;
+            color: #1a73e8;
+            border-bottom: 3px solid #1a73e8;
+            font-weight: 600;
+        }
+        
+        QTabBar::tab:hover {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                stop:0 #ffffff, stop:1 #f8f9fa);
+            color: #1a73e8;
+        }
+    """
+
+def get_button_style():
+    """버튼 스타일"""
+    return """
+        QPushButton {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                stop:0 #1a73e8, stop:1 #1557b0);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 6px 12px;
+            min-height: 16px;
+        }
+        
+        QPushButton:hover {
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, 
+                stop:0 #1557b0, stop:1 #0d47a1);
+        }
+        
+        QPushButton:pressed {
+            background: #0d47a1;
+        }
+        
+        QPushButton:disabled {
+            background: #dadce0;
+            color: #9aa0a6;
+        }
+    """

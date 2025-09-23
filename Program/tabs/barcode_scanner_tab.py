@@ -14,6 +14,8 @@ from datetime import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from styles import get_tab_title_style
 from utils import SerialConnectionThread
+from styles import get_tab_title_style, get_status_connected_style, get_status_disconnected_style, get_status_error_style
+from modules import SerialConnectionManager
 from hkmc_barcode_utils import HKMCBarcodeUtils
 from dialogs import BarcodeAnalysisDialog
 
@@ -26,6 +28,12 @@ class BarcodeScannerTab(QWidget):
         self.scanned_codes = []
         self.barcode_utils = HKMCBarcodeUtils()  # HKMC 바코드 유틸리티 초기화
         self.shared_scan_history = []  # 공유 스캔 이력 저장소
+        
+        # 공용 시리얼 연결 관리자 초기화
+        self.connection_manager = SerialConnectionManager("스캐너", settings_manager)
+        self.connection_manager.connection_status_changed.connect(self.on_connection_status)
+        self.connection_manager.data_received.connect(self.on_barcode_received)
+        
         self.init_ui()
         self.load_settings()
         self.ensure_scan_logs_directory()  # 스캔 로그 디렉토리 확인
@@ -72,23 +80,28 @@ class BarcodeScannerTab(QWidget):
         self.connect_btn.setCheckable(True)  # 버튼을 체크 가능하게 설정
         self.connect_btn.setStyleSheet("""
             QPushButton {
-                background-color: #4CAF50;
+                background-color: #f44336;
                 color: white;
                 font-weight: bold;
-                border: 2px solid #45a049;
+                border: 2px solid #da190b;
                 border-radius: 5px;
                 padding: 8px;
             }
             QPushButton:hover {
-                background-color: #45a049;
+                background-color: #da190b;
             }
             QPushButton:pressed {
-                background-color: #3d8b40;
-                border: 2px inset #45a049;
+                background-color: #c62828;
+                border: 2px inset #da190b;
             }
             QPushButton:checked {
-                background-color: #3d8b40;
-                border: 2px inset #45a049;
+                background-color: #c62828;
+                border: 2px inset #da190b;
+            }
+            QPushButton:disabled {
+                background-color: #cccccc;
+                color: #666666;
+                border: 2px solid #999999;
             }
         """)
         serial_layout.addWidget(self.connect_btn, 2, 0)
@@ -96,7 +109,33 @@ class BarcodeScannerTab(QWidget):
         self.disconnect_btn = QPushButton("연결 해제")
         self.disconnect_btn.clicked.connect(self.disconnect_serial)
         self.disconnect_btn.setEnabled(False)
-        self.disconnect_btn.setStyleSheet("QPushButton { background-color: #f44336; color: white; font-weight: bold; }")
+        self.disconnect_btn.setCheckable(True)  # 버튼을 체크 가능하게 설정
+        self.disconnect_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #f44336;
+                color: white;
+                font-weight: bold;
+                border: 2px solid #da190b;
+                border-radius: 5px;
+                padding: 8px;
+            }
+            QPushButton:hover {
+                background-color: #da190b;
+            }
+            QPushButton:pressed {
+                background-color: #c62828;
+                border: 2px inset #da190b;
+            }
+            QPushButton:checked {
+                background-color: #c62828;
+                border: 2px inset #da190b;
+            }
+            QPushButton:disabled {
+                background-color: #cccccc;
+                color: #666666;
+                border: 2px solid #999999;
+            }
+        """)
         serial_layout.addWidget(self.disconnect_btn, 2, 1)
         
         # 설정 저장 버튼
@@ -223,54 +262,39 @@ class BarcodeScannerTab(QWidget):
         self.log_message("포트 목록을 새로고침했습니다.")
     
     def connect_serial(self):
-        """시리얼 포트 연결"""
-        if self.port_combo.currentText() == "사용 가능한 포트 없음":
-            QMessageBox.warning(self, "경고", "연결할 포트를 선택하세요.")
-            return
-        
-        port_name = self.port_combo.currentText().split(" - ")[0]
-        baudrate = int(self.baudrate_combo.currentText())
-        
-        import serial
-        self.serial_thread = SerialConnectionThread(
-            port_name, baudrate, serial.PARITY_NONE, 8, 1, 1
+        """시리얼 포트 연결 (공용 모듈 사용)"""
+        self.connection_manager.connect_serial(
+            self.port_combo, 
+            self.baudrate_combo, 
+            self.connect_btn, 
+            self.disconnect_btn, 
+            self.status_label, 
+            self.log_message
         )
-        self.serial_thread.data_received.connect(self.on_barcode_received)
-        self.serial_thread.connection_status.connect(self.on_connection_status)
-        self.serial_thread.start()
-        
-        self.log_message(f"{port_name} 연결 시도 중...")
     
     def disconnect_serial(self):
-        """시리얼 포트 연결 해제"""
-        if self.serial_thread:
-            self.serial_thread.stop()
-            self.serial_thread.wait()
-            self.serial_thread = None
-        
-        self.connect_btn.setEnabled(True)
-        self.disconnect_btn.setEnabled(False)
-        self.status_label.setText("연결되지 않음")
-        self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
-        self.log_message("연결이 해제되었습니다.")
+        """시리얼 포트 연결 해제 (공용 모듈 사용)"""
+        self.connection_manager.disconnect_serial(
+            self.connect_btn, 
+            self.disconnect_btn, 
+            self.status_label, 
+            self.log_message
+        )
     
     def on_connection_status(self, success, message):
-        """연결 상태 변경 처리"""
+        """연결 상태 변경 처리 (공용 모듈 사용)"""
+        self.connection_manager.update_ui_on_connection(
+            success, 
+            message, 
+            self.connect_btn, 
+            self.disconnect_btn, 
+            self.status_label, 
+            self.log_message
+        )
+        
         if success:
-            self.connect_btn.setEnabled(False)
-            self.disconnect_btn.setEnabled(True)
-            self.status_label.setText("연결됨 - 바코드 스캔 대기 중")
-            self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
-            
             # 연결 성공 시 설정 자동 저장
             self.save_scanner_settings()
-        else:
-            self.connect_btn.setEnabled(True)
-            self.disconnect_btn.setEnabled(False)
-            self.status_label.setText("연결 실패")
-            self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
-        
-        self.log_message(message)
     
     def on_barcode_received(self, data):
         """바코드 데이터 수신 처리"""
@@ -308,10 +332,13 @@ class BarcodeScannerTab(QWidget):
         if is_connected:
             # 연결된 상태 - 버튼 비활성화 및 상태 표시
             self.connect_btn.setEnabled(False)
+            self.connect_btn.setChecked(True)
             self.connect_btn.setText("연결됨")
             self.disconnect_btn.setEnabled(True)
+            self.disconnect_btn.setChecked(False)
             self.status_label.setText("🟢 연결됨 (메인 화면에서 자동연결) - 바코드 스캔 대기 중")
-            self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; background-color: #e8f5e8; padding: 5px; border: 1px solid #4CAF50; }")
+            # self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; background-color: #e8f5e8; padding: 5px; border: 1px solid #4CAF50; }")
+            self.status_label.setStyleSheet(get_status_connected_style())
             
             # 포트 상태 표시 업데이트
             self.port_status_label.setText("🟢 연결됨")
@@ -329,10 +356,13 @@ class BarcodeScannerTab(QWidget):
         else:
             # 연결되지 않은 상태 - 버튼 활성화 및 상태 표시
             self.connect_btn.setEnabled(True)
+            self.connect_btn.setChecked(False)
             self.connect_btn.setText("연결")
             self.disconnect_btn.setEnabled(False)
+            self.disconnect_btn.setChecked(False)
             self.status_label.setText("🔴 연결되지 않음")
-            self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; background-color: #ffeaea; padding: 5px; border: 1px solid #f44336; }")
+            # self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; background-color: #ffeaea; padding: 5px; border: 1px solid #f44336; }")
+            self.status_label.setStyleSheet(get_status_disconnected_style)
             
             # 포트 상태 표시 업데이트
             self.port_status_label.setText("🔴 미연결")
@@ -402,61 +432,61 @@ class BarcodeScannerTab(QWidget):
                 # 기존 텍스트 결과도 유지 (로그에 표시)
                 # 분석 결과를 간단한 표 형태로 포맷팅
                 analysis_result = f"""
-🔍 H/KMC 부품 2D 바코드 표준
-{'='*60}
+                                    🔍 H/KMC 부품 2D 바코드 표준
+                                    {'='*60}
 
-📋 바코드 내용: {barcode}
-{'='*60}
+                                    📋 바코드 내용: {barcode}
+                                    {'='*60}
 
-구분                결과    데이터
-{'─'*50}
-Header             OK      [)>RS06
-사양 정보 영역
-• 업체코드         OK      {barcode_data.supplier_code}
-• 부품번호         OK      {barcode_data.part_number}
-• 서열코드         {'OK' if barcode_data.sequence_code else '-'}       {barcode_data.sequence_code or '해당시 필수'}
-• EO번호           {'OK' if barcode_data.eo_number else '-'}       {barcode_data.eo_number or ''}
-• 생산일자         OK      {barcode_data.manufacturing_date}
+                                    구분                결과    데이터
+                                    {'─'*50}
+                                    Header             OK      [)>RS06
+                                    사양 정보 영역
+                                    • 업체코드         OK      {barcode_data.supplier_code}
+                                    • 부품번호         OK      {barcode_data.part_number}
+                                    • 서열코드         {'OK' if barcode_data.sequence_code else '-'}       {barcode_data.sequence_code or '해당시 필수'}
+                                    • EO번호           {'OK' if barcode_data.eo_number else '-'}       {barcode_data.eo_number or ''}
+                                    • 생산일자         OK      {barcode_data.manufacturing_date}
 
-추적 정보 영역
-• 부품4M           {'OK' if barcode_info['has_4m_info'] else '-'}       {f"{barcode_data.factory_info or ''}{barcode_data.line_info or ''}{barcode_data.shift_info or ''}{barcode_data.equipment_info or ''}"}
-• A or @           OK      {barcode_data.traceability_type_char or barcode_data.traceability_type.value}
-• 추적번호(7~)     OK      {barcode_data.traceability_number}
+                                    추적 정보 영역
+                                    • 부품4M           {'OK' if barcode_info['has_4m_info'] else '-'}       {f"{barcode_data.factory_info or ''}{barcode_data.line_info or ''}{barcode_data.shift_info or ''}{barcode_data.equipment_info or ''}"}
+                                    • A or @           OK      {barcode_data.traceability_type_char or barcode_data.traceability_type.value}
+                                    • 추적번호(7~)     OK      {barcode_data.traceability_number}
 
-부가 정보 영역
-• 초도품구분       {'OK' if barcode_data.initial_sample else '-'}       {barcode_data.initial_sample or ''}
-• 업체영역         {'OK' if barcode_data.supplier_area else '-'}       {barcode_data.supplier_area or ''}
+                                    부가 정보 영역
+                                    • 초도품구분       {'OK' if barcode_data.initial_sample else '-'}       {barcode_data.initial_sample or ''}
+                                    • 업체영역         {'OK' if barcode_data.supplier_area else '-'}       {barcode_data.supplier_area or ''}
 
-Trailer            OK      RSEOT
-{'─'*50}
+                                    Trailer            OK      RSEOT
+                                    {'─'*50}
 
-📊 상세 정보:
-• 업체명: {barcode_info['supplier_name']}
-• 바코드 길이: {len(barcode)} 바이트
-• 서열부품: {'예' if barcode_info['is_sequential'] else '아니오'}
-• 4M 정보 포함: {'예' if barcode_info['has_4m_info'] else '아니오'}
+                                    📊 상세 정보:
+                                    • 업체명: {barcode_info['supplier_name']}
+                                    • 바코드 길이: {len(barcode)} 바이트
+                                    • 서열부품: {'예' if barcode_info['is_sequential'] else '아니오'}
+                                    • 4M 정보 포함: {'예' if barcode_info['has_4m_info'] else '아니오'}
 
-🏭 4M 상세 정보:
-• 공장정보: {barcode_data.factory_info or '없음'}
-• 라인정보: {barcode_data.line_info or '없음'}
-• 교대정보: {barcode_data.shift_info or '없음'}
-• 설비정보: {barcode_data.equipment_info or '없음'}
-• 재료정보: {barcode_data.material_info or '없음'}
+                                    🏭 4M 상세 정보:
+                                    • 공장정보: {barcode_data.factory_info or '없음'}
+                                    • 라인정보: {barcode_data.line_info or '없음'}
+                                    • 교대정보: {barcode_data.shift_info or '없음'}
+                                    • 설비정보: {barcode_data.equipment_info or '없음'}
+                                    • 재료정보: {barcode_data.material_info or '없음'}
 
-📋 4M 정보 해석:
-• 전체 4M: {f"{barcode_data.factory_info or ''}{barcode_data.line_info or ''}{barcode_data.shift_info or ''}{barcode_data.equipment_info or ''}"}
-• 형식: T{{manufacturing_date}}{{4M정보}}{{A or @}}{{추적번호}}
-"""
+                                    📋 4M 정보 해석:
+                                    • 전체 4M: {f"{barcode_data.factory_info or ''}{barcode_data.line_info or ''}{barcode_data.shift_info or ''}{barcode_data.equipment_info or ''}"}
+                                    • 형식: T{{manufacturing_date}}{{4M정보}}{{A or @}}{{추적번호}}
+                                    """
             else:
                 analysis_result = f"""
-❌ HKMC 바코드 분석 결과
-{'='*50}
+                                    ❌ HKMC 바코드 분석 결과
+                                    {'='*50}
 
-🚫 바코드 유효성: 유효하지 않음
-📏 바코드 길이: {len(barcode)} 바이트
+                                    🚫 바코드 유효성: 유효하지 않음
+                                    📏 바코드 길이: {len(barcode)} 바이트
 
-⚠️ 오류 사항:
-"""
+                                    ⚠️ 오류 사항:
+                                    """
                 for error in errors:
                     analysis_result += f"  • {error}\n"
                 
@@ -467,18 +497,18 @@ Trailer            OK      RSEOT
             
         except Exception as e:
             error_result = f"""
-❌ 바코드 분석 오류
-{'='*50}
+                            ❌ 바코드 분석 오류
+                            {'='*50}
 
-🚫 오류 발생: {str(e)}
-📏 바코드 길이: {len(barcode)} 바이트
-📊 원본 바코드: {barcode}
+                            🚫 오류 발생: {str(e)}
+                            📏 바코드 길이: {len(barcode)} 바이트
+                            📊 원본 바코드: {barcode}
 
-💡 가능한 원인:
-  • 바코드 형식이 HKMC 표준과 다름
-  • 바코드가 손상됨
-  • 인식 오류
-"""
+                            💡 가능한 원인:
+                            • 바코드 형식이 HKMC 표준과 다름
+                            • 바코드가 손상됨
+                            • 인식 오류
+                            """
             self.analysis_text.setPlainText(error_result)
     
     def log_message(self, message):

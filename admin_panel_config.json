@@ -33,7 +33,7 @@
     "4m_info": []
   },
   "scanner": {
-    "port": "COM7 - Prolific PL2303GC USB Serial COM Port(COM7)",
+    "port": "COM4 - AX99100 PCIe to High Speed Serial Port(COM4)",
     "baudrate": 9600,
     "terminator": "\\r\\n (CRLF)",
     "auto_scan": true
