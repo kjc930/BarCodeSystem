@@ -247,66 +247,84 @@ class HKMCBarcodeUtils:
         return additional_info
     
     def _parse_spec_info(self, barcode: str) -> Dict:
-        """사양 정보 영역 파싱"""
+        """사양 정보 영역 파싱 - 표준 바코드 라벨체계 규칙 적용"""
         pos = 0
         
-        # HKMC 바코드 형식: [)>V2812P89131CU210SET250905S1B2A0000022M
+        # 표준 바코드 형식: [)>RS06GSV2812GSPAAAAGSGSALC1GSEKETC0102GST250905S1B2A0000015GSMNGSTESTGSRSEOT
         
-        # Header 확인: [)>
+        # Header 확인: [)>06 또는 [)>RS06GS
         if barcode.startswith("[)>"):
             pos = 3  # [)> 건너뛰기
+            
+            # RS06 또는 06 건너뛰기 (표준 헤더)
+            if pos + 4 <= len(barcode) and barcode[pos:pos+4] == "RS06":
+                pos += 4
+            elif pos + 2 <= len(barcode) and barcode[pos:pos+2] == "06":
+                pos += 2
+            
+            # GS 건너뛰기 (있는 경우)
+            if pos < len(barcode) and barcode[pos] == '\x1d':  # GS
+                pos += 1
         
-        # 업체 코드 파싱 (V2812)
+        # 업체 코드 파싱 (V 구분자 이후 구분자까지)
         supplier_code = ""
-        while pos < len(barcode) and barcode[pos] != 'P':
-            supplier_code += barcode[pos]
+        if pos < len(barcode) and barcode[pos] == 'V':
+            pos += 1  # V 건너뛰기
+            # V 이후 구분자까지의 숫자들만 추출 (P, S, T, *, GS, EOT, RS)
+            while pos < len(barcode) and barcode[pos] not in ['P', 'S', 'T', '*', '\x1d', '\x04', '\x1e']:
+                supplier_code += barcode[pos]
+                pos += 1
+        
+        # GS 건너뛰기
+        if pos < len(barcode) and barcode[pos] == '\x1d':  # GS
             pos += 1
         
-        # P 건너뛰기
-        if pos < len(barcode) and barcode[pos] == 'P':
-            pos += 1
-        
-        # 부품 번호 파싱 (89131CU210)
+        # 부품 번호 파싱 (P 이후 구분자까지)
         part_number = ""
-        while pos < len(barcode) and barcode[pos] not in ['S', 'T']:
-            part_number += barcode[pos]
+        if pos < len(barcode) and barcode[pos] == 'P':
+            pos += 1  # P 건너뛰기
+            # P 이후 구분자까지의 문자들 추출 (S, T, *, GS, EOT, RS)
+            # S는 서열코드 식별자이므로 부품번호에 포함하지 않음
+            while pos < len(barcode) and barcode[pos] not in ['S', 'T', '*', '\x1d', '\x04', '\x1e']:
+                part_number += barcode[pos]
+                pos += 1
+        
+        # 구분자 건너뛰기 (*, GS, EOT, RS)
+        if pos < len(barcode) and barcode[pos] in ['*', '\x1d', '\x04', '\x1e']:
             pos += 1
         
-        # 서열 코드 확인 (S가 있으면 서열부품)
+        # 서열 코드 파싱 (S 이후 구분자까지)
         sequence_code = None
         if pos < len(barcode) and barcode[pos] == 'S':
             pos += 1  # S 건너뛰기
-            # 서열 코드가 있는지 확인 (ALC, RPCS 등)
-            remaining = barcode[pos:]
-            if len(remaining) >= 3:
-                for i in range(3, min(5, len(remaining) + 1)):
-                    potential_seq = remaining[:i]
-                    if potential_seq.isalpha() and len(potential_seq) >= 3:
-                        # 다음이 T이거나 숫자인지 확인
-                        if i < len(remaining):
-                            next_char = remaining[i]
-                            if next_char == 'T' or next_char.isdigit():
-                                sequence_code = potential_seq
-                                pos += i
-                                break
+            # S 이후 구분자까지의 문자들 추출 (E, T, *, GS, EOT, RS)
+            # E는 EO번호 식별자이므로 서열코드에 포함하지 않음
+            seq_data = ""
+            while pos < len(barcode) and barcode[pos] not in ['E', 'T', '*', '\x1d', '\x04', '\x1e']:
+                seq_data += barcode[pos]
+                pos += 1
+            # 빈 서열코드도 유효함
+            sequence_code = seq_data if seq_data else ""
         
-        # EO 번호 확인 (E가 있으면 EO번호)
+        # 구분자 건너뛰기 (*, GS, EOT, RS)
+        if pos < len(barcode) and barcode[pos] in ['*', '\x1d', '\x04', '\x1e']:
+            pos += 1
+        
+        # EO 번호 파싱 (E 이후 구분자까지)
         eo_number = None
         if pos < len(barcode) and barcode[pos] == 'E':
             pos += 1  # E 건너뛰기
-            remaining = barcode[pos:]
-            if len(remaining) >= 8:
-                # EO 번호는 보통 8-9자리 (KETC0102 등)
-                for i in range(8, min(10, len(remaining) + 1)):
-                    potential_eo = remaining[:i]
-                    # EO 번호 패턴: 알파벳 4자리 + 숫자 4-5자리
-                    if len(potential_eo) >= 8:
-                        alpha_part = potential_eo[:4]
-                        digit_part = potential_eo[4:]
-                        if alpha_part.isalpha() and digit_part.isdigit():
-                            eo_number = potential_eo
-                            pos += i
-                            break
+            # E 이후 구분자까지의 문자들 추출 (T, *, GS, EOT, RS)
+            eo_data = ""
+            while pos < len(barcode) and barcode[pos] not in ['T', '*', '\x1d', '\x04', '\x1e']:
+                eo_data += barcode[pos]
+                pos += 1
+            # 빈 EO번호도 유효함
+            eo_number = eo_data if eo_data else ""
+        
+        # 구분자 건너뛰기 (*, GS, EOT, RS)
+        if pos < len(barcode) and barcode[pos] in ['*', '\x1d', '\x04', '\x1e']:
+            pos += 1
         
         return {
             'supplier_code': supplier_code,
@@ -317,11 +335,11 @@ class HKMCBarcodeUtils:
         }
     
     def _parse_trace_info(self, barcode: str, start_pos: int) -> Dict:
-        """추적 정보 영역 파싱 (4M 정보 포함)"""
+        """추적 정보 영역 파싱 - 표준 바코드 라벨체계 규칙 적용"""
         pos = start_pos
         
-        # HKMC 바코드 형식: T2509051100A000001M
-        # T + YYMMDD + 4M + A/@ + 추적번호 + M
+        # 표준 바코드 형식: T250905S1B2A0000015GS
+        # T + YYMMDD + 4M + A/@ + 추적번호 + GS
         
         # 제조/조립일자 초기화
         manufacturing_date = ""
@@ -347,11 +365,11 @@ class HKMCBarcodeUtils:
         equipment_info = None
         material_info = None
         
-        # 4M 정보 파싱 (1100 또는 S1B2)
+        # 4M 정보 파싱 (S1B2 형식)
         if manufacturing_date and pos < len(barcode):
             m4_info = ""
-            # 4M 정보는 숫자 또는 알파벳+숫자 조합 (예: 1100, S1B2)
-            while pos < len(barcode) and (barcode[pos].isalnum() or barcode[pos] in ['S', 'B']):
+            # 4M 정보는 알파벳+숫자 조합 (예: S1B2)
+            while pos < len(barcode) and (barcode[pos].isalnum() or barcode[pos] in ['S', 'B']) and barcode[pos] not in ['\x1d', '\x04', '\x1e']:
                 m4_info += barcode[pos]
                 pos += 1
                 # 4자리까지만 4M 정보로 처리
@@ -378,16 +396,18 @@ class HKMCBarcodeUtils:
                     # 4M 정보가 4자리 미만인 경우
                     factory_info = m4_info
             
-            # A 또는 @ (시리얼/로트 구분)
-            if pos < len(barcode) and barcode[pos] in ['A', '@']:
-                trace_type_char = barcode[pos]
-                trace_type = BarcodeType.SERIAL if trace_type_char == 'A' else BarcodeType.LOT
-                pos += 1
-                
-                # 나머지 숫자 (시리얼/로트 번호)
-                while pos < len(barcode) and barcode[pos].isdigit():
-                    traceability_number += barcode[pos]
-                    pos += 1
+            # A 또는 @ (시리얼/로트 구분) - GS까지 찾기
+            for i in range(pos, len(barcode)):
+                if barcode[i] in ['A', '@']:
+                    trace_type_char = barcode[i]
+                    trace_type = BarcodeType.SERIAL if trace_type_char == 'A' else BarcodeType.LOT
+                    pos = i + 1
+                    
+                    # 나머지 숫자 (시리얼/로트 번호) - GS, EOT, RS까지
+                    while pos < len(barcode) and barcode[pos].isdigit() and barcode[pos] not in ['\x1d', '\x04', '\x1e']:
+                        traceability_number += barcode[pos]
+                        pos += 1
+                    break
         
         # 4M 정보가 없는 경우 기존 방식으로 파싱
         if not traceability_number:

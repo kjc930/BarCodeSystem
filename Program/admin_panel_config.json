@@ -14,7 +14,7 @@
     "너트2": 9600
   },
   "scanner": {
-    "port": "COM4 - AX99100 PCIe to High Speed Serial Port(COM4)",
+    "port": "COM9 - Prolific PL2303GC USB Serial COM Port(COM9)",
     "baudrate": 9600,
     "terminator": "\\r\\n (CRLF)",
     "auto_scan": true
@@ -31,6 +31,6 @@
     "x": 100,
     "y": 100,
     "width": 1200,
-    "height": 931
+    "height": 935
   }
 }

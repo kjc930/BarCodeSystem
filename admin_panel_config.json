@@ -47,5 +47,11 @@
   "printer": {
     "port": "COM7 - Prolific PL2303GC USB Serial COM Port(COM7)",
     "baudrate": 9600
+  },
+  "admin_panel": {
+    "x": 2036,
+    "y": 118,
+    "width": 1200,
+    "height": 935
   }
 }

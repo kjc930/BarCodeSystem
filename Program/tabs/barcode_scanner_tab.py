@@ -28,6 +28,8 @@ class BarcodeScannerTab(QWidget):
         self.scanned_codes = []
         self.barcode_utils = HKMCBarcodeUtils()  # HKMC 바코드 유틸리티 초기화
         self.shared_scan_history = []  # 공유 스캔 이력 저장소
+        self.data_buffer = ""  # 바코드 데이터 버퍼링
+        self.barcode_timer = None  # 바코드 완성 타이머
         
         # 공용 시리얼 연결 관리자 초기화
         self.connection_manager = SerialConnectionManager("스캐너", settings_manager)
@@ -193,6 +195,12 @@ class BarcodeScannerTab(QWidget):
         scan_info_btn.setStyleSheet("QPushButton { background-color: #17a2b8; color: white; font-weight: bold; }")
         stats_layout.addWidget(scan_info_btn)
         
+        # 테스트용 수동 바코드 추가 버튼
+        test_barcode_btn = QPushButton("🧪 테스트 바코드")
+        test_barcode_btn.clicked.connect(self.add_test_barcode)
+        test_barcode_btn.setStyleSheet("QPushButton { background-color: #28a745; color: white; font-weight: bold; }")
+        stats_layout.addWidget(test_barcode_btn)
+        
         scan_list_layout.addLayout(stats_layout)
         layout.addWidget(scan_list_group)
         
@@ -298,18 +306,56 @@ class BarcodeScannerTab(QWidget):
     
     def on_barcode_received(self, data):
         """바코드 데이터 수신 처리"""
-        # 종료 문자 제거
-        data = data.strip('\r\n')
+        # 디버깅을 위한 로그 추가
+        self.log_message(f"수신된 원시 데이터: '{data}' (길이: {len(data)})")
         
-        if data:
-            self.scanned_codes.append(data)
-            self.scan_list.addItem(f"[{len(self.scanned_codes)}] {data}")
-            self.scan_count_label.setText(f"스캔 횟수: {len(self.scanned_codes)}")
-            self.log_message(f"바코드 스캔: {data}")
+        # 새로운 바코드 스캔이 시작되면 버퍼 초기화
+        if not self.data_buffer:
+            self.log_message("🔄 새로운 바코드 스캔 시작")
+        
+        # 데이터를 버퍼에 추가
+        self.data_buffer += data
+        self.log_message(f"현재 버퍼: '{self.data_buffer}' (길이: {len(self.data_buffer)})")
+        
+        # 기존 타이머가 있으면 중지
+        if self.barcode_timer:
+            self.barcode_timer.stop()
+        
+        # 새로운 타이머 시작 (100ms 후 바코드 완성 처리)
+        from PyQt5.QtCore import QTimer
+        self.barcode_timer = QTimer()
+        self.barcode_timer.setSingleShot(True)
+        self.barcode_timer.timeout.connect(self.process_complete_barcode)
+        self.barcode_timer.start(100)  # 100ms 대기
+    
+    def process_complete_barcode(self):
+        """완성된 바코드 처리"""
+        if self.data_buffer:
+            # 데이터 정리 (공백, 종료 문자 제거)
+            complete_barcode = self.data_buffer.strip('\r\n\t ')
             
-            # 자동 스캔 모드가 아닌 경우 알림
-            if not self.auto_scan_check.isChecked():
-                QMessageBox.information(self, "바코드 스캔", f"스캔된 바코드: {data}")
+            if complete_barcode:
+                self.log_message(f"완성된 바코드: '{complete_barcode}'")
+                
+                # 중복 바코드 체크 (같은 바코드가 연속으로 들어오는 경우 방지)
+                if not self.scanned_codes or self.scanned_codes[-1] != complete_barcode:
+                    self.scanned_codes.append(complete_barcode)
+                    # 온전한 바코드 데이터만 표시 (번호 없이)
+                    self.scan_list.addItem(complete_barcode)
+                    self.scan_count_label.setText(f"스캔 횟수: {len(self.scanned_codes)}")
+                    self.log_message(f"✅ 바코드 스캔 완료: {complete_barcode}")
+                    
+                    # 자동 스캔 모드가 아닌 경우 알림
+                    if not self.auto_scan_check.isChecked():
+                        QMessageBox.information(self, "바코드 스캔", f"스캔된 바코드: {complete_barcode}")
+                else:
+                    self.log_message(f"⚠️ 중복 바코드 무시: {complete_barcode}")
+            else:
+                self.log_message(f"⚠️ 빈 바코드 무시")
+            
+            # 즉시 버퍼 초기화 (다음 스캔을 위해)
+            self.data_buffer = ""
+            self.log_message("🔄 버퍼 초기화 완료")
     
     def clear_scan_list(self):
         """스캔 목록 지우기"""
@@ -405,6 +451,26 @@ class BarcodeScannerTab(QWidget):
             "3. 바코드를 클릭하면 자동으로 분석됩니다\n"
             "4. 자동 스캔 모드가 활성화되어 있습니다\n\n"
             "💡 팁: 바코드를 스캔하면 즉시 데이터가 표시됩니다!")
+    
+    def add_test_barcode(self):
+        """테스트용 바코드 추가"""
+        import time
+        test_barcodes = [
+            "[)>06V2812P89131CU210SET2509052000A0000010M"
+        ]
+        
+        for i, barcode in enumerate(test_barcodes):
+            # 시뮬레이션된 바코드 데이터 처리
+            self.log_message(f"🧪 테스트 바코드 추가: {barcode}")
+            self.scanned_codes.append(barcode)
+            # 온전한 바코드 데이터만 표시 (번호 없이)
+            self.scan_list.addItem(barcode)
+            self.scan_count_label.setText(f"스캔 횟수: {len(self.scanned_codes)}")
+            
+            # 약간의 지연 추가 (실제 스캔 시뮬레이션)
+            time.sleep(0.1)
+        
+        self.log_message("✅ 테스트 바코드 추가 완료")
     
     def analyze_barcode(self, barcode):
         """바코드 분석 및 결과 표시"""
