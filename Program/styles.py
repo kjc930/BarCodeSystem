@@ -927,3 +927,549 @@ def get_close_button_style():
             border: 2px inset #616161;
         }
     """
+
+# 메인 화면 스타일들
+def get_main_title_style():
+    """메인 화면 제목 스타일"""
+    return """
+        QLabel {
+            color: #2C3E50;
+            background-color: #ECF0F1;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_info_group_style():
+    """메인 화면 정보 그룹 스타일"""
+    return """
+        QGroupBox {
+            font-weight: bold;
+            color: #2C3E50;
+            border: 2px solid #BDC3C7;
+            border-radius: 5px;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 10px;
+            padding: 0 5px 0 5px;
+        }
+    """
+
+def get_main_part_title_style():
+    """메인 화면 부품 제목 스타일"""
+    return "color: #2C3E50;"
+
+def get_main_part_label_style():
+    """메인 화면 부품 라벨 스타일"""
+    return """
+        QLabel {
+            color: #2C3E50;
+            background-color: #F8F9FA;
+            border: 1px solid #DEE2E6;
+            border-radius: 3px;
+            padding: 8px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_division_frame_style():
+    """메인 화면 구분 프레임 스타일"""
+    return """
+        QFrame {
+            background-color: #3498DB;
+            border: 0.5px solid #2980B9;
+            border-radius: 3px;
+        }
+    """
+
+def get_main_work_status_style():
+    """메인 화면 작업 상태 스타일"""
+    return """
+        QLabel {
+            color: white;
+            background-color: #28A745;
+            border: 1px solid #1E7E34;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_division_label_style():
+    """메인 화면 구분 라벨 스타일"""
+    return """
+        QLabel {
+            color: white;
+            background-color: #3498DB;
+            border: 1px solid #2980B9;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_uph_label_style():
+    """메인 화면 UPH 라벨 스타일"""
+    return """
+        QLabel {
+            background-color: #17A2B8;
+            color: white;
+            border: 1px solid #138496;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_scan_button_style():
+    """메인 화면 스캔 버튼 스타일"""
+    return """
+        QPushButton {
+            background-color: #007BFF;
+            color: white;
+            border: 1px solid #0056B3;
+            border-radius: 5px;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        QPushButton:hover {
+            background-color: #0056B3;
+        }
+        QPushButton:pressed {
+            background-color: #004085;
+            border: 2px inset #0056B3;
+        }
+    """
+
+def get_main_icon_label_style():
+    """메인 화면 아이콘 라벨 스타일"""
+    return """
+        QLabel {
+            background-color: #6C757D;
+            color: white;
+            border: 1px solid #5A6268;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_status_connected_style():
+    """메인 화면 연결됨 상태 스타일"""
+    return """
+        QLabel {
+            background-color: #28A745;
+            color: white;
+            border: 1px solid #1E7E34;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_status_disconnected_style():
+    """메인 화면 연결 안됨 상태 스타일"""
+    return """
+        QLabel {
+            background-color: #DC3545;
+            color: white;
+            border: 1px solid #C82333;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_production_group_style():
+    """메인 화면 생산 그룹 스타일 - 크기 2배 증가"""
+    return """
+        QGroupBox {
+            font-weight: bold;
+            color: #2C3E50;
+            border: 3px solid #BDC3C7;
+            border-radius: 8px;
+            margin-top: 15px;
+            padding-top: 15px;
+            min-height: 150px;
+            min-width: 250px;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 15px;
+            padding: 0 8px 0 8px;
+            font-size: 14px;
+        }
+    """
+
+def get_main_production_box_style():
+    """메인 화면 생산 박스 스타일 - 크기 2배 증가"""
+    return """
+        QLabel {
+            background-color: #000000;
+            color: #00FF00;
+            border: 1px solid #00FF00;
+            border-radius: 8px;
+            padding: 5px;
+            font-weight: bold;
+            min-height: 120px;
+            min-width: 200px;
+        }
+    """
+
+def get_main_accumulated_group_style():
+    """메인 화면 누적 그룹 스타일"""
+    return """
+        QGroupBox {
+            font-weight: bold;
+            color: #6C757D;
+            border: 2px solid #BDC3C7;
+            border-radius: 5px;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 10px;
+            padding: 0 5px 0 5px;
+        }
+    """
+
+def get_main_accumulated_box_style():
+    """메인 화면 누적 박스 스타일"""
+    return """
+        QLabel {
+            background-color: #FFF3CD;
+            color: #856404;
+            border: 1px solid #FFEAA7;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_work_completed_style():
+    """메인 화면 작업완료 상태 스타일"""
+    return """
+        QLabel {
+            color: white;
+            background-color: #28A745;
+            border: 1px solid #1E7E34;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_work_in_progress_style():
+    """메인 화면 작업중 상태 스타일"""
+    return """
+        QLabel {
+            color: white;
+            background-color: #6C757D;
+            border: 1px solid #5A6268;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_division_normal_style():
+    """메인 화면 구분 정상 스타일"""
+    return """
+        QLabel {
+            color: white;
+            background-color: #28A745;
+            border: 1px solid #1E7E34;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_division_error_style():
+    """메인 화면 구분 오류 스타일"""
+    return """
+        QLabel {
+            color: white;
+            background-color: #DC3545;
+            border: 1px solid #C82333;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_child_part_matched_style():
+    """메인 화면 자식 부품 매칭됨 스타일"""
+    return """
+        QLabel {
+            background-color: #28A745;
+            color: white;
+            border: 1px solid #1E7E34;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_child_part_unmatched_style():
+    """메인 화면 자식 부품 미매칭 스타일"""
+    return """
+        QLabel {
+            background-color: #DC3545;
+            color: white;
+            border: 1px solid #C82333;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_plc_link_off_style():
+    """메인 화면 PLC LINK OFF 스타일"""
+    return """
+        QLabel {
+            color: white;
+            background-color: #DC3545;
+            border: 1px solid #C82333;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_plc_connected_style():
+    """메인 화면 PLC 연결됨 스타일"""
+    return """
+        QLabel {
+            color: white;
+            background-color: #17A2B8;
+            border: 1px solid #138496;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_plc_data_error_style():
+    """메인 화면 PLC 데이터 오류 스타일"""
+    return """
+        QLabel {
+            color: white;
+            background-color: #FFC107;
+            border: 1px solid #E0A800;
+            border-radius: 3px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_date_label_style():
+    """메인 화면 날짜 라벨 스타일"""
+    return """
+        QLabel {
+            color: #2C3E50;
+            background-color: transparent;
+            font-weight: bold;
+        }
+    """
+
+def get_main_window_style():
+    """메인 윈도우 스타일"""
+    return """
+        QMainWindow {
+            background-color: #F8F9FA;
+        }
+    """
+
+def get_main_datetime_container_style():
+    """메인 화면 날짜/시간 컨테이너 스타일"""
+    return """
+        QFrame {
+            background-color: #F8F9FA;
+            border: 0.5px solid #DEE2E6;
+            border-radius: 5px;
+            padding: 8px 15px;
+        }
+    """
+
+def get_main_time_label_style():
+    """메인 화면 시간 라벨 스타일"""
+    return """
+        QLabel {
+            color: #2C3E50;
+            background-color: transparent;
+            font-weight: bold;
+        }
+    """
+
+def get_main_dialog_style():
+    """메인 다이얼로그 스타일"""
+    return """
+        QDialog {
+            background-color: #F8F9FA;
+        }
+    """
+
+def get_main_scan_title_style():
+    """메인 스캔 제목 스타일"""
+    return """
+        QLabel {
+            color: #2C3E50;
+            background-color: #E9ECEF;
+            border: 0.5px solid #6C757D;
+            border-radius: 3px;
+            padding: 8px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_toggle_button_style():
+    """메인 토글 버튼 스타일"""
+    return """
+        QPushButton {
+            background-color: #17A2B8;
+            color: white;
+            border: 0.5px solid #138496;
+            border-radius: 3px;
+            padding: 6px 12px;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background-color: #138496;
+        }
+        QPushButton:pressed {
+            background-color: #117A8B;
+        }
+    """
+
+def get_main_refresh_button_style():
+    """메인 새로고침 버튼 스타일"""
+    return """
+        QPushButton {
+            background-color: #28A745;
+            color: white;
+            border: 0.5px solid #1E7E34;
+            border-radius: 3px;
+            padding: 6px 12px;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background-color: #1E7E34;
+        }
+        QPushButton:pressed {
+            background-color: #155724;
+        }
+    """
+
+def get_main_close_button_style():
+    """메인 닫기 버튼 스타일"""
+    return """
+        QPushButton {
+            background-color: #6C757D;
+            color: white;
+            border: 0.5px solid #5A6268;
+            border-radius: 3px;
+            padding: 6px 12px;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background-color: #5A6268;
+        }
+        QPushButton:pressed {
+            background-color: #495057;
+        }
+    """
+
+def get_main_child_parts_group_style():
+    """메인 자식 부품 그룹 스타일"""
+    return """
+        QGroupBox {
+            font-weight: bold;
+            color: #2C3E50;
+            border: 2px solid #95A5A6;
+            border-radius: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 10px;
+            padding: 0 5px 0 5px;
+            background-color: white;
+        }
+    """
+
+def get_main_child_parts_table_style():
+    """메인 자식 부품 테이블 스타일"""
+    return """
+        QTableWidget {
+            background-color: white;
+            border: 2px solid #DEE2E6;
+            border-radius: 5px;
+            gridline-color: #DEE2E6;
+            selection-background-color: #E3F2FD;
+            selection-color: #1976D2;
+        }
+        QTableWidget::item {
+            padding: 8px;
+            border-bottom: 1px solid #F5F5F5;
+        }
+        QTableWidget::item:selected {
+            background-color: #E3F2FD;
+            color: #1976D2;
+        }
+        QHeaderView::section {
+            background-color: #F8F9FA;
+            color: #495057;
+            border: 1px solid #DEE2E6;
+            border-radius: 0px;
+            padding: 8px;
+            font-weight: bold;
+        }
+    """
+
+def get_main_stats_frame_style():
+    """메인 통계 프레임 스타일"""
+    return """
+        QFrame {
+            background-color: #FFFFFF;
+            border: 0.5px solid #DEE2E6;
+            border-radius: 3px;
+            padding: 10px;
+        }
+    """
+
+def get_main_scan_table_style():
+    """메인 스캔 테이블 스타일"""
+    return """
+        QTableWidget {
+            background-color: white;
+            border: 2px solid #DEE2E6;
+            border-radius: 5px;
+            gridline-color: #DEE2E6;
+            selection-background-color: #E3F2FD;
+            selection-color: #1976D2;
+        }
+        QTableWidget::item {
+            padding: 8px;
+            border-bottom: 1px solid #F5F5F5;
+        }
+        QTableWidget::item:selected {
+            background-color: #E3F2FD;
+            color: #1976D2;
+        }
+        QHeaderView::section {
+            background-color: #F8F9FA;
+            color: #495057;
+            border: 1px solid #DEE2E6;
+            border-radius: 0px;
+            padding: 8px;
+            font-weight: bold;
+        }
+    """

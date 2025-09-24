@@ -100,8 +100,14 @@ class SerialConnectionThread(QThread):
 class SettingsManager:
     """설정 관리 클래스"""
     
-    def __init__(self, config_file="admin_panel_config.json"):
-        self.config_file = config_file
+    def __init__(self, config_file=None):
+        # 절대 경로로 설정 파일 경로 설정
+        if config_file is None:
+            # 프로젝트 루트 디렉토리의 설정 파일 사용
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            self.config_file = os.path.join(project_root, "admin_panel_config.json")
+        else:
+            self.config_file = config_file
         self.settings = self.load_settings()
     
     def load_settings(self):
@@ -127,34 +133,32 @@ class SettingsManager:
             return False
     
     def get_default_settings(self):
-        """기본 설정 반환"""
+        """기본 설정 반환 - 현재 구조에 맞춤"""
         return {
             "plc": {
-                "port": "COM1",
+                "port": "COM6",
                 "baudrate": 9600,
-                "timeout": 1,
-                "slave_id": 1,
-                "register_address": 10
+                "parity": "None",
+                "station_id": 1,
+                "device": "%MW10",
+                "test_value": 100
             },
-            "barcode_scanner": {
-                "port": "COM2",
-                "baudrate": 9600,
-                "timeout": 1
-            },
-            "barcode_printer": {
-                "port": "COM3",
-                "baudrate": 9600,
-                "timeout": 1
-            },
-            "nutrunner1": {
+            "scanner": {
                 "port": "COM4",
                 "baudrate": 9600,
-                "timeout": 1
+                "terminator": "\\r\\n (CRLF)",
+                "auto_scan": True
             },
-            "nutrunner2": {
-                "port": "COM5",
+            "printer": {
+                "port": "COM1",
                 "baudrate": 9600,
-                "timeout": 1
+                "quality": "표준 (4 DPS)"
+            },
+            "nutrunner": {
+                "nutrunner1_port": "COM4",
+                "nutrunner1_baudrate": 9600,
+                "nutrunner2_port": "COM5",
+                "nutrunner2_baudrate": 9600
             },
             "master_data": {
                 "suppliers": [],

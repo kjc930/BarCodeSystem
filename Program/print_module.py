@@ -35,7 +35,7 @@ class PrintModule(QObject):
         """설정 초기화"""
         # 시리얼 설정
         self.serial_config = {
-            'port': 'COM3',
+            'port': 'COM1',
             'baudrate': 9600,
             'bytesize': serial.EIGHTBITS,
             'parity': serial.PARITY_NONE,

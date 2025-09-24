@@ -1935,7 +1935,7 @@ class HistoryDialog(QDialog):
 
 class SerialConfig:
     def __init__(self):
-        self.port = 'COM3'
+        self.port = 'COM1'
         self.baudrate = 9600
         self.bytesize = serial.EIGHTBITS
         self.parity = serial.PARITY_NONE
