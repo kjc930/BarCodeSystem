@@ -204,11 +204,12 @@ class SettingsManager:
         }
     
     # 바코드 프린터 설정
-    def update_printer_settings(self, port, baudrate):
+    def update_printer_settings(self, port, baudrate, quality=None):
         """바코드 프린터 설정 업데이트"""
         self.settings["printer"] = {
             "port": port,
-            "baudrate": int(baudrate) if baudrate.isdigit() else 9600
+            "baudrate": int(baudrate) if baudrate.isdigit() else 9600,
+            "quality": quality if quality else "표준 (4 DPS)"
         }
     
     # 시스템툴(너트 런너) 설정

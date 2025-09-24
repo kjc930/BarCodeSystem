@@ -10,7 +10,8 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtGui import QFont
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from styles import get_tab_title_style
+from styles import (get_tab_title_style, get_port_status_connected_style, get_port_status_disconnected_style,
+                    get_connect_button_style, get_disconnect_button_style, get_save_button_style)
 from utils import SettingsManager, SerialConnectionThread
 
 
@@ -63,66 +64,21 @@ class NutRunnerTab(QWidget):
         # 설정 저장 버튼
         save_settings_btn = QPushButton("설정 저장")
         save_settings_btn.clicked.connect(self.save_nutrunner_settings)
-        save_settings_btn.setStyleSheet("QPushButton { background-color: #3498db; color: white; font-weight: bold; }")
+        save_settings_btn.setStyleSheet(get_save_button_style())
         nutrunner1_layout.addWidget(save_settings_btn, 1, 2)
         
         # 연결 버튼
         self.nutrunner1_connect_btn = QPushButton("연결")
         self.nutrunner1_connect_btn.clicked.connect(lambda: self.connect_nutrunner(1))
         self.nutrunner1_connect_btn.setCheckable(True)
-        self.nutrunner1_connect_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                font-weight: bold;
-                border: 2px solid #45a049;
-                border-radius: 5px;
-                padding: 8px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-            QPushButton:pressed {
-                background-color: #3d8b40;
-                border: 2px inset #45a049;
-            }
-            QPushButton:checked {
-                background-color: #3d8b40;
-                border: 2px inset #45a049;
-            }
-        """)
+        self.nutrunner1_connect_btn.setStyleSheet(get_connect_button_style())
         nutrunner1_layout.addWidget(self.nutrunner1_connect_btn, 2, 0)
         
         self.nutrunner1_disconnect_btn = QPushButton("연결 해제")
         self.nutrunner1_disconnect_btn.clicked.connect(lambda: self.disconnect_nutrunner(1))
         self.nutrunner1_disconnect_btn.setEnabled(False)
         self.nutrunner1_disconnect_btn.setCheckable(True)
-        self.nutrunner1_disconnect_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #f44336;
-                color: white;
-                font-weight: bold;
-                border: 2px solid #da190b;
-                border-radius: 5px;
-                padding: 8px;
-            }
-            QPushButton:hover {
-                background-color: #da190b;
-            }
-            QPushButton:pressed {
-                background-color: #c62828;
-                border: 2px inset #da190b;
-            }
-            QPushButton:checked {
-                background-color: #c62828;
-                border: 2px inset #da190b;
-            }
-            QPushButton:disabled {
-                background-color: #cccccc;
-                color: #666666;
-                border: 2px solid #999999;
-            }
-        """)
+        self.nutrunner1_disconnect_btn.setStyleSheet(get_disconnect_button_style())
         nutrunner1_layout.addWidget(self.nutrunner1_disconnect_btn, 2, 1)
         
         # 상태 표시
@@ -165,66 +121,21 @@ class NutRunnerTab(QWidget):
         # 설정 저장 버튼
         save_settings2_btn = QPushButton("설정 저장")
         save_settings2_btn.clicked.connect(self.save_nutrunner_settings)
-        save_settings2_btn.setStyleSheet("QPushButton { background-color: #3498db; color: white; font-weight: bold; }")
+        save_settings2_btn.setStyleSheet(get_save_button_style())
         nutrunner2_layout.addWidget(save_settings2_btn, 1, 2)
         
         # 연결 버튼
         self.nutrunner2_connect_btn = QPushButton("연결")
         self.nutrunner2_connect_btn.clicked.connect(lambda: self.connect_nutrunner(2))
         self.nutrunner2_connect_btn.setCheckable(True)
-        self.nutrunner2_connect_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                font-weight: bold;
-                border: 2px solid #45a049;
-                border-radius: 5px;
-                padding: 8px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-            QPushButton:pressed {
-                background-color: #3d8b40;
-                border: 2px inset #45a049;
-            }
-            QPushButton:checked {
-                background-color: #3d8b40;
-                border: 2px inset #45a049;
-            }
-        """)
+        self.nutrunner2_connect_btn.setStyleSheet(get_connect_button_style())
         nutrunner2_layout.addWidget(self.nutrunner2_connect_btn, 2, 0)
         
         self.nutrunner2_disconnect_btn = QPushButton("연결 해제")
         self.nutrunner2_disconnect_btn.clicked.connect(lambda: self.disconnect_nutrunner(2))
         self.nutrunner2_disconnect_btn.setEnabled(False)
         self.nutrunner2_disconnect_btn.setCheckable(True)
-        self.nutrunner2_disconnect_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #f44336;
-                color: white;
-                font-weight: bold;
-                border: 2px solid #da190b;
-                border-radius: 5px;
-                padding: 8px;
-            }
-            QPushButton:hover {
-                background-color: #da190b;
-            }
-            QPushButton:pressed {
-                background-color: #c62828;
-                border: 2px inset #da190b;
-            }
-            QPushButton:checked {
-                background-color: #c62828;
-                border: 2px inset #da190b;
-            }
-            QPushButton:disabled {
-                background-color: #cccccc;
-                color: #666666;
-                border: 2px solid #999999;
-            }
-        """)
+        self.nutrunner2_disconnect_btn.setStyleSheet(get_disconnect_button_style())
         nutrunner2_layout.addWidget(self.nutrunner2_disconnect_btn, 2, 1)
         
         # 상태 표시
@@ -421,6 +332,15 @@ class NutRunnerTab(QWidget):
         status_label.setText("연결되지 않음")
         status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
         data_label.setText("데이터: 없음")
+        
+        # 포트 상태 라벨 업데이트
+        if nutrunner_num == 1:
+            self.nutrunner1_port_status_label.setText("🔴 미연결")
+            self.nutrunner1_port_status_label.setStyleSheet(get_port_status_disconnected_style())
+        else:
+            self.nutrunner2_port_status_label.setText("🔴 미연결")
+            self.nutrunner2_port_status_label.setStyleSheet(get_port_status_disconnected_style())
+        
         self.log_message(f"너트 런너 {nutrunner_num} 연결이 해제되었습니다.")
     
     def on_nutrunner_data_received(self, nutrunner_num, data):
@@ -464,6 +384,14 @@ class NutRunnerTab(QWidget):
             disconnect_btn.setEnabled(True)
             disconnect_btn.setChecked(False)
             
+            # 포트 상태 라벨 업데이트
+            if nutrunner_num == 1:
+                self.nutrunner1_port_status_label.setText("🟢 연결됨")
+                self.nutrunner1_port_status_label.setStyleSheet(get_port_status_connected_style())
+            else:
+                self.nutrunner2_port_status_label.setText("🟢 연결됨")
+                self.nutrunner2_port_status_label.setStyleSheet(get_port_status_connected_style())
+            
             # 연결 성공 시 설정 자동 저장
             self.save_nutrunner_settings()
             self.log_message(f"✅ 시스템툴 {nutrunner_num} 연결 성공!")
@@ -476,6 +404,15 @@ class NutRunnerTab(QWidget):
             disconnect_btn.setChecked(False)
             data_label.setText("데이터: 없음")
             data_label.setStyleSheet("QLabel { background-color: #f0f0f0; padding: 5px; border: 1px solid #ccc; }")
+            
+            # 포트 상태 라벨 업데이트
+            if nutrunner_num == 1:
+                self.nutrunner1_port_status_label.setText("🔴 미연결")
+                self.nutrunner1_port_status_label.setStyleSheet(get_port_status_disconnected_style())
+            else:
+                self.nutrunner2_port_status_label.setText("🔴 미연결")
+                self.nutrunner2_port_status_label.setStyleSheet(get_port_status_disconnected_style())
+            
             self.log_message(f"❌ 시스템툴 {nutrunner_num} 연결 실패: {message}")
         
         self.log_message(f"🔧 시스템툴 {nutrunner_num}: {message}")
@@ -558,12 +495,12 @@ class NutRunnerTab(QWidget):
             # 포트 상태 표시 업데이트
             if device_name == "너트1":
                 self.nutrunner1_port_status_label.setText("🟢 연결됨")
-                self.nutrunner1_port_status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
+                self.nutrunner1_port_status_label.setStyleSheet(get_port_status_connected_style())
                 self.update_nutrunner_port_combo_for_connection(device_name, True)
                 current_port = self.nutrunner1_port_combo.currentText()
             else:
                 self.nutrunner2_port_status_label.setText("🟢 연결됨")
-                self.nutrunner2_port_status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
+                self.nutrunner2_port_status_label.setStyleSheet(get_port_status_connected_style())
                 self.update_nutrunner_port_combo_for_connection(device_name, True)
                 current_port = self.nutrunner2_port_combo.currentText()
             
@@ -585,11 +522,11 @@ class NutRunnerTab(QWidget):
             # 포트 상태 표시 업데이트
             if device_name == "너트1":
                 self.nutrunner1_port_status_label.setText("🔴 미연결")
-                self.nutrunner1_port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+                self.nutrunner1_port_status_label.setStyleSheet(get_port_status_disconnected_style())
                 self.update_nutrunner_port_combo_for_connection(device_name, False)
             else:
                 self.nutrunner2_port_status_label.setText("🔴 미연결")
-                self.nutrunner2_port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+                self.nutrunner2_port_status_label.setStyleSheet(get_port_status_disconnected_style())
                 self.update_nutrunner_port_combo_for_connection(device_name, False)
             
             self.log_message(f"❌ 메인 화면에서 {device_name} 연결이 해제되었습니다")

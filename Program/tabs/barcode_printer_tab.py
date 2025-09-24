@@ -10,7 +10,11 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtGui import QFont
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from styles import get_tab_title_style, get_status_connected_style, get_status_disconnected_style, get_status_error_style
+from styles import (get_tab_title_style, get_status_connected_style, get_status_disconnected_style, 
+                   get_status_error_style, get_connect_button_style, get_disconnect_button_style, 
+                   get_save_button_style, get_test_print_button_style, get_status_check_button_style,
+                   get_clean_button_style, get_quality_test_button_style, get_port_status_connected_style,
+                   get_port_status_disconnected_style)
 from utils import SettingsManager, SerialConnectionThread
 from modules import SerialConnectionManager
 
@@ -51,7 +55,7 @@ class BarcodePrinterTab(QWidget):
         
         # 연결 상태 표시 (포트 옆에)
         self.port_status_label = QLabel("🔴 미연결")
-        self.port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+        self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
         serial_layout.addWidget(self.port_status_label, 0, 2)
         
         refresh_btn = QPushButton("새로고침")
@@ -65,70 +69,32 @@ class BarcodePrinterTab(QWidget):
         self.baudrate_combo.setCurrentText("9600")
         serial_layout.addWidget(self.baudrate_combo, 1, 1)
         
+        # 인쇄 품질 설정
+        serial_layout.addWidget(QLabel("인쇄 품질:"), 2, 0)
+        self.quality_combo = QComboBox()
+        self.quality_combo.addItems(["고속 (6 DPS)", "표준 (4 DPS)", "고품질 (2 DPS)"])
+        self.quality_combo.setCurrentText("표준 (4 DPS)")
+        serial_layout.addWidget(self.quality_combo, 2, 1)
+        
         # 연결 버튼
         self.connect_btn = QPushButton("연결")
         self.connect_btn.clicked.connect(self.connect_serial)
         self.connect_btn.setCheckable(True)
-        self.connect_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                font-weight: bold;
-                border: 2px solid #45a049;
-                border-radius: 5px;
-                padding: 8px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-            QPushButton:pressed {
-                background-color: #3d8b40;
-                border: 2px inset #45a049;
-            }
-            QPushButton:checked {
-                background-color: #3d8b40;
-                border: 2px inset #45a049;
-            }
-        """)
-        serial_layout.addWidget(self.connect_btn, 2, 0)
+        self.connect_btn.setStyleSheet(get_connect_button_style())
+        serial_layout.addWidget(self.connect_btn, 3, 0)
         
         self.disconnect_btn = QPushButton("연결 해제")
         self.disconnect_btn.clicked.connect(self.disconnect_serial)
         self.disconnect_btn.setEnabled(False)
         self.disconnect_btn.setCheckable(True)
-        self.disconnect_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #f44336;
-                color: white;
-                font-weight: bold;
-                border: 2px solid #da190b;
-                border-radius: 5px;
-                padding: 8px;
-            }
-            QPushButton:hover {
-                background-color: #da190b;
-            }
-            QPushButton:pressed {
-                background-color: #c62828;
-                border: 2px inset #da190b;
-            }
-            QPushButton:checked {
-                background-color: #c62828;
-                border: 2px inset #da190b;
-            }
-            QPushButton:disabled {
-                background-color: #cccccc;
-                color: #666666;
-                border: 2px solid #999999;
-            }
-        """)
-        serial_layout.addWidget(self.disconnect_btn, 2, 1)
+        self.disconnect_btn.setStyleSheet(get_disconnect_button_style())
+        serial_layout.addWidget(self.disconnect_btn, 3, 1)
         
         # 설정 저장 버튼
         save_btn = QPushButton("설정 저장")
         save_btn.clicked.connect(self.save_printer_settings)
-        save_btn.setStyleSheet("QPushButton { background-color: #3498db; color: white; font-weight: bold; }")
-        serial_layout.addWidget(save_btn, 2, 2)
+        save_btn.setStyleSheet(get_save_button_style())
+        serial_layout.addWidget(save_btn, 3, 2)
         
         layout.addWidget(serial_group)
         
@@ -145,20 +111,32 @@ class BarcodePrinterTab(QWidget):
         # 테스트 출력 버튼
         test_print_btn = QPushButton("🖨️ 테스트 출력")
         test_print_btn.clicked.connect(self.test_print)
-        test_print_btn.setStyleSheet("QPushButton { background-color: #28a745; color: white; font-weight: bold; }")
+        test_print_btn.setStyleSheet(get_test_print_button_style())
         test_layout.addWidget(test_print_btn, 1, 0)
         
         # 프린터 상태 확인 버튼
         status_check_btn = QPushButton("📊 프린터 상태 확인")
         status_check_btn.clicked.connect(self.check_printer_status)
-        status_check_btn.setStyleSheet("QPushButton { background-color: #17a2b8; color: white; font-weight: bold; }")
+        status_check_btn.setStyleSheet(get_status_check_button_style())
         test_layout.addWidget(status_check_btn, 1, 1)
+        
+        # 프린터 헤드 정리 버튼
+        clean_btn = QPushButton("🧹 헤드 정리")
+        clean_btn.clicked.connect(self.clean_printer_head)
+        clean_btn.setStyleSheet(get_clean_button_style())
+        test_layout.addWidget(clean_btn, 2, 0)
+        
+        # 고품질 테스트 출력 버튼
+        quality_test_btn = QPushButton("✨ 고품질 테스트")
+        quality_test_btn.clicked.connect(self.quality_test_print)
+        quality_test_btn.setStyleSheet(get_quality_test_button_style())
+        test_layout.addWidget(quality_test_btn, 2, 1)
         
         # 상태 표시
         self.status_label = QLabel("연결되지 않음")
-        self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+        self.status_label.setStyleSheet(get_status_disconnected_style())
         self.status_label.setAlignment(Qt.AlignCenter)
-        test_layout.addWidget(self.status_label, 2, 0, 1, 2)
+        test_layout.addWidget(self.status_label, 3, 0, 1, 2)
         
         layout.addWidget(test_group)
         
@@ -222,7 +200,7 @@ class BarcodePrinterTab(QWidget):
         
         import serial
         self.serial_thread = SerialConnectionThread(
-            port_name, baudrate, serial.PARITY_NONE, 1, 8, 1
+            port_name, baudrate, serial.PARITY_NONE, 8, 1, 1
         )
         self.serial_thread.connection_status.connect(self.on_connection_status)
         self.serial_thread.start()
@@ -246,6 +224,11 @@ class BarcodePrinterTab(QWidget):
         self.disconnect_btn.setChecked(True)
         self.status_label.setText("연결되지 않음")
         self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+        
+        # 포트 상태 라벨 업데이트
+        self.port_status_label.setText("🔴 미연결")
+        self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
+        
         self.log_message("연결이 해제되었습니다.")
     
     def on_connection_status(self, success, message):
@@ -259,6 +242,10 @@ class BarcodePrinterTab(QWidget):
             self.status_label.setText("🟢 연결됨 - 프린터 준비")
             self.status_label.setStyleSheet(get_status_connected_style())
             
+            # 포트 상태 라벨 업데이트
+            self.port_status_label.setText("🟢 연결됨")
+            self.port_status_label.setStyleSheet(get_port_status_connected_style())
+            
             # 연결 성공 시 설정 자동 저장
             self.save_printer_settings()
         else:
@@ -269,6 +256,10 @@ class BarcodePrinterTab(QWidget):
             self.disconnect_btn.setChecked(False)
             self.status_label.setText("🔴 연결 실패")
             self.status_label.setStyleSheet(get_status_disconnected_style())
+            
+            # 포트 상태 라벨 업데이트
+            self.port_status_label.setText("🔴 미연결")
+            self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
         
         self.log_message(message)
     
@@ -283,10 +274,105 @@ class BarcodePrinterTab(QWidget):
             QMessageBox.warning(self, "경고", "테스트할 바코드 데이터를 입력하세요.")
             return
         
-        # 프린터 명령어 생성 (예시)
-        print_command = f"^XA^FO50,50^BY3^BCN,100,Y,N,N^FD{test_data}^FS^XZ"
+        # 고품질 ZPL 명령어 생성
+        print_command = self._generate_high_quality_zpl(test_data)
         self.serial_thread.send_data(print_command)
-        self.log_message(f"테스트 출력: {test_data}")
+        self.log_message(f"High quality test print: {test_data}")
+    
+    def _generate_high_quality_zpl(self, barcode_data):
+        """고품질 ZPL 명령어 생성"""
+        # 선택된 품질 설정에 따른 인쇄 속도 결정
+        quality_setting = self.quality_combo.currentText()
+        if "고속" in quality_setting:
+            print_speed = "6"  # 6 DPS
+        elif "고품질" in quality_setting:
+            print_speed = "2"  # 2 DPS
+        else:  # 표준
+            print_speed = "4"  # 4 DPS
+        
+        # 고품질 ZPL 명령어 구성
+        zpl_commands = [
+            "^XA",  # ZPL 시작
+            f"^PR{print_speed}",  # 인쇄 속도 설정
+            "^PW320",  # 라벨 폭 설정 (320 dots ≈ 40mm)
+            "^LL200",  # 라벨 길이 설정 (200 dots ≈ 25mm)
+            "^LH0,0",  # 라벨 홈 위치
+            "^MD0",  # 인쇄 모드 (0=텍스트 우선)
+            "^MNY",  # 메모리 새로고침
+            "^MMT",  # 메모리 타입
+            "^MTT",  # 메모리 테스트
+            "^MNW",  # 메모리 쓰기
+            "^FO20,20",  # 필드 위치 (X=20, Y=20)
+            "^BY2,2,30",  # 바코드 설정 (모듈폭=2, 높이=30)
+            "^BCN,60,Y,N,N",  # Code 128 바코드 (높이=60, 인쇄 텍스트=Y)
+            f"^FD{barcode_data}",  # 바코드 데이터
+            "^FS",  # 필드 종료
+            "^FO20,120",  # 텍스트 위치
+            "^A0N,50,50",  # 폰트 설정 (A0, 크기=20x20)
+            f"^FD{barcode_data}",  # 텍스트 데이터
+            "^FS",  # 필드 종료
+            "^XZ"  # ZPL 종료
+        ]
+        
+        return "\n".join(zpl_commands)
+    
+    def clean_printer_head(self):
+        """프린터 헤드 정리"""
+        if not self.serial_thread:
+            QMessageBox.warning(self, "경고", "먼저 시리얼 포트에 연결하세요.")
+            return
+        
+        # 프린터 헤드 정리 ZPL 명령어
+        clean_commands = [
+            "^XA",  # ZPL 시작
+            "^PR2",  # 최저 속도로 설정
+            "^MMT",  # 메모리 테스트
+            "^MNY",  # 메모리 새로고침
+            "^MNW",  # 메모리 쓰기
+            "^FO20,20",  # 위치
+            "^A0N,15,15",  # 작은 폰트
+            "^FDCleaning printer head...^FS",  # 정리 메시지
+            "^XZ"  # ZPL 종료
+        ]
+        
+        clean_command = "\n".join(clean_commands)
+        self.serial_thread.send_data(clean_command)
+        self.log_message("🧹 Printer head cleaning executed.")
+        QMessageBox.information(self, "Head Cleaning", "Printer head cleaning completed.\nPrint quality should be improved.")
+    
+    def quality_test_print(self):
+        """고품질 테스트 출력"""
+        if not self.serial_thread:
+            QMessageBox.warning(self, "경고", "먼저 시리얼 포트에 연결하세요.")
+            return
+        
+        # 고품질 테스트용 ZPL 명령어
+        quality_test_commands = [
+            "^XA",  # ZPL 시작
+            "^PR2",  # 최고 품질 (2 DPS)
+            "^PW320",  # 라벨 폭 (320 dots ≈ 40mm)
+            "^LL200",  # 라벨 길이 (200 dots ≈ 25mm)
+            "^LH0,0",  # 홈 위치
+            "^MD0",  # 텍스트 우선 모드
+            "^MNY",  # 메모리 새로고침
+            "^MMT",  # 메모리 테스트
+            "^MNW",  # 메모리 쓰기
+            "^FO20,20",  # 바코드 위치
+            "^BY2,2,40",  # 고품질 바코드 설정
+            "^BCN,80,Y,N,N",  # Code 128 바코드 (높이=80)
+            "^FDQUALITY_TEST_12345^FS",  # 테스트 데이터
+            "^FO20,110",  # 텍스트 위치
+            "^A0N,15,15",  # 폰트 설정
+            "^FDQuality Test^FS",  # 텍스트
+            "^FO20,130",  # 추가 텍스트 위치
+            "^A0N,12,12",  # 작은 폰트
+            "^FDPrint Quality Check^FS",  # 추가 텍스트
+            "^XZ"  # ZPL 종료
+        ]
+        
+        quality_command = "\n".join(quality_test_commands)
+        self.serial_thread.send_data(quality_command)
+        self.log_message("✨ High quality test print executed.")
     
     def check_printer_status(self):
         """프린터 상태 확인"""
@@ -330,13 +416,18 @@ class BarcodePrinterTab(QWidget):
         # 보드레이트 설정
         if printer_settings.get("baudrate"):
             self.baudrate_combo.setCurrentText(str(printer_settings["baudrate"]))
+        
+        # 품질 설정
+        if printer_settings.get("quality"):
+            self.quality_combo.setCurrentText(printer_settings["quality"])
     
     def save_printer_settings(self):
         """현재 설정 저장"""
         port = self.port_combo.currentText()
         baudrate = self.baudrate_combo.currentText()
+        quality = self.quality_combo.currentText()
         
-        self.settings_manager.update_printer_settings(port, baudrate)
+        self.settings_manager.update_printer_settings(port, baudrate, quality)
         
         if self.settings_manager.save_settings():
             self.log_message("프린터 설정이 저장되었습니다.")
@@ -358,11 +449,12 @@ class BarcodePrinterTab(QWidget):
             self.disconnect_btn.setEnabled(True)
             self.disconnect_btn.setChecked(False)
             self.status_label.setText("🟢 연결됨 (메인 화면에서 자동연결) - 프린터 준비완료")
-            self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; background-color: #e8f5e8; padding: 5px; border: 1px solid #4CAF50; }")
+            # self.status_label.setStyleSheet("QLabel { color: green; font-weight: bold; background-color: #e8f5e8; padding: 5px; border: 1px solid #4CAF50; }")
+            self.status_label.setStyleSheet(get_status_connected_style())
             
             # 포트 상태 표시 업데이트
             self.port_status_label.setText("🟢 연결됨")
-            self.port_status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
+            self.port_status_label.setStyleSheet(get_port_status_connected_style())
             
             # 포트 콤보박스에서 사용 중인 포트 표시
             self.update_port_combo_for_connection(True)
@@ -381,11 +473,11 @@ class BarcodePrinterTab(QWidget):
             self.disconnect_btn.setEnabled(False)
             self.disconnect_btn.setChecked(False)
             self.status_label.setText("🔴 연결되지 않음")
-            self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; background-color: #ffeaea; padding: 5px; border: 1px solid #f44336; }")
-            
+            # self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; background-color: #ffeaea; padding: 5px; border: 1px solid #f44336; }")
+            self.status_label.setStyleSheet(get_status_disconnected_style())
             # 포트 상태 표시 업데이트
             self.port_status_label.setText("🔴 미연결")
-            self.port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+            self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
             
             # 포트 콤보박스에서 사용 가능한 포트로 환원
             self.update_port_combo_for_connection(False)

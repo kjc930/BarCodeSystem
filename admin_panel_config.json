@@ -39,19 +39,20 @@
     "auto_scan": true
   },
   "nutrunner": {
-    "nutrunner1_port": "COM1 - 통신 포트(COM1) (사용 중)",
+    "nutrunner1_port": "COM9 - Prolific PL2303GC USB Serial COM Port(COM9)",
     "nutrunner1_baudrate": 9600,
-    "nutrunner2_port": "COM1 - 통신 포트(COM1)",
+    "nutrunner2_port": "COM10 - Prolific PL2303GC USB Serial COM Port(COM10)",
     "nutrunner2_baudrate": 9600
   },
   "printer": {
-    "port": "COM7 - Prolific PL2303GC USB Serial COM Port(COM7)",
-    "baudrate": 9600
+    "port": "COM3 - AX99100 PCIe to High Speed Serial Port(COM3)",
+    "baudrate": 9600,
+    "quality": "표준 (4 DPS)"
   },
   "admin_panel": {
-    "x": 2036,
-    "y": 118,
+    "x": 408,
+    "y": 78,
     "width": 1200,
-    "height": 935
+    "height": 946
   }
 }

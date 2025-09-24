@@ -12,7 +12,12 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtGui import QFont
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from styles import get_tab_title_style
+from styles import (get_tab_title_style, get_master_data_save_button_style, get_add_button_style,
+                   get_update_button_style, get_delete_button_style, get_cancel_button_style,
+                   get_backup_button_style, get_cleanup_button_style, get_info_label_style,
+                   get_bold_combo_style, get_child_part_list_style, get_child_part_button_style,
+                   get_remove_child_button_style, get_edit_combo_style, get_dialog_title_style,
+                   get_restore_button_style, get_info_button_style, get_close_button_style)
 from utils import SettingsManager, MasterDataManager, BackupManager
 
 
@@ -121,7 +126,7 @@ class MasterDataTab(QWidget):
         self.use_status_combo = QComboBox()
         self.use_status_combo.addItems(["Y", "N"])
         self.use_status_combo.setCurrentText("Y")
-        self.use_status_combo.setStyleSheet("QComboBox { font-weight: bold; }")
+        self.use_status_combo.setStyleSheet(get_bold_combo_style())
         input_layout.addWidget(self.use_status_combo, 4, 3)
         
         # 비고
@@ -135,29 +140,29 @@ class MasterDataTab(QWidget):
         
         self.add_btn = QPushButton("추가")
         self.add_btn.clicked.connect(self.add_master_data)
-        self.add_btn.setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; }")
+        self.add_btn.setStyleSheet(get_add_button_style())
         button_layout.addWidget(self.add_btn)
         
         self.update_btn = QPushButton("수정")
         self.update_btn.clicked.connect(self.enter_edit_mode)
-        self.update_btn.setStyleSheet("QPushButton { background-color: #2196F3; color: white; font-weight: bold; }")
+        self.update_btn.setStyleSheet(get_update_button_style())
         button_layout.addWidget(self.update_btn)
         
         self.delete_btn = QPushButton("삭제")
         self.delete_btn.clicked.connect(self.delete_master_data)
-        self.delete_btn.setStyleSheet("QPushButton { background-color: #f44336; color: white; font-weight: bold; }")
+        self.delete_btn.setStyleSheet(get_delete_button_style())
         button_layout.addWidget(self.delete_btn)
         
         # 수정 모드용 버튼들 (초기에는 숨김)
         self.cancel_btn = QPushButton("취소")
         self.cancel_btn.clicked.connect(self.exit_edit_mode)
-        self.cancel_btn.setStyleSheet("QPushButton { background-color: #757575; color: white; font-weight: bold; }")
+        self.cancel_btn.setStyleSheet(get_cancel_button_style())
         self.cancel_btn.setEnabled(False)
         button_layout.addWidget(self.cancel_btn)
         
         self.save_btn = QPushButton("저장")
         self.save_btn.clicked.connect(self.save_master_data)
-        self.save_btn.setStyleSheet("QPushButton { background-color: #FF9800; color: white; font-weight: bold; }")
+        self.save_btn.setStyleSheet(get_master_data_save_button_style())
         self.save_btn.setEnabled(False)
         button_layout.addWidget(self.save_btn)
         
@@ -168,12 +173,12 @@ class MasterDataTab(QWidget):
         
         self.backup_btn = QPushButton("📦 백업 목록")
         self.backup_btn.clicked.connect(self.show_backup_list)
-        self.backup_btn.setStyleSheet("QPushButton { background-color: #9C27B0; color: white; font-weight: bold; }")
+        self.backup_btn.setStyleSheet(get_backup_button_style())
         backup_layout.addWidget(self.backup_btn)
         
         self.cleanup_btn = QPushButton("🧹 오래된 백업 정리")
         self.cleanup_btn.clicked.connect(self.cleanup_old_backups)
-        self.cleanup_btn.setStyleSheet("QPushButton { background-color: #607D8B; color: white; font-weight: bold; }")
+        self.cleanup_btn.setStyleSheet(get_cleanup_button_style())
         backup_layout.addWidget(self.cleanup_btn)
         
         input_layout.addLayout(backup_layout, 7, 0, 1, 4)
@@ -186,7 +191,7 @@ class MasterDataTab(QWidget):
         
         # 안내 메시지
         info_label = QLabel("💡 하위 Part_No를 추가하면 자동으로 저장됩니다 | 🗑️ 개별 삭제만 가능합니다")
-        info_label.setStyleSheet("QLabel { color: #17a2b8; font-weight: bold; font-size: 12px; }")
+        info_label.setStyleSheet(get_info_label_style())
         child_part_layout.addWidget(info_label)
         
         # 하위 부품번호 입력 영역

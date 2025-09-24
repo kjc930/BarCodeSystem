@@ -12,9 +12,11 @@ import sys
 import os
 from datetime import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from styles import get_tab_title_style
+from styles import (get_tab_title_style, get_status_connected_style, get_status_disconnected_style, 
+                   get_status_error_style, get_connect_button_style, get_disconnect_button_style, 
+                   get_save_button_style, get_status_check_button_style, get_test_print_button_style,
+                   get_port_status_connected_style, get_port_status_disconnected_style)
 from utils import SerialConnectionThread
-from styles import get_tab_title_style, get_status_connected_style, get_status_disconnected_style, get_status_error_style
 from modules import SerialConnectionManager
 from hkmc_barcode_utils import HKMCBarcodeUtils
 from dialogs import BarcodeAnalysisDialog
@@ -62,7 +64,7 @@ class BarcodeScannerTab(QWidget):
         
         # 연결 상태 표시 (포트 옆에)
         self.port_status_label = QLabel("🔴 미연결")
-        self.port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+        self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
         serial_layout.addWidget(self.port_status_label, 0, 2)
         
         refresh_btn = QPushButton("새로고침")
@@ -80,70 +82,20 @@ class BarcodeScannerTab(QWidget):
         self.connect_btn = QPushButton("연결")
         self.connect_btn.clicked.connect(self.connect_serial)
         self.connect_btn.setCheckable(True)  # 버튼을 체크 가능하게 설정
-        self.connect_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #f44336;
-                color: white;
-                font-weight: bold;
-                border: 2px solid #da190b;
-                border-radius: 5px;
-                padding: 8px;
-            }
-            QPushButton:hover {
-                background-color: #da190b;
-            }
-            QPushButton:pressed {
-                background-color: #c62828;
-                border: 2px inset #da190b;
-            }
-            QPushButton:checked {
-                background-color: #c62828;
-                border: 2px inset #da190b;
-            }
-            QPushButton:disabled {
-                background-color: #cccccc;
-                color: #666666;
-                border: 2px solid #999999;
-            }
-        """)
+        self.connect_btn.setStyleSheet(get_connect_button_style())
         serial_layout.addWidget(self.connect_btn, 2, 0)
         
         self.disconnect_btn = QPushButton("연결 해제")
         self.disconnect_btn.clicked.connect(self.disconnect_serial)
         self.disconnect_btn.setEnabled(False)
         self.disconnect_btn.setCheckable(True)  # 버튼을 체크 가능하게 설정
-        self.disconnect_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #f44336;
-                color: white;
-                font-weight: bold;
-                border: 2px solid #da190b;
-                border-radius: 5px;
-                padding: 8px;
-            }
-            QPushButton:hover {
-                background-color: #da190b;
-            }
-            QPushButton:pressed {
-                background-color: #c62828;
-                border: 2px inset #da190b;
-            }
-            QPushButton:checked {
-                background-color: #c62828;
-                border: 2px inset #da190b;
-            }
-            QPushButton:disabled {
-                background-color: #cccccc;
-                color: #666666;
-                border: 2px solid #999999;
-            }
-        """)
+        self.disconnect_btn.setStyleSheet(get_disconnect_button_style())
         serial_layout.addWidget(self.disconnect_btn, 2, 1)
         
         # 설정 저장 버튼
         save_btn = QPushButton("설정 저장")
         save_btn.clicked.connect(self.save_scanner_settings)
-        save_btn.setStyleSheet("QPushButton { background-color: #3498db; color: white; font-weight: bold; }")
+        save_btn.setStyleSheet(get_save_button_style())
         serial_layout.addWidget(save_btn, 2, 2)
         
         layout.addWidget(serial_group)
@@ -192,13 +144,13 @@ class BarcodeScannerTab(QWidget):
         # 바코드 스캔 안내 버튼
         scan_info_btn = QPushButton("📱 스캔 안내")
         scan_info_btn.clicked.connect(self.show_scan_info)
-        scan_info_btn.setStyleSheet("QPushButton { background-color: #17a2b8; color: white; font-weight: bold; }")
+        scan_info_btn.setStyleSheet(get_status_check_button_style())
         stats_layout.addWidget(scan_info_btn)
         
         # 테스트용 수동 바코드 추가 버튼
         test_barcode_btn = QPushButton("🧪 테스트 바코드")
         test_barcode_btn.clicked.connect(self.add_test_barcode)
-        test_barcode_btn.setStyleSheet("QPushButton { background-color: #28a745; color: white; font-weight: bold; }")
+        test_barcode_btn.setStyleSheet(get_test_print_button_style())
         stats_layout.addWidget(test_barcode_btn)
         
         scan_list_layout.addLayout(stats_layout)
@@ -288,6 +240,10 @@ class BarcodeScannerTab(QWidget):
             self.status_label, 
             self.log_message
         )
+        
+        # 포트 상태 라벨 업데이트
+        self.port_status_label.setText("🔴 미연결")
+        self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
     
     def on_connection_status(self, success, message):
         """연결 상태 변경 처리 (공용 모듈 사용)"""
@@ -299,6 +255,14 @@ class BarcodeScannerTab(QWidget):
             self.status_label, 
             self.log_message
         )
+        
+        # 포트 상태 라벨 업데이트
+        if success:
+            self.port_status_label.setText("🟢 연결됨")
+            self.port_status_label.setStyleSheet(get_port_status_connected_style())
+        else:
+            self.port_status_label.setText("🔴 미연결")
+            self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
         
         if success:
             # 연결 성공 시 설정 자동 저장
@@ -388,7 +352,7 @@ class BarcodeScannerTab(QWidget):
             
             # 포트 상태 표시 업데이트
             self.port_status_label.setText("🟢 연결됨")
-            self.port_status_label.setStyleSheet("QLabel { color: green; font-weight: bold; }")
+            self.port_status_label.setStyleSheet(get_port_status_connected_style())
             
             # 포트 콤보박스에서 사용 중인 포트 표시
             self.update_port_combo_for_connection(True)
@@ -412,7 +376,7 @@ class BarcodeScannerTab(QWidget):
             
             # 포트 상태 표시 업데이트
             self.port_status_label.setText("🔴 미연결")
-            self.port_status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+            self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
             
             # 포트 콤보박스에서 사용 가능한 포트로 환원
             self.update_port_combo_for_connection(False)
