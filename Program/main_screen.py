@@ -186,8 +186,8 @@ class ProductionPanel(QWidget):
         self.part_number = part_number
         self.part_name = part_name
         self.division = division
-        self.production_count = 0
-        self.accumulated_count = 0
+        self.production_count = 0  # 최초 시작: 0
+        self.accumulated_count = 0  # 최초 시작: 0
         self.is_normal = True
         self.press_callback = press_callback  # 3초 누르기 콜백 함수
         self.init_ui()
@@ -352,7 +352,7 @@ class ProductionPanel(QWidget):
         self.nutrunner2_status_label.setToolTip("너트2")
         self.nutrunner2_status_label.setStyleSheet(get_main_status_connected_style())
         status_layout.addWidget(self.nutrunner2_status_label)
-        
+         
         # 장비 아이콘 3초 누르기 이벤트 연결 (콜백 함수 사용)
         if self.press_callback:
             self.plc_status_label.mousePressEvent = lambda event: self.press_callback("start", "PLC")
@@ -376,7 +376,7 @@ class ProductionPanel(QWidget):
         production_layout.setSpacing(8)
         
         # 생산수량 표시 (디지털 시계 폰트, 오른쪽 정렬) - 크기 2배 증가
-        self.production_box = QLabel("0")
+        self.production_box = QLabel("0")  # 최초 시작: 0
         self.production_box.setFont(QFont("Digital-7", 200, QFont.Bold))  # 100 → 200 (2배)
         self.production_box.setStyleSheet(get_main_production_box_style())
         self.production_box.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -394,7 +394,7 @@ class ProductionPanel(QWidget):
         accumulated_layout.setContentsMargins(5, 5, 5, 5)
         
         # 누적수량 표시
-        self.accumulated_box = QLabel("00000")
+        self.accumulated_box = QLabel("00000")  # 최초 시작: 00000
         self.accumulated_box.setFont(QFont("Arial", 10, QFont.Bold))
         self.accumulated_box.setStyleSheet(get_main_accumulated_box_style())
         self.accumulated_box.setAlignment(Qt.AlignCenter)
@@ -684,10 +684,10 @@ class BarcodeMainScreen(QMainWindow):
                     "rear_rh": "REAR/RH"
                 }
             
-            # 생산 카운터 데이터 (일자별, 부품코드별)
+            # 생산 카운터 데이터 (일자별, 부품코드별) - 최초 시작: 0
             self.production_data = {
-                "daily_total": {},  # {date: {panel_title: count}}
-                "part_counts": {}   # {part_number: {panel_title: count}}
+                "daily_total": {},  # {date: {panel_title: count}} - 최초 시작: 0
+                "part_counts": {}   # {part_number: {panel_title: count}} - 최초 시작: 0
             }
             
             # 현재 작업일
@@ -721,6 +721,13 @@ class BarcodeMainScreen(QMainWindow):
                 "front_lh_division": "",  # 두번째 값: FRONT/LH 구분값
                 "rear_rh_division": ""   # 세번째 값: REAR/RH 구분값
             }
+            
+            # 시뮬레이션 모드 초기화
+            self.simulation_mode = False
+            self.simulation_dialog = None
+            
+            # 생산카운터 초기화 플래그
+            self._initialization_complete = False
             
             # 하위부품 바코드 검증기 초기화
             try:
@@ -1258,7 +1265,11 @@ class BarcodeMainScreen(QMainWindow):
         self.update_division_status("REAR/RH", self.plc_data["rear_rh_division"])
         
         # 작업완료 시 생산카운트 증가 (완료신호에 따라 개별 처리)
-        if completion_signal == 1 and not hasattr(self, '_front_work_completed'):
+        # 초기화 시점에서는 생산카운트 증가하지 않음
+        if not self._initialization_complete:
+            print(f"DEBUG: 초기화 시점 - 생산카운트 증가하지 않음")
+            self._initialization_complete = True
+        elif completion_signal == 1 and not hasattr(self, '_front_work_completed'):
             print(f"DEBUG: FRONT/LH 작업완료 감지 - 생산카운트 증가")
             self._front_work_completed = True
             self.complete_work("FRONT/LH")
@@ -1488,6 +1499,12 @@ class BarcodeMainScreen(QMainWindow):
         
         header_layout.addStretch()
         
+        # PLC 시뮬레이션 버튼 (테스트용)
+        self.simulation_btn = QPushButton("🧪 PLC 시뮬레이션")
+        self.simulation_btn.setStyleSheet(get_main_toggle_button_style())
+        self.simulation_btn.clicked.connect(self.toggle_simulation_mode)
+        header_layout.addWidget(self.simulation_btn)
+        
         # 날짜/시간 (현재 화면 스타일과 일치하는 모던 디자인)
         datetime_container = QFrame()
         datetime_container.setStyleSheet(get_main_datetime_container_style())
@@ -1523,6 +1540,67 @@ class BarcodeMainScreen(QMainWindow):
         header_layout.addWidget(datetime_container)
         
         layout.addLayout(header_layout)
+    
+    def toggle_simulation_mode(self):
+        """PLC 시뮬레이션 모드 토글"""
+        if not self.simulation_mode:
+            # 시뮬레이션 모드 시작
+            self.simulation_mode = True
+            self.simulation_btn.setText("🧪 시뮬레이션 ON")
+            self.simulation_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #E74C3C;
+                    color: white;
+                    border: 2px solid #C0392B;
+                    border-radius: 8px;
+                    padding: 8px 16px;
+                    font-weight: bold;
+                    font-size: 12px;
+                }
+                QPushButton:hover {
+                    background-color: #C0392B;
+                }
+            """)
+            self.show_simulation_dialog()
+        else:
+            # 시뮬레이션 모드 종료
+            self.simulation_mode = False
+            self.simulation_btn.setText("🧪 PLC 시뮬레이션")
+            self.simulation_btn.setStyleSheet(get_main_toggle_button_style())
+            if self.simulation_dialog:
+                self.simulation_dialog.close()
+                self.simulation_dialog = None
+    
+    def show_simulation_dialog(self):
+        """PLC 시뮬레이션 다이얼로그 표시"""
+        if not self.simulation_dialog:
+            self.simulation_dialog = PLCSimulationDialog(self)
+        self.simulation_dialog.show()
+        self.simulation_dialog.raise_()
+        self.simulation_dialog.activateWindow()
+    
+    def simulate_plc_data(self, completion_signal, front_lh_division, rear_rh_division):
+        """PLC 시뮬레이션 데이터 처리"""
+        print(f"DEBUG: 시뮬레이션 PLC 데이터 수신")
+        print(f"  - 완료신호: {completion_signal}")
+        print(f"  - FRONT/LH 구분값: {front_lh_division}")
+        print(f"  - REAR/RH 구분값: {rear_rh_division}")
+        
+        # PLC 데이터 업데이트 (None이 아닌 경우에만 업데이트)
+        self.plc_data["completion_signal"] = completion_signal
+        if front_lh_division is not None and front_lh_division != "":
+            self.plc_data["front_lh_division"] = str(front_lh_division)
+        if rear_rh_division is not None and rear_rh_division != "":
+            self.plc_data["rear_rh_division"] = str(rear_rh_division)
+        
+        # PLC 연결 상태를 True로 설정 (시뮬레이션 모드)
+        self.device_connection_status["PLC"] = True
+        
+        # UI 업데이트 (실제 PLC 데이터 처리와 동일)
+        self.update_plc_data_ui()
+        
+        print(f"DEBUG: 시뮬레이션 데이터 처리 완료")
+        print(f"  - 최종 PLC 데이터: {self.plc_data}")
     
     def create_production_panels(self, layout):
         """생산 패널들 생성"""
@@ -1955,6 +2033,212 @@ class BarcodeMainScreen(QMainWindow):
         self.scan_status_dialog = ScanStatusDialog(self.scanned_parts, self, child_parts_info)
         self.scan_status_dialog.exec_()
         self.scan_status_dialog = None  # 다이얼로그 닫힌 후 참조 제거
+
+class PLCSimulationDialog(QDialog):
+    """PLC 시뮬레이션 다이얼로그 - 테스트용"""
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent
+        self.setWindowTitle("🧪 PLC 데이터 시뮬레이션")
+        self.setModal(False)
+        self.setFixedSize(500, 400)
+        self.init_ui()
+    
+    def init_ui(self):
+        """UI 초기화"""
+        layout = QVBoxLayout(self)
+        layout.setSpacing(15)
+        layout.setContentsMargins(20, 20, 20, 20)
+        
+        # 제목
+        title_label = QLabel("PLC 데이터 시뮬레이션")
+        title_label.setFont(QFont("Arial", 16, QFont.Bold))
+        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setStyleSheet("""
+            QLabel {
+                color: #2C3E50;
+                padding: 10px;
+                background-color: #ECF0F1;
+                border-radius: 8px;
+                margin-bottom: 10px;
+            }
+        """)
+        layout.addWidget(title_label)
+        
+        # 완료신호 섹션
+        completion_group = QGroupBox("완료신호 (작업상태)")
+        completion_group.setFont(QFont("Arial", 12, QFont.Bold))
+        completion_group.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+                color: #2C3E50;
+                border: 2px solid #BDC3C7;
+                border-radius: 8px;
+                margin-top: 10px;
+                padding-top: 10px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 8px 0 8px;
+            }
+        """)
+        completion_layout = QHBoxLayout(completion_group)
+        completion_layout.setSpacing(10)
+        
+        # 완료신호 버튼들
+        self.completion_buttons = []
+        completion_labels = ["0: 작업중", "1: FRONT/LH 완료", "2: REAR/RH 완료"]
+        for i, label in enumerate(completion_labels):
+            btn = QPushButton(label)
+            btn.setFont(QFont("Arial", 10, QFont.Bold))
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {'#E74C3C' if i == 0 else '#F39C12' if i == 1 else '#9B59B6'};
+                    color: white;
+                    border: 2px solid {'#C0392B' if i == 0 else '#E67E22' if i == 1 else '#8E44AD'};
+                    border-radius: 6px;
+                    padding: 8px 12px;
+                    min-width: 120px;
+                }}
+                QPushButton:hover {{
+                    background-color: {'#C0392B' if i == 0 else '#E67E22' if i == 1 else '#8E44AD'};
+                }}
+                QPushButton:pressed {{
+                    background-color: {'#A93226' if i == 0 else '#D35400' if i == 1 else '#7D3C98'};
+                }}
+            """)
+            btn.clicked.connect(lambda checked, signal=i: self.send_completion_signal(signal))
+            completion_layout.addWidget(btn)
+            self.completion_buttons.append(btn)
+        
+        layout.addWidget(completion_group)
+        
+        # 구분값 섹션
+        division_group = QGroupBox("구분값 설정 (1-9) - FRONT/LH, REAR/RH 모두 적용")
+        division_group.setFont(QFont("Arial", 12, QFont.Bold))
+        division_group.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+                color: #2C3E50;
+                border: 2px solid #BDC3C7;
+                border-radius: 8px;
+                margin-top: 10px;
+                padding-top: 10px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 8px 0 8px;
+            }
+        """)
+        division_layout = QGridLayout(division_group)
+        division_layout.setSpacing(8)
+        
+        # 구분값 버튼들 (1-9)
+        self.division_buttons = []
+        for i in range(1, 10):
+            btn = QPushButton(str(i))
+            btn.setFont(QFont("Arial", 12, QFont.Bold))
+            btn.setFixedSize(50, 50)
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #3498DB;
+                    color: white;
+                    border: 2px solid #2980B9;
+                    border-radius: 8px;
+                    font-size: 14px;
+                }
+                QPushButton:hover {
+                    background-color: #2980B9;
+                }
+                QPushButton:pressed {
+                    background-color: #21618C;
+                }
+            """)
+            btn.clicked.connect(lambda checked, value=i: self.send_division_value(value))
+            division_layout.addWidget(btn, (i-1)//3, (i-1)%3)
+            self.division_buttons.append(btn)
+        
+        layout.addWidget(division_group)
+        
+        # 현재 상태 표시
+        status_group = QGroupBox("현재 시뮬레이션 상태")
+        status_group.setFont(QFont("Arial", 12, QFont.Bold))
+        status_group.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold;
+                color: #2C3E50;
+                border: 2px solid #BDC3C7;
+                border-radius: 8px;
+                margin-top: 10px;
+                padding-top: 10px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 8px 0 8px;
+            }
+        """)
+        status_layout = QVBoxLayout(status_group)
+        
+        self.status_label = QLabel("대기중...")
+        self.status_label.setFont(QFont("Arial", 11))
+        self.status_label.setStyleSheet("""
+            QLabel {
+                background-color: #F8F9FA;
+                border: 1px solid #DEE2E6;
+                border-radius: 4px;
+                padding: 8px;
+                color: #495057;
+            }
+        """)
+        self.status_label.setAlignment(Qt.AlignCenter)
+        status_layout.addWidget(self.status_label)
+        
+        layout.addWidget(status_group)
+        
+        # 닫기 버튼
+        close_btn = QPushButton("닫기")
+        close_btn.setFont(QFont("Arial", 11, QFont.Bold))
+        close_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #95A5A6;
+                color: white;
+                border: 2px solid #7F8C8D;
+                border-radius: 6px;
+                padding: 8px 20px;
+                min-width: 100px;
+            }
+            QPushButton:hover {
+                background-color: #7F8C8D;
+            }
+        """)
+        close_btn.clicked.connect(self.close)
+        layout.addWidget(close_btn)
+    
+    def send_completion_signal(self, signal):
+        """완료신호 전송"""
+        print(f"DEBUG: 시뮬레이션 완료신호 전송: {signal}")
+        self.status_label.setText(f"완료신호 전송: {signal} ({'작업중' if signal == 0 else 'FRONT/LH 완료' if signal == 1 else 'REAR/RH 완료'})")
+        
+        # 부모 창에 시뮬레이션 데이터 전송 (현재 구분값 유지)
+        if self.parent:
+            current_front = self.parent.plc_data.get("front_lh_division", "")
+            current_rear = self.parent.plc_data.get("rear_rh_division", "")
+            self.parent.simulate_plc_data(signal, current_front, current_rear)
+    
+    def send_division_value(self, value):
+        """구분값 전송"""
+        print(f"DEBUG: 시뮬레이션 구분값 전송: {value}")
+        self.status_label.setText(f"구분값 전송: {value}")
+        
+        # 부모 창에 시뮬레이션 데이터 전송 (현재 완료신호 유지, 구분값을 FRONT/LH와 REAR/RH에 모두 적용)
+        if self.parent:
+            current_signal = self.parent.plc_data.get("completion_signal", 0)
+            self.parent.simulate_plc_data(current_signal, str(value), str(value))
+
 
 class ScanStatusDialog(QDialog):
     """스캔 현황 팝업 다이얼로그 - 실용적 디자인"""
