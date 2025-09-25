@@ -13,8 +13,9 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon
 
 # 스타일 임포트
-from styles import (get_main_window_style, get_tab_widget_style, get_tab_title_style,
-                   get_button_style, get_status_connected_style, get_status_disconnected_style, get_status_error_style)
+# from styles import (get_main_window_style, get_tab_widget_style, get_tab_title_style,
+#                    get_button_style, get_status_connected_style, get_status_disconnected_style, get_status_error_style)
+from styles import *
 
 # 유틸리티 임포트
 from utils import SettingsManager, MasterDataManager, SerialConnectionThread, BackupManager

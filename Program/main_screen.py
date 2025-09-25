@@ -20,7 +20,6 @@ from child_part_barcode_validator import ChildPartBarcodeValidator
 from plc_data_manager import PLCDataManager
 from styles import *
 
-
 class ProductionPanel(QWidget):
     """생산 패널 (FRONT/LH, REAR/RH) - 실용적 디자인"""
     
@@ -222,7 +221,7 @@ class ProductionPanel(QWidget):
         
         # 생산수량 표시 (디지털 시계 폰트, 오른쪽 정렬) - 크기 2배 증가
         self.production_box = QLabel("0")  # 최초 시작: 0
-        self.production_box.setFont(QFont("Digital-7", 200, QFont.Bold))  # 100 → 200 (2배)
+        # 폰트 설정은 CSS 스타일시트에서 처리
         self.production_box.setStyleSheet(get_main_production_box_style())
         self.production_box.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.production_box.setMinimumHeight(120)  # 최소 높이 설정
@@ -792,9 +791,6 @@ class BarcodeMainScreen(QMainWindow):
             print(f"❌ 프로그램 종료 중 오류: {e}")
             event.accept()  # 오류가 있어도 종료는 진행
         
-        # PLC 연결 상태 모니터링 스레드 시작
-        self.start_plc_connection_monitor()
-        
         # 초기 UI 상태 설정 (PLC 연결 끊김 상태로 시작)
         self.front_panel.update_plc_connection_display('disconnected')
         self.rear_panel.update_plc_connection_display('disconnected')
@@ -976,7 +972,7 @@ class BarcodeMainScreen(QMainWindow):
         
     def init_ui(self):
         self.setWindowTitle("바코드 시스템 메인 화면")
-        self.setGeometry(50, 50, 570, 960)  # 기본창 크기 절반으로 축소 (1140→570, 760→380)
+        self.setGeometry(50, 50, 570, 850)  # 기본창 크기 절반으로 축소 (1140→570, 760→380)
         self.setStyleSheet(get_main_window_style())
         
         central_widget = QWidget()
@@ -1504,6 +1500,9 @@ class BarcodeMainScreen(QMainWindow):
                 
                 if success:
                     print(f"DEBUG: {panel_name} 자동 프린트 완료")
+                    # 프린트 완료신호를 PLC 데이터 매니저로 전달
+                    if hasattr(self, 'plc_data_manager') and self.plc_data_manager:
+                        self.plc_data_manager.on_print_completed(panel_name)
                 else:
                     print(f"DEBUG: {panel_name} 자동 프린트 실패")
             else:

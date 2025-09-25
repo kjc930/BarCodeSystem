@@ -12,12 +12,13 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtGui import QFont
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from styles import (get_tab_title_style, get_master_data_save_button_style, get_add_button_style,
-                   get_update_button_style, get_delete_button_style, get_cancel_button_style,
-                   get_backup_button_style, get_cleanup_button_style, get_info_label_style,
-                   get_bold_combo_style, get_child_part_list_style, get_child_part_button_style,
-                   get_remove_child_button_style, get_edit_combo_style, get_dialog_title_style,
-                   get_restore_button_style, get_info_button_style, get_close_button_style)
+# from styles import (get_tab_title_style, get_master_data_save_button_style, get_add_button_style,
+#                    get_update_button_style, get_delete_button_style, get_cancel_button_style,
+#                    get_backup_button_style, get_cleanup_button_style, get_info_label_style,
+#                    get_bold_combo_style, get_child_part_list_style, get_child_part_button_style,
+#                    get_remove_child_button_style, get_edit_combo_style, get_dialog_title_style,
+#                    get_restore_button_style, get_info_button_style, get_close_button_style)
+from styles import *
 from utils import SettingsManager, MasterDataManager, BackupManager
 
 

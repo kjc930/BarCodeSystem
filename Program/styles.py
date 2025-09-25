@@ -1091,10 +1091,10 @@ def get_main_production_group_style():
         QGroupBox {
             font-weight: bold;
             color: #2C3E50;
-            border: 3px solid #BDC3C7;
-            border-radius: 8px;
-            margin-top: 15px;
-            padding-top: 15px;
+            border: 1px solid #BDC3C7;
+            border-radius: 1px;
+            margin-top: 5px;
+            padding-top: 5px;
             min-height: 150px;
             min-width: 250px;
         }
@@ -1111,11 +1111,13 @@ def get_main_production_box_style():
     return """
         QLabel {
             background-color: #000000;
-            color: #00FF00;
+            color: #FFFFFF;
             border: 1px solid #00FF00;
-            border-radius: 8px;
+            border-radius: 1px;
             padding: 5px;
             font-weight: bold;
+            font-size: 250px;
+            font-family: "Digital-7", monospace;
             min-height: 120px;
             min-width: 200px;
         }
@@ -1279,13 +1281,6 @@ def get_main_date_label_style():
         }
     """
 
-def get_main_window_style():
-    """메인 윈도우 스타일"""
-    return """
-        QMainWindow {
-            background-color: #F8F9FA;
-        }
-    """
 
 def get_main_datetime_container_style():
     """메인 화면 날짜/시간 컨테이너 스타일"""

@@ -629,3 +629,363 @@
 2025-09-25 09:01:52,030 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
 2025-09-25 09:01:52,030 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
 2025-09-25 09:01:52,126 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:06:21,460 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:06:21,460 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:06:21,494 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:06:21,494 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:06:21,494 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:06:21,527 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:06:21,528 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:06:21,528 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:06:21,560 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:06:21,560 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:06:21,560 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:06:21,769 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:06:21,769 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:06:21,769 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:06:21,926 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:07:58,791 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:07:58,791 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:07:58,825 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:07:58,826 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:07:58,826 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:07:58,858 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:07:58,860 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:07:58,860 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:07:58,892 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:07:58,893 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:07:58,894 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:07:58,989 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:07:58,989 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:07:58,989 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:07:59,088 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:08:10,109 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:08:10,109 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:08:10,143 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:08:10,143 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:08:10,143 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:08:10,159 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:08:10,160 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:08:10,160 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:08:10,193 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:08:10,194 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:08:10,194 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:08:10,290 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:08:10,290 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:08:10,291 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:08:10,387 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:08:48,284 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:08:48,284 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:08:48,308 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:08:48,308 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:08:48,308 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:08:48,341 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:08:48,341 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:08:48,341 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:08:48,373 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:08:48,373 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:08:48,373 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:08:48,455 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:08:48,455 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:08:48,455 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:08:48,567 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:10:33,629 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:10:33,629 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:10:33,656 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:10:33,656 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:10:33,656 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:10:33,688 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:10:33,689 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:10:33,689 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:10:33,721 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:10:33,722 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:10:33,723 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:10:33,820 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:10:33,820 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:10:33,820 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:10:33,916 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:12:09,395 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:12:09,395 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:12:09,420 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:12:09,420 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:12:09,420 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:12:09,451 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:12:09,451 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:12:09,451 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:12:09,470 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:12:09,471 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:12:09,471 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:12:09,683 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:12:09,683 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:12:09,683 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:12:09,835 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:14:23,009 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:14:23,009 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:14:23,034 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:14:23,034 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:14:23,035 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:14:23,067 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:14:23,067 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:14:23,067 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:14:23,087 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:14:23,087 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:14:23,087 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:14:23,182 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:14:23,182 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:14:23,182 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:14:23,282 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:14:40,878 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:14:40,879 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:14:40,899 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:14:40,900 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:14:40,901 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:14:40,933 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:14:40,934 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:14:40,935 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:14:40,967 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:14:40,968 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:14:40,969 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:14:41,065 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:14:41,065 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:14:41,065 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:14:41,162 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:15:18,032 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:15:18,032 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:15:18,067 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:15:18,068 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:15:18,069 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:15:18,099 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:15:18,100 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:15:18,101 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:15:18,133 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:15:18,134 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:15:18,135 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:15:18,231 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:15:18,231 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:15:18,231 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:15:18,329 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:15:44,005 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:15:44,005 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:15:44,033 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:15:44,033 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:15:44,033 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:15:44,066 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:15:44,067 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:15:44,067 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:15:44,100 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:15:44,102 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:15:44,103 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:15:44,197 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:15:44,197 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:15:44,197 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:15:44,297 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:17:03,031 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:17:03,031 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:17:03,062 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:17:03,063 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:17:03,063 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:17:03,084 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:17:03,084 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:17:03,084 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:17:03,114 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:17:03,115 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:17:03,115 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:17:03,212 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:17:03,212 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:17:03,212 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:17:03,295 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:17:18,455 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:17:18,455 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:17:18,480 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:17:18,480 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:17:18,480 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:17:18,499 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:17:18,499 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:17:18,499 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:17:18,528 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:17:18,530 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:17:18,531 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:17:18,628 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:17:18,628 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:17:18,628 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:17:18,725 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:17:47,530 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:17:47,530 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:17:47,561 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:17:47,561 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:17:47,561 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:17:47,594 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:17:47,596 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:17:47,596 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:17:47,614 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:17:47,614 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:17:47,614 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:17:47,711 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:17:47,711 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:17:47,711 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:17:47,808 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:18:15,835 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:18:15,835 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:18:15,863 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:18:15,863 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:18:15,863 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:18:15,896 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:18:15,897 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:18:15,898 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:18:15,929 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:18:15,930 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:18:15,931 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:18:16,026 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:18:16,027 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:18:16,027 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:18:16,123 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:18:31,497 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:18:31,497 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:18:31,528 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:18:31,529 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:18:31,529 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:18:31,562 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:18:31,562 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:18:31,562 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:18:31,594 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:18:31,596 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:18:31,597 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:18:31,694 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:18:31,694 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:18:31,694 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:18:31,790 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:18:46,873 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:18:46,873 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:18:46,894 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:18:46,895 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:18:46,895 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:18:46,928 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:18:46,928 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:18:46,928 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:18:46,947 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:18:46,948 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:18:46,948 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:18:47,045 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:18:47,046 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:18:47,046 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:18:47,142 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:19:48,278 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:19:48,278 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:19:48,310 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:19:48,310 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:19:48,310 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:19:48,342 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:19:48,342 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:19:48,342 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:19:48,376 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:19:48,376 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:19:48,377 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:19:48,474 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:19:48,474 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:19:48,475 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:19:48,571 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:20:39,917 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:20:39,918 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:20:39,945 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:20:39,945 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:20:39,945 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:20:39,976 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:20:39,976 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:20:39,977 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:20:40,011 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:20:40,011 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:20:40,011 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:20:40,108 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:20:40,109 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:20:40,109 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:20:40,211 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:20:49,594 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:20:49,594 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:20:49,627 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:20:49,627 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:20:49,627 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:20:49,659 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:20:49,659 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:20:49,659 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:20:49,693 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:20:49,693 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:20:49,694 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:20:49,791 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:20:49,791 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:20:49,791 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:20:49,889 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:21:00,212 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:21:00,212 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:21:00,242 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:21:00,243 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:21:00,243 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:21:00,277 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:21:00,277 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:21:00,277 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:21:00,308 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:21:00,308 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:21:00,309 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:21:00,392 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:21:00,392 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:21:00,392 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:21:00,499 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:21:21,716 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:21:21,716 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:21:21,741 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:21:21,742 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:21:21,742 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:21:21,776 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:21:21,777 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:21:21,777 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:21:21,809 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:21:21,809 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:21:21,809 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:21:21,906 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:21:21,906 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:21:21,906 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:21:22,002 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 09:21:35,333 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 09:21:35,333 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 09:21:35,357 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 09:21:35,359 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 09:21:35,359 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 09:21:35,377 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 09:21:35,377 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 09:21:35,377 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 09:21:35,408 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 09:21:35,409 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 09:21:35,409 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 09:21:35,506 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 09:21:35,507 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 09:21:35,507 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 09:21:35,602 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 11:19:54,225 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 11:19:54,225 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 11:19:54,249 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 11:19:54,250 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 11:19:54,250 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 11:19:54,272 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 11:19:54,273 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 11:19:54,273 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 11:19:54,300 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 11:19:54,301 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 11:19:54,301 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 11:19:54,509 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 11:19:54,509 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 11:19:54,509 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 11:19:54,665 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)
+2025-09-25 11:21:14,168 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-25 11:21:14,168 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/4) - 포트: COM6, 보드레이트: 9600
+2025-09-25 11:21:14,198 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-25 11:21:14,199 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-25 11:21:14,199 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/4) - 포트: COM4, 보드레이트: 9600
+2025-09-25 11:21:14,232 - modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-09-25 11:21:14,233 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-09-25 11:21:14,234 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/4) - 포트: COM3, 보드레이트: 9600
+2025-09-25 11:21:14,251 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-09-25 11:21:14,251 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-25 11:21:14,251 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/4) - 포트: COM7, 보드레이트: 9600
+2025-09-25 11:21:14,464 - modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM7 (9600bps)
+2025-09-25 11:21:14,465 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-25 11:21:14,465 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/4) - 포트: COM8, 보드레이트: 9600
+2025-09-25 11:21:14,615 - modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM8 (9600bps)

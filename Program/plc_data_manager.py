@@ -37,6 +37,19 @@ class PLCDataManager:
         # 오류 카운터
         self.consecutive_errors = 0
         self.max_consecutive_errors = 10
+        
+        # PLC 신호 상태 추적 (중복 처리 방지)
+        self.previous_completion_signal = None
+        self.completion_processed = {
+            "front_lh": False,
+            "rear_rh": False
+        }
+        
+        # 프린트 완료 상태 추적
+        self.print_completion_status = {
+            "front_lh": False,
+            "rear_rh": False
+        }
         self.consecutive_no_data = 0
         self.max_no_data = 3
     
@@ -351,21 +364,66 @@ class PLCDataManager:
         print(f"DEBUG: 작업완료 상태 업데이트 - 완료신호: {completion_signal}")
         
         # PLC 작업상태 처리: 0=작업중, 1=FRONT/LH 작업완료, 2=REAR/RH 작업완료
+        # 중요: 0에서 1/2로 변화할 때만 작업완료 처리 (중복 처리 방지)
+        
+        # 이전 신호와 현재 신호 비교
+        signal_changed = (self.previous_completion_signal != completion_signal)
+        print(f"DEBUG: PLC 신호 변화 감지 - 이전: {self.previous_completion_signal}, 현재: {completion_signal}, 변화: {signal_changed}")
+        
         if completion_signal == 0:
-            # 작업중 - 모든 패널을 작업중으로 설정
-            print(f"DEBUG: 작업중 상태 - 모든 패널 작업중으로 설정")
+            # 작업중 - 모든 패널을 작업중으로 설정하고 완료 처리 상태 리셋
+            print(f"DEBUG: 작업중 상태 - 모든 패널 작업중으로 설정, 완료 처리 상태 리셋")
             self.main_screen.front_panel.update_work_status(0)  # 작업중
             self.main_screen.rear_panel.update_work_status(0)   # 작업중
+            
+            # 작업 시작 시 완료 처리 상태 리셋
+            if signal_changed and self.previous_completion_signal in [1, 2]:
+                print(f"DEBUG: 작업 시작 - 완료 처리 상태 리셋")
+                self.completion_processed["front_lh"] = False
+                self.completion_processed["rear_rh"] = False
+                self.print_completion_status["front_lh"] = False
+                self.print_completion_status["rear_rh"] = False
+                
         elif completion_signal == 1:
-            # FRONT/LH 작업완료
-            print(f"DEBUG: FRONT/LH 작업완료 - FRONT 패널만 완료로 설정")
-            self.main_screen.front_panel.update_work_status(1)  # 완료
-            self.main_screen.rear_panel.update_work_status(0)   # 작업중
+            # FRONT/LH 작업완료 - 0에서 1로 변화할 때만 처리
+            print(f"DEBUG: FRONT/LH 완료신호 수신 - 이전: {self.previous_completion_signal}, 현재: {completion_signal}")
+            
+            if signal_changed and self.previous_completion_signal == 0 and not self.completion_processed["front_lh"]:
+                print(f"DEBUG: FRONT/LH 작업완료 처리 시작 - 0에서 1로 변화 감지")
+                self.main_screen.front_panel.update_work_status(1)  # 완료
+                self.main_screen.rear_panel.update_work_status(0)   # 작업중
+                
+                # 작업완료 처리 실행
+                self.main_screen.complete_work("FRONT/LH")
+                self.completion_processed["front_lh"] = True
+                print(f"DEBUG: FRONT/LH 작업완료 처리 완료")
+            else:
+                print(f"DEBUG: FRONT/LH 완료신호 중복 수신 - 처리 건너뜀")
+                # UI 상태만 업데이트 (중복 처리 방지)
+                self.main_screen.front_panel.update_work_status(1)  # 완료
+                self.main_screen.rear_panel.update_work_status(0)   # 작업중
+                
         elif completion_signal == 2:
-            # REAR/RH 작업완료
-            print(f"DEBUG: REAR/RH 작업완료 - REAR 패널만 완료로 설정")
-            self.main_screen.front_panel.update_work_status(0)  # 작업중
-            self.main_screen.rear_panel.update_work_status(1)   # 완료
+            # REAR/RH 작업완료 - 0에서 2로 변화할 때만 처리
+            print(f"DEBUG: REAR/RH 완료신호 수신 - 이전: {self.previous_completion_signal}, 현재: {completion_signal}")
+            
+            if signal_changed and self.previous_completion_signal == 0 and not self.completion_processed["rear_rh"]:
+                print(f"DEBUG: REAR/RH 작업완료 처리 시작 - 0에서 2로 변화 감지")
+                self.main_screen.front_panel.update_work_status(0)  # 작업중
+                self.main_screen.rear_panel.update_work_status(1)   # 완료
+                
+                # 작업완료 처리 실행
+                self.main_screen.complete_work("REAR/RH")
+                self.completion_processed["rear_rh"] = True
+                print(f"DEBUG: REAR/RH 작업완료 처리 완료")
+            else:
+                print(f"DEBUG: REAR/RH 완료신호 중복 수신 - 처리 건너뜀")
+                # UI 상태만 업데이트 (중복 처리 방지)
+                self.main_screen.front_panel.update_work_status(0)  # 작업중
+                self.main_screen.rear_panel.update_work_status(1)   # 완료
+        
+        # 이전 신호 상태 업데이트
+        self.previous_completion_signal = completion_signal
         
         # 구분값 매칭 확인 및 상태 업데이트
         print(f"DEBUG: 구분값 상태 업데이트")
@@ -413,6 +471,73 @@ class PLCDataManager:
             self.monitor_thread.join(timeout=1)
         
         print("DEBUG: PLC 데이터 매니저 정리 완료")
+    
+    def on_print_completed(self, panel_name: str):
+        """프린트 완료신호 처리"""
+        try:
+            print(f"DEBUG: 프린트 완료신호 수신 - 패널: {panel_name}")
+            
+            # 프린트 완료 상태 업데이트
+            if panel_name in self.print_completion_status:
+                self.print_completion_status[panel_name] = True
+                print(f"DEBUG: {panel_name} 프린트 완료 상태 설정")
+            
+            # PLC 완료신호와 프린트 완료신호 모두 확인
+            self.check_complete_cycle(panel_name)
+            
+        except Exception as e:
+            print(f"ERROR: 프린트 완료신호 처리 오류: {e}")
+    
+    def check_complete_cycle(self, panel_name: str):
+        """완전한 1사이클 확인 (PLC 완료신호 + 프린트 완료신호)"""
+        try:
+            # 패널별 키 매핑
+            panel_key = "front_lh" if panel_name == "FRONT/LH" else "rear_rh"
+            
+            # PLC 완료신호와 프린트 완료신호 모두 확인
+            plc_completed = self.completion_processed.get(panel_key, False)
+            print_completed = self.print_completion_status.get(panel_key, False)
+            
+            print(f"DEBUG: 완전한 1사이클 확인 - {panel_name}")
+            print(f"  - PLC 완료신호: {plc_completed}")
+            print(f"  - 프린트 완료신호: {print_completed}")
+            
+            if plc_completed and print_completed:
+                print(f"DEBUG: {panel_name} 완전한 1사이클 완료!")
+                # 여기서 완전한 사이클 완료 처리 (필요시)
+                self.on_complete_cycle_finished(panel_name)
+            else:
+                print(f"DEBUG: {panel_name} 1사이클 미완료 - PLC: {plc_completed}, 프린트: {print_completed}")
+                
+        except Exception as e:
+            print(f"ERROR: 완전한 1사이클 확인 오류: {e}")
+    
+    def on_complete_cycle_finished(self, panel_name: str):
+        """완전한 1사이클 완료 처리"""
+        try:
+            print(f"DEBUG: {panel_name} 완전한 1사이클 완료 처리 시작")
+            
+            # 여기서 완전한 사이클 완료 시 필요한 추가 처리
+            # 예: 로그 저장, 통계 업데이트, 다음 작업 준비 등
+            
+            print(f"DEBUG: {panel_name} 완전한 1사이클 완료 처리 완료")
+            
+        except Exception as e:
+            print(f"ERROR: 완전한 1사이클 완료 처리 오류: {e}")
+    
+    def reset_cycle_status(self, panel_name: str):
+        """사이클 상태 리셋 (새로운 작업 시작 시)"""
+        try:
+            panel_key = "front_lh" if panel_name == "FRONT/LH" else "rear_rh"
+            
+            # 완료 처리 상태 리셋
+            self.completion_processed[panel_key] = False
+            self.print_completion_status[panel_key] = False
+            
+            print(f"DEBUG: {panel_name} 사이클 상태 리셋 완료")
+            
+        except Exception as e:
+            print(f"ERROR: 사이클 상태 리셋 오류: {e}")
 
 
 # 테스트 코드
