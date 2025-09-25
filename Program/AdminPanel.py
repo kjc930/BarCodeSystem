@@ -103,6 +103,10 @@ class AdminPanel(QMainWindow):
         self.master_data_tab = MasterDataTab(self.settings_manager)
         self.tab_widget.addTab(self.master_data_tab, "기준정보")
         
+        # 바코드 스캐너 탭에 메인 화면 참조 설정
+        if hasattr(self.scanner_tab, 'set_main_screen_reference'):
+            self.scanner_tab.set_main_screen_reference(self)
+        
     def setup_tray_icon(self):
         """시스템 트레이 아이콘 설정"""
         try:
@@ -171,6 +175,29 @@ class AdminPanel(QMainWindow):
         except Exception as e:
             print(f"⚠️ 종료 처리 실패: {e}")
             event.accept()
+    
+    def on_barcode_scanned(self, barcode: str):
+        """바코드 스캔 이벤트 처리 - 메인 화면으로 전달"""
+        try:
+            print(f"DEBUG: AdminPanel에서 바코드 스캔됨 - {barcode}")
+            
+            # 메인 화면으로 바코드 스캔 이벤트 전달
+            if hasattr(self, 'main_screen') and self.main_screen:
+                self.main_screen.on_barcode_scanned(barcode)
+                print(f"DEBUG: 메인 화면으로 바코드 스캔 이벤트 전달됨")
+            else:
+                print("DEBUG: 메인 화면 참조 없음 - 바코드 스캔 이벤트 전달 불가")
+                
+        except Exception as e:
+            print(f"ERROR: 바코드 스캔 이벤트 처리 오류: {e}")
+    
+    def set_main_screen_reference(self, main_screen):
+        """메인 화면 참조 설정"""
+        try:
+            self.main_screen = main_screen
+            print("DEBUG: AdminPanel에 메인 화면 참조 설정됨")
+        except Exception as e:
+            print(f"ERROR: 메인 화면 참조 설정 오류: {e}")
 
 
 def main():

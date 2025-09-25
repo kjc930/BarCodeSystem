@@ -309,6 +309,9 @@ class BarcodeScannerTab(QWidget):
                     self.scan_count_label.setText(f"스캔 횟수: {len(self.scanned_codes)}")
                     self.log_message(f"✅ 바코드 스캔 완료: {complete_barcode}")
                     
+                    # 메인 화면으로 바코드 스캔 이벤트 전달
+                    self.notify_main_screen_barcode_scanned(complete_barcode)
+                    
                     # 자동 스캔 모드가 아닌 경우 알림
                     if not self.auto_scan_check.isChecked():
                         QMessageBox.information(self, "바코드 스캔", f"스캔된 바코드: {complete_barcode}")
@@ -320,6 +323,20 @@ class BarcodeScannerTab(QWidget):
             # 즉시 버퍼 초기화 (다음 스캔을 위해)
             self.data_buffer = ""
             self.log_message("🔄 버퍼 초기화 완료")
+    
+    def notify_main_screen_barcode_scanned(self, barcode: str):
+        """메인 화면으로 바코드 스캔 이벤트 전달"""
+        try:
+            # 부모 위젯을 통해 메인 화면에 접근
+            parent_widget = self.parent()
+            while parent_widget:
+                if hasattr(parent_widget, 'on_barcode_scanned'):
+                    parent_widget.on_barcode_scanned(barcode)
+                    self.log_message(f"DEBUG: 메인 화면으로 바코드 스캔 이벤트 전달: {barcode}")
+                    break
+                parent_widget = parent_widget.parent()
+        except Exception as e:
+            self.log_message(f"ERROR: 메인 화면 바코드 스캔 이벤트 전달 실패: {e}")
     
     def clear_scan_list(self):
         """스캔 목록 지우기"""
