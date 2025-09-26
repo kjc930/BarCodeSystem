@@ -394,12 +394,15 @@ class ProductionPanel(QWidget):
     
     def update_status_label(self, label, is_connected):
         """상태 레이블 업데이트"""
+        print(f"DEBUG: 상태 레이블 업데이트 - 연결됨: {is_connected}")
         if is_connected:
             # 연결됨 (녹색)
             label.setStyleSheet(get_main_status_connected_style())
+            print("DEBUG: 녹색 스타일 적용됨")
         else:
             # 연결안됨 (적색)
             label.setStyleSheet(get_main_status_disconnected_style())
+            print("DEBUG: 적색 스타일 적용됨")
     
     def toggle_device_label(self, label, device_name):
         """장비 아이콘 클릭 시 라벨 텍스트 토글"""
@@ -614,11 +617,8 @@ class BarcodeMainScreen(QMainWindow):
             except Exception as e:
                 print(f"⚠️ 타이머 설정 실패: {e}")
             
-            # 시리얼 포트 자동 연결 (문제 있는 장비는 패스)
-            try:
-                self.auto_connect_serial_ports()
-            except Exception as e:
-                print(f"⚠️ 시리얼 포트 자동 연결 실패: {e}")
+            # 시리얼 포트 자동 연결을 지연 실행 (메인화면 표시 후)
+            self.setup_delayed_serial_connection()
                 
         except Exception as e:
             print(f"❌ 메인 화면 초기화 실패: {e}")
@@ -701,6 +701,9 @@ class BarcodeMainScreen(QMainWindow):
             
             # 시리얼 연결 객체를 serial_connector에서 가져옴
             self.serial_connections = self.serial_connector.serial_connections
+            
+            # UI에 연결 상태 업데이트
+            self.update_all_device_status_ui(connection_results)
             
             # PLC 데이터 읽기 스레드 시작 (PLC가 연결된 경우에만)
             if connection_results.get("PLC", False):
@@ -1100,6 +1103,79 @@ class BarcodeMainScreen(QMainWindow):
         self.timer.timeout.connect(self.update_datetime)
         self.timer.start(1000)  # 1초마다 업데이트
         self.update_datetime()
+    
+    def setup_delayed_serial_connection(self):
+        """지연된 시리얼 연결 설정 - 메인화면 표시 후 실행"""
+        # 2초 후에 시리얼 연결 시도
+        self.serial_connection_timer = QTimer()
+        self.serial_connection_timer.timeout.connect(self.delayed_auto_connect_serial_ports)
+        self.serial_connection_timer.setSingleShot(True)
+        self.serial_connection_timer.start(2000)  # 2초 후 실행
+        print("DEBUG: 지연된 시리얼 연결 타이머 설정 완료 (2초 후 실행)")
+    
+    def delayed_auto_connect_serial_ports(self):
+        """지연된 시리얼 포트 자동 연결"""
+        try:
+            print("DEBUG: 지연된 시리얼 포트 자동 연결 시작")
+            self.auto_connect_serial_ports()
+        except Exception as e:
+            print(f"⚠️ 지연된 시리얼 포트 자동 연결 실패: {e}")
+            # 시리얼 연결 실패 시에도 모든 장비를 연결 끊김 상태로 설정
+            self.set_all_devices_disconnected()
+    
+    def set_all_devices_disconnected(self):
+        """모든 장비를 연결 끊김 상태로 설정"""
+        try:
+            print("DEBUG: 모든 장비를 연결 끊김 상태로 설정")
+            
+            # 장비 연결 상태를 모두 False로 설정
+            for device_name in self.device_connection_status.keys():
+                self.device_connection_status[device_name] = False
+            
+            # 공용 모듈의 상태도 업데이트
+            if hasattr(self, 'serial_connector'):
+                for device_name in self.device_connection_status.keys():
+                    self.serial_connector.device_connection_status[device_name] = False
+            
+            # 모든 패널의 장비 상태를 연결 끊김으로 업데이트
+            for device_name in self.device_connection_status.keys():
+                self.front_panel.update_device_status(device_name, False)
+                self.rear_panel.update_device_status(device_name, False)
+            
+            # PLC 연결 상태를 끊김으로 표시
+            self.front_panel.update_plc_connection_display('disconnected')
+            self.rear_panel.update_plc_connection_display('disconnected')
+            
+            print("DEBUG: 모든 장비 연결 끊김 상태 설정 완료")
+            
+        except Exception as e:
+            print(f"⚠️ 장비 상태 설정 실패: {e}")
+    
+    def update_all_device_status_ui(self, connection_results):
+        """모든 장비의 연결 상태를 UI에 업데이트"""
+        try:
+            print("DEBUG: 모든 장비 상태 UI 업데이트 시작")
+            
+            for device_name, is_connected in connection_results.items():
+                print(f"DEBUG: {device_name} 상태 업데이트 - 연결됨: {is_connected}")
+                
+                # 각 패널의 장비 상태 업데이트
+                self.front_panel.update_device_status(device_name, is_connected)
+                self.rear_panel.update_device_status(device_name, is_connected)
+                
+                # PLC 연결 상태에 따른 특별 처리
+                if device_name == "PLC":
+                    if is_connected:
+                        self.front_panel.update_plc_connection_display('connected')
+                        self.rear_panel.update_plc_connection_display('connected')
+                    else:
+                        self.front_panel.update_plc_connection_display('disconnected')
+                        self.rear_panel.update_plc_connection_display('disconnected')
+            
+            print("DEBUG: 모든 장비 상태 UI 업데이트 완료")
+            
+        except Exception as e:
+            print(f"⚠️ 장비 상태 UI 업데이트 실패: {e}")
     
     def update_datetime(self):
         """날짜/시간 업데이트"""

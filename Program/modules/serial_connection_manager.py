@@ -321,9 +321,9 @@ class AutoSerialConnector:
         self.device_connection_status = {}
         self.connection_retry_count = {}
         self._lock = threading.Lock()  # 스레드 안전성
-        self._connection_timeout = 5  # 연결 타임아웃 (초)
-        self._max_retry_attempts = 3  # 최대 재시도 횟수
-        self._retry_delay = 2  # 재시도 간격 (초)
+        self._connection_timeout = 1  # 연결 타임아웃 (초) - 1초로 단축
+        self._max_retry_attempts = 0  # 재시도 없음 - 1회만 시도
+        self._retry_delay = 0  # 재시도 간격 없음
         
     def auto_connect_all_devices(self):
         """모든 장비 자동 연결"""
@@ -397,13 +397,22 @@ class AutoSerialConnector:
                 logger.info(f"{device_name} 연결 시도 ({retry_count + 1}/{max_retries + 1}) - 포트: {port}, 보드레이트: {baudrate}")
                 print(f"DEBUG: {device_name} 연결 시도 ({retry_count + 1}/{max_retries + 1}) - 포트: {port}, 보드레이트: {baudrate}")
                 
-                # 시리얼 연결 시도
-                ser = serial.Serial(port, baudrate, timeout=self._connection_timeout)
+                # 시리얼 연결 시도 (1초 타임아웃)
+                ser = serial.Serial(
+                    port, 
+                    baudrate, 
+                    timeout=self._connection_timeout,  # 1초 타임아웃
+                    write_timeout=0.5,  # 쓰기 타임아웃 0.5초
+                    inter_byte_timeout=0.05  # 바이트 간 타임아웃 0.05초
+                )
                 
-                # 연결 테스트
+                # 연결 테스트 (즉시 확인)
                 if ser.is_open:
                     ser.close()
                     ser.open()
+                
+                # 연결 확인을 위한 최소 대기 (0.05초)
+                time.sleep(0.05)
                 
                 self.serial_connections[device_name] = ser
                 self.device_connection_status[device_name] = True
@@ -421,20 +430,11 @@ class AutoSerialConnector:
                 self.serial_connections[device_name] = None
                 self.device_connection_status[device_name] = False
                 
-                # 재연결 시도
-                if retry_count < max_retries:
-                    logger.info(f"{device_name} 재연결 시도 예약 ({retry_count + 1}/{max_retries})")
-                    print(f"⚠️ {device_name} 연결 실패 - {port}: {e}")
-                    print(f"🔄 {device_name} 재연결 시도 중... ({retry_count + 1}/{max_retries})")
-                    
-                    # 재시도 간격 대기
-                    time.sleep(self._retry_delay)
-                    return self.connect_serial_port(device_name, port, retry_count + 1, max_retries)
-                else:
-                    logger.error(f"{device_name} 최대 재시도 횟수 초과 - {port}: {e}")
-                    print(f"⚠️ {device_name} 연결 실패 - {port}: {e}")
-                    self._handle_connection_error(device_name, port, str(e))
-                    return False
+                # 재연결 시도 없음 - 즉시 포기
+                logger.error(f"{device_name} 연결 실패 - {port}: {e}")
+                print(f"⚠️ {device_name} 연결 실패 - {port}: {e}")
+                self._handle_connection_error(device_name, port, str(e))
+                return False
                     
             except Exception as e:
                 logger.error(f"{device_name} 연결 오류 - {port}: {e}")
@@ -465,8 +465,8 @@ class AutoSerialConnector:
             # 오류 로그 저장
             self._log_connection_error(device_name, port, error_message)
             
-            # 대체 포트 시도 (COM 포트 스캔)
-            self._try_alternative_ports(device_name)
+            # 대체 포트 시도 없음 - 설정된 포트에서만 시도
+            pass
             
         except Exception as e:
             print(f"❌ 연결 오류 처리 중 예외 발생: {e}")
@@ -487,32 +487,10 @@ class AutoSerialConnector:
             print(f"❌ 오류 로그 저장 실패: {e}")
     
     def _try_alternative_ports(self, device_name):
-        """대체 포트 시도"""
-        try:
-            import serial.tools.list_ports
-            
-            print(f"🔍 {device_name} 대체 포트 검색 중...")
-            available_ports = serial.tools.list_ports.comports()
-            
-            if not available_ports:
-                print(f"❌ {device_name} 사용 가능한 포트 없음")
-                return False
-            
-            # 사용 가능한 포트들 중에서 시도
-            for port_info in available_ports:
-                port_name = port_info.device
-                print(f"🔄 {device_name} 대체 포트 시도: {port_name}")
-                
-                if self.connect_serial_port(device_name, port_name, retry_count=0, max_retries=1):
-                    print(f"✅ {device_name} 대체 포트 연결 성공: {port_name}")
-                    return True
-            
-            print(f"❌ {device_name} 모든 대체 포트 연결 실패")
-            return False
-            
-        except Exception as e:
-            print(f"❌ {device_name} 대체 포트 검색 실패: {e}")
-            return False
+        """대체 포트 시도 - 비활성화됨"""
+        # 대체 포트 시도 기능 비활성화
+        print(f"⚠️ {device_name} 대체 포트 시도 비활성화됨")
+        return False
     
     def get_connection_status(self, device_name):
         """장비 연결 상태 확인"""
