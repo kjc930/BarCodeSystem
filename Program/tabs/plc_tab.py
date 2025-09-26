@@ -169,21 +169,22 @@ class PLCCommunicationTab(QWidget):
         import time
         import gc
         
-        print("DEBUG: PLC 포트 새로고침 시작")
+        # print("DEBUG: PLC 포트 새로고침 시작")
         
         # 기존 시리얼 연결 완전 정리
         if hasattr(self, 'connection_manager') and self.connection_manager:
             try:
-                print("DEBUG: PLC 연결 매니저 정리 중...")
+                # print("DEBUG: PLC 연결 매니저 정리 중...")
                 if hasattr(self.connection_manager, 'serial_thread') and self.connection_manager.serial_thread:
                     self.connection_manager.serial_thread.stop()
                     if not self.connection_manager.serial_thread.wait(1000):
                         self.connection_manager.serial_thread.terminate()
                         self.connection_manager.serial_thread.wait()
                     self.connection_manager.serial_thread = None
-                print("DEBUG: PLC 연결 매니저 정리 완료")
+                # print("DEBUG: PLC 연결 매니저 정리 완료")
             except Exception as e:
-                print(f"DEBUG: PLC 연결 매니저 정리 중 오류: {e}")
+                # print(f"DEBUG: PLC 연결 매니저 정리 중 오류: {e}")
+                pass
         
         # 가비지 컬렉션으로 메모리 정리
         gc.collect()
@@ -202,30 +203,30 @@ class PLCCommunicationTab(QWidget):
                     break
                 time.sleep(0.5)
             except Exception as e:
-                print(f"DEBUG: PLC 포트 목록 조회 시도 {attempt + 1} 실패: {e}")
+                # print(f"DEBUG: PLC 포트 목록 조회 시도 {attempt + 1} 실패: {e}")
                 time.sleep(0.5)
         
         available_ports = []
         
-        print(f"DEBUG: PLC 발견된 포트 수: {len(ports)}")
+        # print(f"DEBUG: PLC 발견된 포트 수: {len(ports)}")
         
         for port in ports:
             try:
-                print(f"DEBUG: PLC 포트 테스트 중: {port.device}")
+                # print(f"DEBUG: PLC 포트 테스트 중: {port.device}")
                 # 포트가 사용 중인지 확인 (매우 짧은 타임아웃)
                 test_ser = serial.Serial(port.device, timeout=0.01)
                 test_ser.close()
                 available_ports.append(port)
-                print(f"DEBUG: PLC 포트 사용 가능: {port.device}")
+                # print(f"DEBUG: PLC 포트 사용 가능: {port.device}")
             except (serial.SerialException, OSError) as e:
                 # 포트가 사용 중이거나 접근할 수 없음
-                print(f"DEBUG: PLC 포트 사용 불가: {port.device} - {e}")
+                # print(f"DEBUG: PLC 포트 사용 불가: {port.device} - {e}")
                 # 포트 테스트 후 잠시 대기
                 time.sleep(0.2)
                 continue
             except Exception as e:
                 # 기타 예외 처리
-                print(f"DEBUG: PLC 포트 테스트 중 예외: {port.device} - {e}")
+                # print(f"DEBUG: PLC 포트 테스트 중 예외: {port.device} - {e}")
                 time.sleep(0.2)
                 continue
         
@@ -247,7 +248,7 @@ class PLCCommunicationTab(QWidget):
             self.update_port_combo_for_connection(True)
         
         self.log_message("포트 목록을 새로고침했습니다.")
-        print("DEBUG: PLC 포트 새로고침 완료 - 콤보박스 업데이트됨")
+        # print("DEBUG: PLC 포트 새로고침 완료 - 콤보박스 업데이트됨")
     
     def force_refresh_ports(self):
         """강제 포트 새로고침 - 연결 해제 후 즉시 실행"""
@@ -255,7 +256,7 @@ class PLCCommunicationTab(QWidget):
         import time
         import gc
         
-        print("DEBUG: PLC 강제 포트 새로고침 시작")
+        # print("DEBUG: PLC 강제 포트 새로고침 시작")
         
         # 모든 리소스 강제 정리
         gc.collect()
@@ -297,7 +298,7 @@ class PLCCommunicationTab(QWidget):
         """간단한 포트 새로고침 - 포트 테스트 없이"""
         import serial.tools.list_ports
         
-        print("DEBUG: PLC 간단한 포트 새로고침 시작")
+        # print("DEBUG: PLC 간단한 포트 새로고침 시작")
         
         # 현재 연결된 포트 정보 저장
         current_connected_port = None
@@ -329,7 +330,7 @@ class PLCCommunicationTab(QWidget):
                 print(f"DEBUG: PLC {len(ports)}개 포트 발견")
             
         except Exception as e:
-            print(f"DEBUG: PLC 포트 조회 오류: {e}")
+            # print(f"DEBUG: PLC 포트 조회 오류: {e}")
             self.port_combo.addItem("사용 가능한 포트 없음")
     
     def connect_serial(self):

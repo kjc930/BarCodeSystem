@@ -258,7 +258,7 @@ class BarcodeScannerTab(QWidget):
                 print(f"DEBUG: 스캐너 {len(ports)}개 포트 발견")
             
         except Exception as e:
-            print(f"DEBUG: 스캐너 포트 조회 오류: {e}")
+            # print(f"DEBUG: 스캐너 포트 조회 오류: {e}")
             self.port_combo.addItem("사용 가능한 포트 없음")
     
     def notify_main_screen_connection(self, device_name, is_connected):

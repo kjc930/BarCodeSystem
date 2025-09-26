@@ -298,39 +298,39 @@ class ProductionPanel(QWidget):
     
     def update_division_status(self, has_value, division_value=""):
         """구분값 상태 업데이트 (값이 있으면 녹색, 없으면 적색)"""
-        print(f"DEBUG: ProductionPanel.update_division_status - has_value: {has_value}, division_value: '{division_value}'")
+        # print(f"DEBUG: ProductionPanel.update_division_status - has_value: {has_value}, division_value: '{division_value}'")
         if has_value:
             # 구분값 있음 (녹색) - 구분값 표시
             self.division_label.setText(f"구분: {division_value}")
             self.division_label.setStyleSheet(get_main_division_normal_style())
-            print(f"DEBUG: 구분값 표시 완료 - 구분: {division_value}")
+            # print(f"DEBUG: 구분값 표시 완료 - 구분: {division_value}")
         else:
             # 구분값 없음 (적색) - 오류 표시
             self.division_label.setText("구분: 오류")
             self.division_label.setStyleSheet(get_main_division_error_style())
-            print(f"DEBUG: 구분값 오류 표시")
+            # print(f"DEBUG: 구분값 오류 표시")
     
     def update_child_parts_count(self, count):
         """하위부품 수 업데이트 (1-6개까지 표시)"""
-        print(f"DEBUG: {self.title} 하위부품 수 업데이트 - {count}개")
-        print(f"DEBUG: {self.title} child_parts_icons 개수: {len(self.child_parts_icons)}")
+        # print(f"DEBUG: {self.title} 하위부품 수 업데이트 - {count}개")
+        # print(f"DEBUG: {self.title} child_parts_icons 개수: {len(self.child_parts_icons)}")
         
         # 모든 아이콘 숨김
         for i, icon in enumerate(self.child_parts_icons):
             icon.setVisible(False)
-            print(f"DEBUG: {self.title} 아이콘[{i}] 숨김")
+            # print(f"DEBUG: {self.title} 아이콘[{i}] 숨김")
         
         # 하위부품 수만큼 아이콘 표시 (기본적으로 붉은색 - 미매칭 상태)
-        print(f"DEBUG: {self.title} 아이콘 표시 시작 - count: {count}, min(count, 6): {min(count, 6)}")
+        # print(f"DEBUG: {self.title} 아이콘 표시 시작 - count: {count}, min(count, 6): {min(count, 6)}")
         for i in range(min(count, 6)):
-            print(f"DEBUG: {self.title} 아이콘[{i}] 표시 시작")
+            # print(f"DEBUG: {self.title} 아이콘[{i}] 표시 시작")
             self.child_parts_icons[i].setVisible(True)
-            print(f"DEBUG: {self.title} 아이콘[{i}] 표시 완료 (하위부품 {i+1})")
+            # print(f"DEBUG: {self.title} 아이콘[{i}] 표시 완료 (하위부품 {i+1})")
             # 기본 상태는 붉은색 (미매칭)
             self.child_parts_icons[i].setStyleSheet(get_main_child_part_unmatched_style())
-            print(f"DEBUG: {self.title} 아이콘[{i}] 스타일 적용 완료")
+            # print(f"DEBUG: {self.title} 아이콘[{i}] 스타일 적용 완료")
         
-        print(f"DEBUG: {self.title} 하위부품 아이콘 업데이트 완료 - {count}개 표시")
+        # print(f"DEBUG: {self.title} 하위부품 아이콘 업데이트 완료 - {count}개 표시")
     
     def update_child_part_status(self, part_index, is_matched):
         """개별 하위부품 상태 업데이트 (0-5 인덱스, 매칭 여부)"""
@@ -377,30 +377,31 @@ class ProductionPanel(QWidget):
                 self.work_status_label.setStyleSheet(get_main_plc_link_off_style())
                 self.division_label.setText("PLC LINK OFF")
                 self.division_label.setStyleSheet(get_main_plc_link_off_style())
-                print("DEBUG: PLC 연결 끊김 상태 적용")
+                # print("DEBUG: PLC 연결 끊김 상태 적용")
             elif status == 'connected':
                 # PLC 연결됨 - "PLC 연결됨" 표시
                 self.work_status_label.setText("PLC 연결됨")
                 self.work_status_label.setStyleSheet(get_main_plc_connected_style())
                 self.division_label.setText("데이터 대기중")
                 self.division_label.setStyleSheet(get_main_plc_connected_style())
-                print("DEBUG: PLC 연결됨 상태 적용")
+                # print("DEBUG: PLC 연결됨 상태 적용")
             elif status == 'no_data':
                 # PLC 연결됨 but 데이터 수신 불가 - "PLC DATA 수신 불가" 표시
                 self.work_status_label.setText("PLC DATA 수신 불가")
                 self.work_status_label.setStyleSheet(get_main_plc_data_error_style())
                 self.division_label.setText("데이터 수신 불가")
                 self.division_label.setStyleSheet(get_main_plc_data_error_style())
-                print("DEBUG: PLC 데이터 수신 불가 상태 적용")
+                # print("DEBUG: PLC 데이터 수신 불가 상태 적용")
             else:  # status == 'normal'
                 # 정상 상태 - 기본 상태로 복원 (나중에 실제 데이터로 업데이트됨)
                 self.work_status_label.setText("작업완료")
                 self.work_status_label.setStyleSheet(get_main_work_completed_style())
                 self.division_label.setText(f"구분: {self.division}")
                 self.division_label.setStyleSheet(get_main_division_label_style())
-                print("DEBUG: PLC 정상 상태 적용")
+                # print("DEBUG: PLC 정상 상태 적용")
         else:
-            print(f"DEBUG: PLC 상태 변경 불필요 - 현재 상태: {status}")
+            # print(f"DEBUG: PLC 상태 변경 불필요 - 현재 상태: {status}")
+            pass
     
     def update_status_label(self, label, is_connected):
         """상태 레이블 업데이트 - 스타일 변경 시에만 적용"""
@@ -409,11 +410,12 @@ class ProductionPanel(QWidget):
         target_style = get_main_status_connected_style() if is_connected else get_main_status_disconnected_style()
         
         if current_style != target_style:
-            print(f"DEBUG: 상태 레이블 스타일 변경 - 연결됨: {is_connected}")
+            # print(f"DEBUG: 상태 레이블 스타일 변경 - 연결됨: {is_connected}")
             label.setStyleSheet(target_style)
-            print(f"DEBUG: {'녹색' if is_connected else '적색'} 스타일 적용됨")
+            # print(f"DEBUG: {'녹색' if is_connected else '적색'} 스타일 적용됨")
         else:
-            print(f"DEBUG: 상태 레이블 스타일 변경 불필요 - 연결됨: {is_connected}")
+            # print(f"DEBUG: 상태 레이블 스타일 변경 불필요 - 연결됨: {is_connected}")
+            pass
     
     def toggle_device_label(self, label, device_name):
         """장비 아이콘 클릭 시 라벨 텍스트 토글"""
@@ -450,7 +452,7 @@ class ProductionPanel(QWidget):
             # 아이콘만 있으면 크기 조정
             label.setFixedSize(30, 25)
         
-        print(f"DEBUG: {device_name} 라벨 토글 - {label.text()}")
+        # print(f"DEBUG: {device_name} 라벨 토글 - {label.text()}")
     
     def update_part_info(self, part_number, part_name):
         """부품정보 업데이트"""
@@ -461,7 +463,7 @@ class ProductionPanel(QWidget):
         self.part_number_label.setText(part_number)
         self.part_name_label.setText(part_name)
         
-        print(f"DEBUG: {self.title} 부품정보 업데이트 - Part_No: {part_number}, Part_Name: {part_name}")
+        # print(f"DEBUG: {self.title} 부품정보 업데이트 - Part_No: {part_number}, Part_Name: {part_name}")
     
     def show_scan_status(self):
         """스캔 현황 보기 (각 패널별 독립적)"""

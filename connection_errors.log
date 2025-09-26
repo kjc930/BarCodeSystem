@@ -63,3 +63,5 @@
 [2025-09-26 15:43:54] 너트2 연결 실패 - 포트: COM8, 오류: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
 [2025-09-26 15:53:00] 너트1 연결 실패 - 포트: COM7, 오류: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
 [2025-09-26 15:53:00] 너트2 연결 실패 - 포트: COM8, 오류: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+[2025-09-26 16:12:43] 너트1 연결 실패 - 포트: COM7, 오류: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+[2025-09-26 16:12:43] 너트2 연결 실패 - 포트: COM8, 오류: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
