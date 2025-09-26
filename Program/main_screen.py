@@ -364,45 +364,56 @@ class ProductionPanel(QWidget):
             self.update_status_label(self.nutrunner2_status_label, is_connected)
     
     def update_plc_connection_display(self, status):
-        """PLC 연결 상태에 따른 작업완료/구분값 표시 업데이트
+        """PLC 연결 상태에 따른 작업완료/구분값 표시 업데이트 - 스타일 변경 시에만 적용
         status: 'disconnected', 'connected', 'no_data', 'normal'
         """
-        if status == 'disconnected':
-            # PLC 연결 끊김 - "PLC LINK OFF" 표시
-            self.work_status_label.setText("PLC LINK OFF")
-            self.work_status_label.setStyleSheet(get_main_plc_link_off_style())
-            self.division_label.setText("PLC LINK OFF")
-            self.division_label.setStyleSheet(get_main_plc_link_off_style())
-        elif status == 'connected':
-            # PLC 연결됨 - "PLC 연결됨" 표시
-            self.work_status_label.setText("PLC 연결됨")
-            self.work_status_label.setStyleSheet(get_main_plc_connected_style())
-            self.division_label.setText("데이터 대기중")
-            self.division_label.setStyleSheet(get_main_plc_connected_style())
-        elif status == 'no_data':
-            # PLC 연결됨 but 데이터 수신 불가 - "PLC DATA 수신 불가" 표시
-            self.work_status_label.setText("PLC DATA 수신 불가")
-            self.work_status_label.setStyleSheet(get_main_plc_data_error_style())
-            self.division_label.setText("데이터 수신 불가")
-            self.division_label.setStyleSheet(get_main_plc_data_error_style())
-        else:  # status == 'normal'
-            # 정상 상태 - 기본 상태로 복원 (나중에 실제 데이터로 업데이트됨)
-            self.work_status_label.setText("작업완료")
-            self.work_status_label.setStyleSheet(get_main_work_completed_style())
-            self.division_label.setText(f"구분: {self.division}")
-            self.division_label.setStyleSheet(get_main_division_label_style())
+        # 현재 상태와 비교하여 변경이 필요한 경우에만 업데이트
+        if not hasattr(self, '_current_plc_status') or self._current_plc_status != status:
+            self._current_plc_status = status
+            
+            if status == 'disconnected':
+                # PLC 연결 끊김 - "PLC LINK OFF" 표시
+                self.work_status_label.setText("PLC LINK OFF")
+                self.work_status_label.setStyleSheet(get_main_plc_link_off_style())
+                self.division_label.setText("PLC LINK OFF")
+                self.division_label.setStyleSheet(get_main_plc_link_off_style())
+                print("DEBUG: PLC 연결 끊김 상태 적용")
+            elif status == 'connected':
+                # PLC 연결됨 - "PLC 연결됨" 표시
+                self.work_status_label.setText("PLC 연결됨")
+                self.work_status_label.setStyleSheet(get_main_plc_connected_style())
+                self.division_label.setText("데이터 대기중")
+                self.division_label.setStyleSheet(get_main_plc_connected_style())
+                print("DEBUG: PLC 연결됨 상태 적용")
+            elif status == 'no_data':
+                # PLC 연결됨 but 데이터 수신 불가 - "PLC DATA 수신 불가" 표시
+                self.work_status_label.setText("PLC DATA 수신 불가")
+                self.work_status_label.setStyleSheet(get_main_plc_data_error_style())
+                self.division_label.setText("데이터 수신 불가")
+                self.division_label.setStyleSheet(get_main_plc_data_error_style())
+                print("DEBUG: PLC 데이터 수신 불가 상태 적용")
+            else:  # status == 'normal'
+                # 정상 상태 - 기본 상태로 복원 (나중에 실제 데이터로 업데이트됨)
+                self.work_status_label.setText("작업완료")
+                self.work_status_label.setStyleSheet(get_main_work_completed_style())
+                self.division_label.setText(f"구분: {self.division}")
+                self.division_label.setStyleSheet(get_main_division_label_style())
+                print("DEBUG: PLC 정상 상태 적용")
+        else:
+            print(f"DEBUG: PLC 상태 변경 불필요 - 현재 상태: {status}")
     
     def update_status_label(self, label, is_connected):
-        """상태 레이블 업데이트"""
-        print(f"DEBUG: 상태 레이블 업데이트 - 연결됨: {is_connected}")
-        if is_connected:
-            # 연결됨 (녹색)
-            label.setStyleSheet(get_main_status_connected_style())
-            print("DEBUG: 녹색 스타일 적용됨")
+        """상태 레이블 업데이트 - 스타일 변경 시에만 적용"""
+        # 현재 스타일과 비교하여 변경이 필요한 경우에만 적용
+        current_style = label.styleSheet()
+        target_style = get_main_status_connected_style() if is_connected else get_main_status_disconnected_style()
+        
+        if current_style != target_style:
+            print(f"DEBUG: 상태 레이블 스타일 변경 - 연결됨: {is_connected}")
+            label.setStyleSheet(target_style)
+            print(f"DEBUG: {'녹색' if is_connected else '적색'} 스타일 적용됨")
         else:
-            # 연결안됨 (적색)
-            label.setStyleSheet(get_main_status_disconnected_style())
-            print("DEBUG: 적색 스타일 적용됨")
+            print(f"DEBUG: 상태 레이블 스타일 변경 불필요 - 연결됨: {is_connected}")
     
     def toggle_device_label(self, label, device_name):
         """장비 아이콘 클릭 시 라벨 텍스트 토글"""
@@ -767,8 +778,11 @@ class BarcodeMainScreen(QMainWindow):
             # 프린트 매니저 정리
             if hasattr(self, 'print_manager') and self.print_manager:
                 try:
-                    self.print_manager.close_connection()
-                    print("DEBUG: 프린트 매니저 연결 종료")
+                    if hasattr(self.print_manager, 'close_connection'):
+                        self.print_manager.close_connection()
+                        print("DEBUG: 프린트 매니저 연결 종료")
+                    else:
+                        print("DEBUG: PrintManager에 close_connection 메서드 없음 - 스킵")
                 except Exception as e:
                     print(f"⚠️ 프린트 매니저 정리 실패: {e}")
             
@@ -997,10 +1011,10 @@ class BarcodeMainScreen(QMainWindow):
         # 창 크기 변경 이벤트 연결
         self.resizeEvent = self.on_resize_event
         
-        # 타이머를 사용한 이미지 크기 업데이트
+        # 타이머를 사용한 이미지 크기 업데이트 (안전하게)
         self.image_timer = QTimer()
-        self.image_timer.timeout.connect(self.update_title_image)
-        self.image_timer.start(100)  # 100ms마다 체크
+        self.image_timer.timeout.connect(self.safe_update_title_image)
+        self.image_timer.start(1000)  # 1초마다 체크 (빈도 감소)
     
     def create_header(self, layout):
         """헤더 생성 - 간단하고 실용적으로"""
@@ -1188,22 +1202,13 @@ class BarcodeMainScreen(QMainWindow):
         self.time_label.setText(time_str)
     
     def update_title_image(self):
-        """타이틀 이미지 크기 업데이트"""
+        """타이틀 이미지 크기 업데이트 - 레이아웃 변경 방지"""
         if not self.title_pixmap.isNull():
-            # 원본 이미지 크기 그대로 사용
-            original_width = self.title_pixmap.width()
-            original_height = self.title_pixmap.height()
-            
-            # 현재 라벨 크기와 다를 때만 업데이트
-            if (self.title_label.size().width() != original_width or 
-                self.title_label.size().height() != original_height):
-                
-                # 원본 이미지 그대로 사용 (크기 조정 없음)
-                self.title_label.setPixmap(self.title_pixmap)
-                self.title_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-                # 라벨 크기를 원본 이미지 크기로 설정
-                self.title_label.setFixedSize(original_width, original_height)
-                print(f"DEBUG: 원본 이미지 크기 사용 - {original_width}x{original_height}")
+            # 이미지만 업데이트하고 크기는 변경하지 않음
+            self.title_label.setPixmap(self.title_pixmap)
+            self.title_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            # setFixedSize 제거 - 레이아웃 변경 방지
+            print(f"DEBUG: 타이틀 이미지 업데이트 (크기 변경 없음)")
         else:
             # 이미지 로드 실패 시 텍스트로 대체
             self.title_label.setText("바코드 시스템 모니터링")
@@ -1211,10 +1216,24 @@ class BarcodeMainScreen(QMainWindow):
             self.title_label.setStyleSheet(get_main_scan_title_style())
     
     def on_resize_event(self, event):
-        """창 크기 변경 이벤트 핸들러"""
+        """창 크기 변경 이벤트 핸들러 - 레이아웃 변경 방지"""
         super().resizeEvent(event)
-        # 이미지 크기 업데이트
-        self.update_title_image()
+        # 이미지 크기 업데이트 (레이아웃 변경 없이)
+        try:
+            self.update_title_image()
+        except Exception as e:
+            print(f"DEBUG: 타이틀 이미지 업데이트 오류: {e}")
+    
+    def safe_update_title_image(self):
+        """안전한 타이틀 이미지 업데이트 - 레이아웃 변경 방지"""
+        try:
+            # 이미지가 로드되었고 현재 라벨에 이미지가 없을 때만 업데이트
+            if not self.title_pixmap.isNull() and self.title_label.pixmap().isNull():
+                self.title_label.setPixmap(self.title_pixmap)
+                self.title_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+                print(f"DEBUG: 안전한 타이틀 이미지 업데이트")
+        except Exception as e:
+            print(f"DEBUG: 안전한 타이틀 이미지 업데이트 오류: {e}")
     
     def add_scanned_part(self, part_number, is_ok=True):
         """하위부품 스캔 추가 (선행조건) - HKMC 바코드 검증 방식 적용"""
@@ -1608,7 +1627,18 @@ class BarcodeMainScreen(QMainWindow):
             self.front_panel.update_device_status(device_name, is_connected)
             self.rear_panel.update_device_status(device_name, is_connected)
             
+            # PLC 연결 상태에 따른 특별 처리
+            if device_name == "PLC":
+                if is_connected:
+                    self.front_panel.update_plc_connection_display('connected')
+                    self.rear_panel.update_plc_connection_display('connected')
+                else:
+                    self.front_panel.update_plc_connection_display('disconnected')
+                    self.rear_panel.update_plc_connection_display('disconnected')
+            
             print(f"DEBUG: {device_name} 연결 상태 업데이트 - {'연결됨' if is_connected else '연결안됨'}")
+    
+    # AdminPanel 연동 제거 - 메인화면은 독립적으로 시리얼 연결 관리
     
     def get_device_connection_status(self, device_name):
         """장비 연결 상태 조회"""
@@ -1643,8 +1673,7 @@ class BarcodeMainScreen(QMainWindow):
         """AdminPanel 열기 및 해당 탭 활성화"""
         if self.admin_panel is None:
             self.admin_panel = AdminPanel()
-            # AdminPanel에 메인 화면 참조 설정
-            self.admin_panel.set_main_screen_reference(self)
+            # AdminPanel 연동 제거 - 독립적인 설정/테스트 도구
         
         # 장비명에 따른 탭 인덱스 매핑
         tab_mapping = {
@@ -1661,43 +1690,11 @@ class BarcodeMainScreen(QMainWindow):
         self.admin_panel.show()
         self.admin_panel.tab_widget.setCurrentIndex(tab_index)
         
-        # 모든 장비의 연결 상태를 AdminPanel에 전달
-        self.update_all_admin_panel_connections()
+        # AdminPanel 연동 제거 - 독립적인 설정/테스트 도구
         
         print(f"DEBUG: AdminPanel 열기 - {device_name} 탭 활성화 (인덱스: {tab_index})")
     
-    def update_admin_panel_connection_status(self, device_name):
-        """AdminPanel에 연결 상태 전달"""
-        if self.admin_panel is None:
-            return
-        
-        is_connected = self.device_connection_status.get(device_name, False)
-        
-        if device_name == "PLC":
-            # PLC 통신 탭에 연결 상태 전달
-            if hasattr(self.admin_panel, 'plc_tab'):
-                self.admin_panel.plc_tab.update_connection_status_from_main(is_connected)
-        elif device_name == "스캐너":
-            # 바코드 스캐너 탭에 연결 상태 전달
-            if hasattr(self.admin_panel, 'scanner_tab'):
-                self.admin_panel.scanner_tab.update_connection_status_from_main(is_connected)
-        elif device_name == "프린터":
-            # 바코드 프린터 탭에 연결 상태 전달
-            if hasattr(self.admin_panel, 'printer_tab'):
-                self.admin_panel.printer_tab.update_connection_status_from_main(is_connected)
-        elif device_name in ["너트1", "너트2"]:
-            # 시스템툴 탭에 연결 상태 전달
-            if hasattr(self.admin_panel, 'nutrunner_tab'):
-                self.admin_panel.nutrunner_tab.update_connection_status_from_main(device_name, is_connected)
-    
-    def update_all_admin_panel_connections(self):
-        """모든 장비의 연결 상태를 AdminPanel에 전달"""
-        if self.admin_panel is None:
-            return
-        
-        # 모든 장비의 연결 상태를 한번에 업데이트
-        for device_name in self.device_connection_status.keys():
-            self.update_admin_panel_connection_status(device_name)
+    # AdminPanel 연동 제거 - 메인화면은 독립적으로 시리얼 연결 관리
     
     def show_scan_status(self):
         """스캔 현황 다이얼로그 표시"""

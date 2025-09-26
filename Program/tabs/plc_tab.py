@@ -166,36 +166,171 @@ class PLCCommunicationTab(QWidget):
         """사용 가능한 시리얼 포트 새로고침"""
         import serial
         import serial.tools.list_ports
+        import time
+        import gc
+        
+        print("DEBUG: PLC 포트 새로고침 시작")
+        
+        # 기존 시리얼 연결 완전 정리
+        if hasattr(self, 'connection_manager') and self.connection_manager:
+            try:
+                print("DEBUG: PLC 연결 매니저 정리 중...")
+                if hasattr(self.connection_manager, 'serial_thread') and self.connection_manager.serial_thread:
+                    self.connection_manager.serial_thread.stop()
+                    if not self.connection_manager.serial_thread.wait(1000):
+                        self.connection_manager.serial_thread.terminate()
+                        self.connection_manager.serial_thread.wait()
+                    self.connection_manager.serial_thread = None
+                print("DEBUG: PLC 연결 매니저 정리 완료")
+            except Exception as e:
+                print(f"DEBUG: PLC 연결 매니저 정리 중 오류: {e}")
+        
+        # 가비지 컬렉션으로 메모리 정리
+        gc.collect()
+        
+        # 포트 해제 후 충분한 대기 시간 (더 길게)
+        time.sleep(3.0)  # 3초로 더 연장
         
         self.port_combo.clear()
-        ports = serial.tools.list_ports.comports()
+        
+        # 포트 목록 새로고침 (여러 번 시도)
+        ports = []
+        for attempt in range(3):
+            try:
+                ports = serial.tools.list_ports.comports()
+                if ports:
+                    break
+                time.sleep(0.5)
+            except Exception as e:
+                print(f"DEBUG: PLC 포트 목록 조회 시도 {attempt + 1} 실패: {e}")
+                time.sleep(0.5)
+        
         available_ports = []
+        
+        print(f"DEBUG: PLC 발견된 포트 수: {len(ports)}")
         
         for port in ports:
             try:
-                # 포트가 사용 중인지 확인
-                test_ser = serial.Serial(port.device, timeout=0.1)
+                print(f"DEBUG: PLC 포트 테스트 중: {port.device}")
+                # 포트가 사용 중인지 확인 (매우 짧은 타임아웃)
+                test_ser = serial.Serial(port.device, timeout=0.01)
                 test_ser.close()
                 available_ports.append(port)
-                    
-            except (serial.SerialException, OSError):
+                print(f"DEBUG: PLC 포트 사용 가능: {port.device}")
+            except (serial.SerialException, OSError) as e:
                 # 포트가 사용 중이거나 접근할 수 없음
+                print(f"DEBUG: PLC 포트 사용 불가: {port.device} - {e}")
+                # 포트 테스트 후 잠시 대기
+                time.sleep(0.2)
                 continue
+            except Exception as e:
+                # 기타 예외 처리
+                print(f"DEBUG: PLC 포트 테스트 중 예외: {port.device} - {e}")
+                time.sleep(0.2)
+                continue
+        
+        print(f"DEBUG: PLC 사용 가능한 포트 수: {len(available_ports)}")
         
         if not available_ports:
             self.port_combo.addItem("사용 가능한 포트 없음")
+            print("DEBUG: PLC 사용 가능한 포트 없음")
         else:
             # 모든 사용 가능한 포트를 알파벳 순으로 정렬하여 표시
             available_ports.sort(key=lambda x: x.device)
             for port in available_ports:
                 port_info = f"{port.device} - {port.description}"
                 self.port_combo.addItem(port_info)
+                print(f"DEBUG: PLC 포트 추가: {port_info}")
         
         # 연결 상태에 따라 포트 표시 업데이트
         if hasattr(self, 'is_connected_from_main') and self.is_connected_from_main:
             self.update_port_combo_for_connection(True)
         
         self.log_message("포트 목록을 새로고침했습니다.")
+        print("DEBUG: PLC 포트 새로고침 완료 - 콤보박스 업데이트됨")
+    
+    def force_refresh_ports(self):
+        """강제 포트 새로고침 - 연결 해제 후 즉시 실행"""
+        import serial.tools.list_ports
+        import time
+        import gc
+        
+        print("DEBUG: PLC 강제 포트 새로고침 시작")
+        
+        # 모든 리소스 강제 정리
+        gc.collect()
+        time.sleep(1.0)  # 1초 대기
+        
+        # 콤보박스 즉시 클리어
+        self.port_combo.clear()
+        
+        # 포트 목록 즉시 조회
+        try:
+            ports = serial.tools.list_ports.comports()
+            available_ports = []
+            
+            for port in ports:
+                try:
+                    # 포트 테스트 (매우 짧은 타임아웃)
+                    test_ser = serial.Serial(port.device, timeout=0.01)
+                    test_ser.close()
+                    available_ports.append(port)
+                except:
+                    continue
+            
+            # 콤보박스 즉시 업데이트
+            if not available_ports:
+                self.port_combo.addItem("사용 가능한 포트 없음")
+            else:
+                available_ports.sort(key=lambda x: x.device)
+                for port in available_ports:
+                    port_info = f"{port.device} - {port.description}"
+                    self.port_combo.addItem(port_info)
+            
+            print(f"DEBUG: PLC 강제 새로고침 완료 - {len(available_ports)}개 포트 발견")
+            
+        except Exception as e:
+            print(f"DEBUG: PLC 강제 새로고침 오류: {e}")
+            self.port_combo.addItem("사용 가능한 포트 없음")
+    
+    def simple_refresh_ports(self):
+        """간단한 포트 새로고침 - 포트 테스트 없이"""
+        import serial.tools.list_ports
+        
+        print("DEBUG: PLC 간단한 포트 새로고침 시작")
+        
+        # 현재 연결된 포트 정보 저장
+        current_connected_port = None
+        if hasattr(self, 'connection_manager') and self.connection_manager and hasattr(self.connection_manager, 'port_name'):
+            current_connected_port = self.connection_manager.port_name
+            print(f"DEBUG: PLC 현재 연결된 포트: {current_connected_port}")
+        
+        # 콤보박스 클리어
+        self.port_combo.clear()
+        
+        try:
+            # 포트 목록만 조회 (테스트 없이)
+            ports = serial.tools.list_ports.comports()
+            
+            if not ports:
+                self.port_combo.addItem("사용 가능한 포트 없음")
+                print("DEBUG: PLC 포트 없음")
+            else:
+                ports.sort(key=lambda x: x.device)
+                for port in ports:
+                    port_info = f"{port.device} - {port.description}"
+                    self.port_combo.addItem(port_info)
+                    
+                    # 현재 연결된 포트가 있으면 선택
+                    if current_connected_port and port.device == current_connected_port:
+                        self.port_combo.setCurrentText(port_info)
+                        print(f"DEBUG: PLC 연결된 포트 선택됨: {port_info}")
+                
+                print(f"DEBUG: PLC {len(ports)}개 포트 발견")
+            
+        except Exception as e:
+            print(f"DEBUG: PLC 포트 조회 오류: {e}")
+            self.port_combo.addItem("사용 가능한 포트 없음")
     
     def connect_serial(self):
         """시리얼 포트 연결"""
@@ -213,18 +348,37 @@ class PLCCommunicationTab(QWidget):
             self.log_message(f"🚀 PLC 연결 시도 중...")
     
     def disconnect_serial(self):
-        """시리얼 포트 연결 해제"""
-        # SerialConnectionManager를 사용하여 연결 해제
-        self.connection_manager.disconnect_serial(
-            self.connect_btn, 
-            self.disconnect_btn, 
-            self.status_label, 
-            self.log_message
-        )
-        
-        # 포트 상태 라벨 업데이트
-        self.port_status_label.setText("🔴 미연결")
-        self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
+        """시리얼 포트 연결 해제 - 단순하고 확실한 방법"""
+        try:
+            print("DEBUG: PLC 연결 해제 시작")
+            
+            # 연결 매니저가 있으면 간단히 해제
+            if self.connection_manager:
+                try:
+                    self.connection_manager.disconnect_serial(
+                        self.connect_btn, 
+                        self.disconnect_btn, 
+                        self.status_label, 
+                        self.log_message
+                    )
+                except:
+                    pass
+                self.connection_manager = None
+            
+            # UI 상태 즉시 업데이트
+            self.port_status_label.setText("🔴 미연결")
+            self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
+            
+            # 메인화면 알림 제거 - AdminPanel은 독립적인 설정/테스트 도구
+            
+            # 포트 새로고침 (간단한 방법)
+            self.simple_refresh_ports()
+            
+            print("DEBUG: PLC 연결 해제 완료")
+            
+        except Exception as e:
+            print(f"ERROR: PLC 연결 해제 중 오류: {e}")
+            self.log_message(f"연결 해제 중 오류: {e}")
     
     def on_connection_status(self, success, message):
         """연결 상태 변경 처리"""
@@ -249,6 +403,7 @@ class PLCCommunicationTab(QWidget):
         # 연결 성공 시 설정 자동 저장
         if success:
             self.save_plc_settings()
+            # 메인화면 알림 제거 - AdminPanel은 독립적인 설정/테스트 도구
     
     def on_plc_data_received(self, data):
         """PLC 데이터 수신 처리 (SerialConnectionManager용)"""
@@ -256,6 +411,8 @@ class PLCCommunicationTab(QWidget):
     
     def update_connection_status_from_main(self, is_connected):
         """메인 화면에서 연결 상태 업데이트"""
+        print(f"DEBUG: PLC 탭 연결 상태 업데이트 - {'연결됨' if is_connected else '연결안됨'}")
+        
         # 연결 상태 플래그 설정
         self.is_connected_from_main = is_connected
         
@@ -427,3 +584,15 @@ class PLCCommunicationTab(QWidget):
         else:
             self.log_message("설정 저장 실패")
             QMessageBox.warning(self, "설정 저장 실패", "설정 저장에 실패했습니다.")
+    
+    def notify_main_screen_connection(self, device_name, is_connected):
+        """메인화면에 연결 상태 알림"""
+        try:
+            # AdminPanel을 통해 메인화면에 알림
+            if hasattr(self, 'admin_panel') and self.admin_panel:
+                self.admin_panel.notify_main_screen_device_connection(device_name, is_connected)
+                print(f"DEBUG: {device_name} 연결 상태 알림 전달됨 - {'연결됨' if is_connected else '연결안됨'}")
+            else:
+                print(f"DEBUG: AdminPanel 참조 없음 - {device_name} 연결 상태 알림 전달 불가")
+        except Exception as e:
+            print(f"ERROR: {device_name} 연결 상태 알림 오류: {e}")

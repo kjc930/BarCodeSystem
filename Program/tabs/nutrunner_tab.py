@@ -201,6 +201,60 @@ class NutRunnerTab(QWidget):
         
         self.log_message("포트 목록을 새로고침했습니다.")
     
+    def simple_refresh_ports(self):
+        """간단한 포트 새로고침 - 포트 테스트 없이"""
+        import serial.tools.list_ports
+        
+        print("DEBUG: 너트러너 간단한 포트 새로고침 시작")
+        
+        # 현재 연결된 포트 정보 저장
+        current_connected_ports = {}
+        for i in range(1, 3):  # 너트러너 1, 2
+            thread_attr = f'nutrunner{i}_thread'
+            if hasattr(self, thread_attr):
+                thread = getattr(self, thread_attr)
+                if thread and hasattr(thread, 'port_name'):
+                    current_connected_ports[i] = thread.port_name
+                    print(f"DEBUG: 너트러너 {i} 현재 연결된 포트: {thread.port_name}")
+        
+        # 두 개의 포트 콤보박스 모두 새로고침
+        for i, port_combo in enumerate([self.nutrunner1_port_combo, self.nutrunner2_port_combo], 1):
+            port_combo.clear()
+            
+            try:
+                # 포트 목록만 조회 (테스트 없이)
+                ports = serial.tools.list_ports.comports()
+                
+                if not ports:
+                    port_combo.addItem("사용 가능한 포트 없음")
+                else:
+                    for port in ports:
+                        port_info = f"{port.device} - {port.description}"
+                        port_combo.addItem(port_info)
+                        
+                        # 현재 연결된 포트가 있으면 선택
+                        if i in current_connected_ports and port.device == current_connected_ports[i]:
+                            port_combo.setCurrentText(port_info)
+                            print(f"DEBUG: 너트러너 {i} 연결된 포트 선택됨: {port_info}")
+                
+            except Exception as e:
+                print(f"DEBUG: 너트러너 포트 조회 오류: {e}")
+                port_combo.addItem("사용 가능한 포트 없음")
+        
+        print(f"DEBUG: 너트러너 포트 새로고침 완료")
+    
+    def notify_main_screen_connection(self, device_name, is_connected):
+        """메인화면에 연결 상태 알림"""
+        try:
+            # AdminPanel을 통해 메인화면에 알림
+            if hasattr(self, 'admin_panel') and self.admin_panel:
+                self.admin_panel.notify_main_screen_device_connection(device_name, is_connected)
+                print(f"DEBUG: {device_name} 연결 상태 알림 전달됨 - {'연결됨' if is_connected else '연결안됨'}")
+            else:
+                print(f"DEBUG: AdminPanel 참조 없음 - {device_name} 연결 상태 알림 전달 불가")
+        except Exception as e:
+            print(f"ERROR: {device_name} 연결 상태 알림 오류: {e}")
+    
     def connect_nutrunner(self, nutrunner_num):
         """너트 런너 연결"""
         if nutrunner_num == 1:
@@ -306,33 +360,55 @@ class NutRunnerTab(QWidget):
         self.log_message(f"🚀 시스템툴 {nutrunner_num} 연결 스레드 시작...")
     
     def disconnect_nutrunner(self, nutrunner_num):
-        """너트 런너 연결 해제"""
-        if nutrunner_num == 1:
-            connect_btn = self.nutrunner1_connect_btn
-            disconnect_btn = self.nutrunner1_disconnect_btn
-            status_label = self.nutrunner1_status_label
-            data_label = self.nutrunner1_data_label
-            thread_attr = 'nutrunner1_thread'
-        else:
-            connect_btn = self.nutrunner2_connect_btn
-            disconnect_btn = self.nutrunner2_disconnect_btn
-            status_label = self.nutrunner2_status_label
-            data_label = self.nutrunner2_data_label
-            thread_attr = 'nutrunner2_thread'
-        
-        existing_thread = getattr(self, thread_attr)
-        if existing_thread:
-            existing_thread.stop()
-            existing_thread.wait()
-            setattr(self, thread_attr, None)
-        
-        connect_btn.setEnabled(True)
-        connect_btn.setChecked(False)
-        disconnect_btn.setEnabled(False)
-        disconnect_btn.setChecked(True)
-        status_label.setText("연결되지 않음")
-        status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
-        data_label.setText("데이터: 없음")
+        """너트 런너 연결 해제 - 바코드 프린터 탭과 동일한 방식"""
+        try:
+            print(f"DEBUG: 너트러너 {nutrunner_num} 연결 해제 시작")
+            
+            if nutrunner_num == 1:
+                connect_btn = self.nutrunner1_connect_btn
+                disconnect_btn = self.nutrunner1_disconnect_btn
+                status_label = self.nutrunner1_status_label
+                data_label = self.nutrunner1_data_label
+                thread_attr = 'nutrunner1_thread'
+                device_name = "너트1"
+            else:
+                connect_btn = self.nutrunner2_connect_btn
+                disconnect_btn = self.nutrunner2_disconnect_btn
+                status_label = self.nutrunner2_status_label
+                data_label = self.nutrunner2_data_label
+                thread_attr = 'nutrunner2_thread'
+                device_name = "너트2"
+            
+            # 스레드 종료
+            existing_thread = getattr(self, thread_attr)
+            if existing_thread:
+                try:
+                    existing_thread.stop()
+                    existing_thread.wait(500)  # 0.5초만 대기
+                except:
+                    pass
+                setattr(self, thread_attr, None)
+            
+            # UI 상태 즉시 업데이트
+            connect_btn.setEnabled(True)
+            connect_btn.setChecked(False)
+            disconnect_btn.setEnabled(False)
+            disconnect_btn.setChecked(True)
+            status_label.setText("연결되지 않음")
+            status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+            data_label.setText("데이터: 없음")
+            
+            # 메인화면 알림 제거 - AdminPanel은 독립적인 설정/테스트 도구
+            
+            # 포트 새로고침 (간단한 방법)
+            self.simple_refresh_ports()
+            
+            self.log_message(f"너트러너 {nutrunner_num} 연결이 해제되었습니다.")
+            print(f"DEBUG: 너트러너 {nutrunner_num} 연결 해제 완료")
+            
+        except Exception as e:
+            print(f"ERROR: 너트러너 {nutrunner_num} 연결 해제 중 오류: {e}")
+            self.log_message(f"연결 해제 중 오류: {e}")
         
         # 포트 상태 라벨 업데이트
         if nutrunner_num == 1:

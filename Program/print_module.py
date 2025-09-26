@@ -365,6 +365,15 @@ class PrintManager:
         if hasattr(self.main_window, 'show_message'):
             self.main_window.show_message("프린트 오류", error_msg)
     
+    def close_connection(self):
+        """프린터 연결 종료"""
+        try:
+            if hasattr(self, 'print_module') and self.print_module:
+                self.print_module.close_connection()
+                print("DEBUG: PrintManager 연결 종료 완료")
+        except Exception as e:
+            print(f"DEBUG: PrintManager 연결 종료 오류: {e}")
+    
     def print_auto(self, panel_name, part_number, part_name, child_parts_list):
         """자동 프린트 (PLC 완료신호 수신 시)"""
         try:

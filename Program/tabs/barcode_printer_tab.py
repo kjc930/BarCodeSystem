@@ -161,33 +161,166 @@ class BarcodePrinterTab(QWidget):
     def refresh_ports(self):
         """사용 가능한 시리얼 포트 새로고침"""
         import serial.tools.list_ports
+        import time
+        import gc
+        
+        print("DEBUG: 포트 새로고침 시작")
+        
+        # 기존 시리얼 연결 완전 정리
+        if hasattr(self, 'serial_thread') and self.serial_thread:
+            try:
+                print("DEBUG: 기존 시리얼 스레드 정리 중...")
+                self.serial_thread.stop()
+                if not self.serial_thread.wait(1000):
+                    self.serial_thread.terminate()
+                    self.serial_thread.wait()
+                self.serial_thread = None
+                print("DEBUG: 시리얼 스레드 정리 완료")
+            except Exception as e:
+                print(f"DEBUG: 시리얼 스레드 정리 중 오류: {e}")
+        
+        # 가비지 컬렉션으로 메모리 정리
+        gc.collect()
+        
+        # 포트 해제 후 충분한 대기 시간 (더 길게)
+        time.sleep(3.0)  # 3초로 더 연장
         
         self.port_combo.clear()
-        ports = serial.tools.list_ports.comports()
+        
+        # 포트 목록 새로고침 (여러 번 시도)
+        ports = []
+        for attempt in range(3):
+            try:
+                ports = serial.tools.list_ports.comports()
+                if ports:
+                    break
+                time.sleep(0.5)
+            except Exception as e:
+                print(f"DEBUG: 포트 목록 조회 시도 {attempt + 1} 실패: {e}")
+                time.sleep(0.5)
+        
         available_ports = []
+        
+        print(f"DEBUG: 발견된 포트 수: {len(ports)}")
         
         for port in ports:
             try:
-                # 포트가 사용 중인지 확인
-                test_ser = serial.Serial(port.device, timeout=0.1)
+                print(f"DEBUG: 포트 테스트 중: {port.device}")
+                # 포트가 사용 중인지 확인 (매우 짧은 타임아웃)
+                test_ser = serial.Serial(port.device, timeout=0.01)
                 test_ser.close()
                 available_ports.append(port)
-            except (serial.SerialException, OSError):
+                print(f"DEBUG: 포트 사용 가능: {port.device}")
+            except (serial.SerialException, OSError) as e:
                 # 포트가 사용 중이거나 접근할 수 없음
+                print(f"DEBUG: 포트 사용 불가: {port.device} - {e}")
+                # 포트 테스트 후 잠시 대기
+                time.sleep(0.2)
                 continue
+            except Exception as e:
+                # 기타 예외 처리
+                print(f"DEBUG: 포트 테스트 중 예외: {port.device} - {e}")
+                time.sleep(0.2)
+                continue
+        
+        print(f"DEBUG: 사용 가능한 포트 수: {len(available_ports)}")
         
         if not available_ports:
             self.port_combo.addItem("사용 가능한 포트 없음")
+            print("DEBUG: 사용 가능한 포트 없음")
         else:
             for port in available_ports:
                 port_info = f"{port.device} - {port.description}"
                 self.port_combo.addItem(port_info)
+                print(f"DEBUG: 포트 추가: {port_info}")
         
         # 연결 상태에 따라 포트 표시 업데이트
         if hasattr(self, 'is_connected_from_main') and self.is_connected_from_main:
             self.update_port_combo_for_connection(True)
         
         self.log_message("포트 목록을 새로고침했습니다.")
+        print("DEBUG: 프린터 포트 새로고침 완료 - 콤보박스 업데이트됨")
+    
+    def force_refresh_ports(self):
+        """강제 포트 새로고침 - 연결 해제 후 즉시 실행"""
+        import serial.tools.list_ports
+        import time
+        import gc
+        
+        print("DEBUG: 강제 포트 새로고침 시작")
+        
+        # 모든 리소스 강제 정리
+        gc.collect()
+        time.sleep(1.0)  # 1초 대기
+        
+        # 콤보박스 즉시 클리어
+        self.port_combo.clear()
+        
+        # 포트 목록 즉시 조회
+        try:
+            ports = serial.tools.list_ports.comports()
+            available_ports = []
+            
+            for port in ports:
+                try:
+                    # 포트 테스트 (매우 짧은 타임아웃)
+                    test_ser = serial.Serial(port.device, timeout=0.01)
+                    test_ser.close()
+                    available_ports.append(port)
+                except:
+                    continue
+            
+            # 콤보박스 즉시 업데이트
+            if not available_ports:
+                self.port_combo.addItem("사용 가능한 포트 없음")
+            else:
+                for port in available_ports:
+                    port_info = f"{port.device} - {port.description}"
+                    self.port_combo.addItem(port_info)
+            
+            print(f"DEBUG: 강제 새로고침 완료 - {len(available_ports)}개 포트 발견")
+            
+        except Exception as e:
+            print(f"DEBUG: 강제 새로고침 오류: {e}")
+            self.port_combo.addItem("사용 가능한 포트 없음")
+    
+    def simple_refresh_ports(self):
+        """간단한 포트 새로고침 - 포트 테스트 없이"""
+        import serial.tools.list_ports
+        
+        print("DEBUG: 간단한 포트 새로고침 시작")
+        
+        # 현재 연결된 포트 정보 저장
+        current_connected_port = None
+        if hasattr(self, 'serial_thread') and self.serial_thread and hasattr(self.serial_thread, 'port_name'):
+            current_connected_port = self.serial_thread.port_name
+            print(f"DEBUG: 현재 연결된 포트: {current_connected_port}")
+        
+        # 콤보박스 클리어
+        self.port_combo.clear()
+        
+        try:
+            # 포트 목록만 조회 (테스트 없이)
+            ports = serial.tools.list_ports.comports()
+            
+            if not ports:
+                self.port_combo.addItem("사용 가능한 포트 없음")
+                print("DEBUG: 포트 없음")
+            else:
+                for port in ports:
+                    port_info = f"{port.device} - {port.description}"
+                    self.port_combo.addItem(port_info)
+                    
+                    # 현재 연결된 포트가 있으면 선택
+                    if current_connected_port and port.device == current_connected_port:
+                        self.port_combo.setCurrentText(port_info)
+                        print(f"DEBUG: 연결된 포트 선택됨: {port_info}")
+                
+                print(f"DEBUG: {len(ports)}개 포트 발견")
+            
+        except Exception as e:
+            print(f"DEBUG: 포트 조회 오류: {e}")
+            self.port_combo.addItem("사용 가능한 포트 없음")
     
     def connect_serial(self):
         """시리얼 포트 연결"""
@@ -213,24 +346,40 @@ class BarcodePrinterTab(QWidget):
         self.log_message(f"{port_name} 연결 시도 중...")
     
     def disconnect_serial(self):
-        """시리얼 포트 연결 해제"""
-        if self.serial_thread:
-            self.serial_thread.stop()
-            self.serial_thread.wait()
-            self.serial_thread = None
-        
-        self.connect_btn.setEnabled(True)
-        self.connect_btn.setChecked(False)
-        self.disconnect_btn.setEnabled(False)
-        self.disconnect_btn.setChecked(True)
-        self.status_label.setText("연결되지 않음")
-        self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
-        
-        # 포트 상태 라벨 업데이트
-        self.port_status_label.setText("🔴 미연결")
-        self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
-        
-        self.log_message("연결이 해제되었습니다.")
+        """시리얼 포트 연결 해제 - 단순하고 확실한 방법"""
+        try:
+            print("DEBUG: 프린터 연결 해제 시작")
+            
+            # 시리얼 스레드가 있으면 간단히 종료
+            if self.serial_thread:
+                try:
+                    self.serial_thread.stop()
+                    self.serial_thread.wait(500)  # 0.5초만 대기
+                except:
+                    pass
+                self.serial_thread = None
+            
+            # UI 상태 즉시 업데이트
+            self.connect_btn.setEnabled(True)
+            self.connect_btn.setChecked(False)
+            self.disconnect_btn.setEnabled(False)
+            self.disconnect_btn.setChecked(True)
+            self.status_label.setText("연결되지 않음")
+            self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+            self.port_status_label.setText("🔴 미연결")
+            self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
+            
+            # 메인화면 알림 제거 - AdminPanel은 독립적인 설정/테스트 도구
+            
+            # 포트 새로고침 (간단한 방법)
+            self.simple_refresh_ports()
+            
+            self.log_message("연결이 해제되었습니다.")
+            print("DEBUG: 프린터 연결 해제 완료")
+            
+        except Exception as e:
+            print(f"ERROR: 연결 해제 중 오류: {e}")
+            self.log_message(f"연결 해제 중 오류: {e}")
     
     def on_connection_status(self, success, message):
         """연결 상태 변경 처리"""
@@ -249,6 +398,8 @@ class BarcodePrinterTab(QWidget):
             
             # 연결 성공 시 설정 자동 저장
             self.save_printer_settings()
+            
+            # 메인화면 알림 제거 - AdminPanel은 독립적인 설정/테스트 도구
         else:
             self.connect_btn.setEnabled(True)
             self.connect_btn.setChecked(False)
@@ -257,6 +408,9 @@ class BarcodePrinterTab(QWidget):
             self.disconnect_btn.setChecked(False)
             self.status_label.setText("🔴 연결 실패")
             self.status_label.setStyleSheet(get_status_disconnected_style())
+            
+            # 메인화면에 연결 실패 알림
+            self.notify_main_screen_connection("프린터", False)
             
             # 포트 상태 라벨 업데이트
             self.port_status_label.setText("🔴 미연결")
@@ -484,6 +638,18 @@ class BarcodePrinterTab(QWidget):
             self.update_port_combo_for_connection(False)
             
             self.log_message("❌ 메인 화면에서 바코드 프린터 연결이 해제되었습니다")
+    
+    def notify_main_screen_connection(self, device_name, is_connected):
+        """메인화면에 연결 상태 알림"""
+        try:
+            # AdminPanel을 통해 메인화면에 알림
+            if hasattr(self, 'admin_panel') and self.admin_panel:
+                self.admin_panel.notify_main_screen_device_connection(device_name, is_connected)
+                print(f"DEBUG: {device_name} 연결 상태 알림 전달됨 - {'연결됨' if is_connected else '연결안됨'}")
+            else:
+                print(f"DEBUG: AdminPanel 참조 없음 - {device_name} 연결 상태 알림 전달 불가")
+        except Exception as e:
+            print(f"ERROR: {device_name} 연결 상태 알림 오류: {e}")
     
     def on_plc_data_received(self, data):
         """PLC 데이터 수신 처리"""

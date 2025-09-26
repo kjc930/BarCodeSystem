@@ -104,6 +104,13 @@ class AdminPanel(QMainWindow):
         self.master_data_tab = MasterDataTab(self.settings_manager)
         self.tab_widget.addTab(self.master_data_tab, "기준정보")
         
+        # 각 탭에 admin_panel 참조 설정
+        self.plc_tab.admin_panel = self
+        self.scanner_tab.admin_panel = self
+        self.printer_tab.admin_panel = self
+        self.nutrunner_tab.admin_panel = self
+        self.master_data_tab.admin_panel = self
+        
         # 바코드 스캐너 탭에 메인 화면 참조 설정
         if hasattr(self.scanner_tab, 'set_main_screen_reference'):
             self.scanner_tab.set_main_screen_reference(self)
@@ -192,13 +199,7 @@ class AdminPanel(QMainWindow):
         except Exception as e:
             print(f"ERROR: 바코드 스캔 이벤트 처리 오류: {e}")
     
-    def set_main_screen_reference(self, main_screen):
-        """메인 화면 참조 설정"""
-        try:
-            self.main_screen = main_screen
-            print("DEBUG: AdminPanel에 메인 화면 참조 설정됨")
-        except Exception as e:
-            print(f"ERROR: 메인 화면 참조 설정 오류: {e}")
+    # 메인화면 연동 제거 - AdminPanel은 독립적인 설정/테스트 도구
 
 
 def main():
