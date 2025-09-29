@@ -1468,3 +1468,34 @@ def get_main_scan_table_style():
             font-weight: bold;
         }
     """
+
+def get_main_copyright_container_style():
+    """메인 화면 저작권 컨테이너 스타일"""
+    return """
+        QFrame {
+            background-color: #F8F9FA;
+            border: 1px solid #DEE2E6;
+            border-radius: 5px;
+            padding: 5px;
+        }
+    """
+
+def get_main_copyright_label_style():
+    """메인 화면 저작권 라벨 스타일"""
+    return """
+        QLabel {
+            color: #6C757D;
+            background-color: transparent;
+            font-weight: normal;
+        }
+    """
+
+def get_main_version_label_style():
+    """메인 화면 버전 라벨 스타일"""
+    return """
+        QLabel {
+            color: #495057;
+            background-color: transparent;
+            font-weight: bold;
+        }
+    """

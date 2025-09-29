@@ -16,6 +16,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 #                    get_status_error_style, get_connect_button_style, get_disconnect_button_style, 
 #                    get_save_button_style, get_port_status_connected_style, get_port_status_disconnected_style)
 from styles import *
+from font_manager import FontManager
 from modules import SerialConnectionManager
 
 class PLCCommunicationTab(QWidget):
@@ -37,7 +38,7 @@ class PLCCommunicationTab(QWidget):
         
         # 제목
         title = QLabel("🔧 PLC 통신 테스트")
-        title.setFont(QFont("Segoe UI", 16, QFont.Bold))
+        title.setFont(FontManager.get_dialog_title_font())
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet(get_tab_title_style())
         layout.addWidget(title)

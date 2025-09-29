@@ -2,6 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QHBoxLayout
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
+from font_manager import FontManager
 
 class FontTestWindow(QMainWindow):
     def __init__(self):
@@ -20,7 +21,7 @@ class FontTestWindow(QMainWindow):
         
         # 제목
         title_label = QLabel("디지털 폰트 샘플 비교")
-        title_label.setFont(QFont("Arial", 16, QFont.Bold))
+        title_label.setFont(FontManager.get_dialog_title_font())
         title_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(title_label)
         
@@ -67,7 +68,7 @@ class FontTestWindow(QMainWindow):
         
         # 폰트 정보
         info_label = QLabel(f"폰트 패밀리: {font_family}")
-        info_label.setFont(QFont("Arial", 10))
+        info_label.setFont(FontManager.get_small_label_font())
         layout.addWidget(info_label)
         
         # 숫자 샘플 (큰 크기)
@@ -76,7 +77,7 @@ class FontTestWindow(QMainWindow):
         # 0-9 숫자 샘플
         for i in range(10):
             number_label = QLabel(str(i))
-            number_label.setFont(QFont(font_family, 60, QFont.Bold))
+            number_label.setFont(FontManager.get_font(60, FontManager.Weight.BOLD, font_family))
             number_label.setStyleSheet("""
                 QLabel {
                     background-color: #000000;
@@ -96,7 +97,7 @@ class FontTestWindow(QMainWindow):
         
         # 카운터 스타일 샘플
         counter_label = QLabel("12345")
-        counter_label.setFont(QFont(font_family, 80, QFont.Bold))
+        counter_label.setFont(FontManager.get_font(80, FontManager.Weight.BOLD, font_family))
         counter_label.setStyleSheet("""
             QLabel {
                 background-color: #000000;

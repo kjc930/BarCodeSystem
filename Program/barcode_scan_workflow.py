@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
                              QGroupBox, QMessageBox, QProgressBar)
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QFont, QColor, QPalette
+from font_manager import FontManager
 
 # 기존 모듈들 임포트
 from hkmc_barcode_utils import HKMCBarcodeUtils, BarcodeData, BarcodeType
@@ -382,7 +383,7 @@ class ScanStatusDialog(QDialog):
         
         # 제목
         title_label = QLabel("스캔현황")
-        title_label.setFont(QFont("Arial", 16, QFont.Bold))
+        title_label.setFont(FontManager.get_dialog_title_font())
         title_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(title_label)
         
@@ -505,7 +506,7 @@ class ScanStatusDialog(QDialog):
             
             # 완료 메시지 라벨 (크고 눈에 잘 띄게)
             message_label = QLabel("부품확인완료")
-            message_label.setFont(QFont("Arial", 48, QFont.Bold))
+            message_label.setFont(FontManager.get_font(FontManager.Size.XXLARGE * 3, FontManager.Weight.BOLD))
             message_label.setAlignment(Qt.AlignCenter)
             message_label.setStyleSheet("""
                 QLabel {
@@ -521,7 +522,7 @@ class ScanStatusDialog(QDialog):
             
             # 카운트 다운 라벨
             count_label = QLabel("3")
-            count_label.setFont(QFont("Arial", 36, QFont.Bold))
+            count_label.setFont(FontManager.get_font(FontManager.Size.XXLARGE * 2, FontManager.Weight.BOLD))
             count_label.setAlignment(Qt.AlignCenter)
             count_label.setStyleSheet("""
                 QLabel {

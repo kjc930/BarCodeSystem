@@ -19,6 +19,7 @@ from barcode_scan_workflow import BarcodeScanWorkflow, ScanStatusDialog, LabelCo
 from child_part_barcode_validator import ChildPartBarcodeValidator
 from plc_data_manager import PLCDataManager
 from styles import *
+from font_manager import FontManager
 
 class ProductionPanel(QWidget):
     """생산 패널 (FRONT/LH, REAR/RH) - 실용적 디자인"""
@@ -44,14 +45,14 @@ class ProductionPanel(QWidget):
         
         # 제목 (간단하고 명확하게)
         title_label = QLabel(self.title)
-        title_label.setFont(QFont("Arial", 14, QFont.Bold))
+        title_label.setFont(FontManager.get_main_title_font())
         title_label.setStyleSheet(get_main_title_style())
         title_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(title_label)
         
         # 부품 정보 (테이블 형태로 깔끔하게)
         info_group = QGroupBox("부품 정보")
-        info_group.setFont(QFont("Arial", 10, QFont.Bold))
+        info_group.setFont(FontManager.get_bold_label_font())
         info_group.setStyleSheet(get_main_info_group_style())
         # 두 패널의 부품정보 프레임 높이를 통일
         info_group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -68,12 +69,12 @@ class ProductionPanel(QWidget):
         part_no_layout.setSpacing(2)
         
         part_no_title = QLabel("Part_No:")
-        part_no_title.setFont(QFont("Arial", 12, QFont.Bold))
+        part_no_title.setFont(FontManager.get_main_part_title_font())
         part_no_title.setStyleSheet(get_main_part_title_style())
         part_no_layout.addWidget(part_no_title)
         
         self.part_number_label = QLabel(self.part_number)
-        self.part_number_label.setFont(QFont("Arial", 16))
+        self.part_number_label.setFont(FontManager.get_main_part_label_font())
         self.part_number_label.setStyleSheet(get_main_part_label_style())
         part_no_layout.addWidget(self.part_number_label)
         info_row_layout.addLayout(part_no_layout)
@@ -83,12 +84,12 @@ class ProductionPanel(QWidget):
         part_name_layout.setSpacing(2)
         
         part_name_title = QLabel("Part_Name:")
-        part_name_title.setFont(QFont("Arial", 12, QFont.Bold))
+        part_name_title.setFont(FontManager.get_main_part_title_font())
         part_name_title.setStyleSheet(get_main_part_title_style())
         part_name_layout.addWidget(part_name_title)
         
         self.part_name_label = QLabel(self.part_name)
-        self.part_name_label.setFont(QFont("Arial", 16))
+        self.part_name_label.setFont(FontManager.get_main_part_label_font())
         self.part_name_label.setStyleSheet(get_main_part_label_style())
         part_name_layout.addWidget(self.part_name_label)
         info_row_layout.addLayout(part_name_layout)
@@ -104,14 +105,14 @@ class ProductionPanel(QWidget):
         
         # 작업완료 상태 (왼쪽 절반)
         self.work_status_label = QLabel("작업완료")
-        self.work_status_label.setFont(QFont("Arial", 9, QFont.Bold))
+        self.work_status_label.setFont(FontManager.get_main_status_font())
         self.work_status_label.setStyleSheet(get_main_work_status_style())
         self.work_status_label.setAlignment(Qt.AlignCenter)
         division_layout.addWidget(self.work_status_label)
         
         # 구분값 (오른쪽 절반)
         self.division_label = QLabel(f"구분: {self.division}")
-        self.division_label.setFont(QFont("Arial", 9, QFont.Bold))
+        self.division_label.setFont(FontManager.get_main_division_font())
         self.division_label.setStyleSheet(get_main_division_label_style())
         self.division_label.setAlignment(Qt.AlignCenter)
         division_layout.addWidget(self.division_label)
@@ -126,13 +127,13 @@ class ProductionPanel(QWidget):
         
         # UPH 라벨
         uph_label = QLabel("UPH")
-        uph_label.setFont(QFont("Arial", 9, QFont.Bold))
+        uph_label.setFont(FontManager.get_main_uph_font())
         uph_label.setStyleSheet(get_main_uph_label_style())
         status_layout.addWidget(uph_label)
         
         # 스캔 현황 보기 버튼 (다른 레이블들보다 2배 크기)
         scan_btn = QPushButton("📊 스캔현황")
-        scan_btn.setFont(QFont("Arial", 9, QFont.Bold))
+        scan_btn.setFont(FontManager.get_main_scan_button_font())
         scan_btn.setFixedSize(180, 50)  # 2배 크기 (60x25 → 120x50)
         scan_btn.setStyleSheet(get_main_scan_button_style())
         scan_btn.clicked.connect(self.show_scan_status)
@@ -142,7 +143,7 @@ class ProductionPanel(QWidget):
         self.child_parts_icons = []
         for i in range(6):
             icon_label = QLabel(f"{i+1}")
-            icon_label.setFont(QFont("Arial", 14, QFont.Bold))  # 폰트 크기 증가
+            icon_label.setFont(FontManager.get_main_icon_font())  # 폰트 크기 증가
             icon_label.setFixedSize(30, 50)  # 스캔현황 버튼과 동일한 높이 (50px)
             icon_label.setAlignment(Qt.AlignCenter)
             icon_label.setStyleSheet(get_main_icon_label_style())
@@ -154,7 +155,7 @@ class ProductionPanel(QWidget):
         
         # PLC 상태 (아이콘만)
         self.plc_status_label = QLabel("🔧")
-        self.plc_status_label.setFont(QFont("Arial", 10, QFont.Bold))
+        self.plc_status_label.setFont(FontManager.get_main_status_font())
         self.plc_status_label.setFixedSize(30, 25)
         self.plc_status_label.setAlignment(Qt.AlignCenter)
         self.plc_status_label.setToolTip("PLC")
@@ -163,7 +164,7 @@ class ProductionPanel(QWidget):
         
         # 스캐너 상태 (아이콘만)
         self.scanner_status_label = QLabel("📱")
-        self.scanner_status_label.setFont(QFont("Arial", 10, QFont.Bold))
+        self.scanner_status_label.setFont(FontManager.get_main_status_font())
         self.scanner_status_label.setFixedSize(30, 25)
         self.scanner_status_label.setAlignment(Qt.AlignCenter)
         self.scanner_status_label.setToolTip("스캐너")
@@ -172,7 +173,7 @@ class ProductionPanel(QWidget):
         
         # 프린터 상태 (아이콘만)
         self.printer_status_label = QLabel("🖨️")
-        self.printer_status_label.setFont(QFont("Arial", 10, QFont.Bold))
+        self.printer_status_label.setFont(FontManager.get_main_status_font())
         self.printer_status_label.setFixedSize(30, 25)
         self.printer_status_label.setAlignment(Qt.AlignCenter)
         self.printer_status_label.setToolTip("프린터")
@@ -181,7 +182,7 @@ class ProductionPanel(QWidget):
         
         # 너트런너1 상태 (아이콘만)
         self.nutrunner1_status_label = QLabel("🔩")
-        self.nutrunner1_status_label.setFont(QFont("Arial", 10, QFont.Bold))
+        self.nutrunner1_status_label.setFont(FontManager.get_main_status_font())
         self.nutrunner1_status_label.setFixedSize(30, 25)
         self.nutrunner1_status_label.setAlignment(Qt.AlignCenter)
         self.nutrunner1_status_label.setToolTip("너트1")
@@ -190,7 +191,7 @@ class ProductionPanel(QWidget):
         
         # 너트런너2 상태 (아이콘만)
         self.nutrunner2_status_label = QLabel("🔩")
-        self.nutrunner2_status_label.setFont(QFont("Arial", 10, QFont.Bold))
+        self.nutrunner2_status_label.setFont(FontManager.get_main_status_font())
         self.nutrunner2_status_label.setFixedSize(30, 25)
         self.nutrunner2_status_label.setAlignment(Qt.AlignCenter)
         self.nutrunner2_status_label.setToolTip("너트2")
@@ -214,7 +215,7 @@ class ProductionPanel(QWidget):
         
         # 생산수량 섹션 (순수하게 생산수량만)
         production_group = QGroupBox("생산수량")
-        production_group.setFont(QFont("Arial", 10, QFont.Bold))
+        production_group.setFont(FontManager.get_bold_label_font())
         production_group.setStyleSheet(get_main_production_group_style())
         production_layout = QVBoxLayout(production_group)
         production_layout.setSpacing(8)
@@ -232,14 +233,14 @@ class ProductionPanel(QWidget):
         
         # 누적수량 섹션 (작고 간단하게)
         accumulated_group = QGroupBox("누적수량")
-        accumulated_group.setFont(QFont("Arial", 8, QFont.Bold))
+        accumulated_group.setFont(FontManager.get_small_label_font())
         accumulated_group.setStyleSheet(get_main_accumulated_group_style())
         accumulated_layout = QVBoxLayout(accumulated_group)
         accumulated_layout.setContentsMargins(5, 5, 5, 5)
         
         # 누적수량 표시
         self.accumulated_box = QLabel("00000")  # 최초 시작: 00000
-        self.accumulated_box.setFont(QFont("Arial", 10, QFont.Bold))
+        self.accumulated_box.setFont(FontManager.get_main_accumulated_font())
         self.accumulated_box.setStyleSheet(get_main_accumulated_box_style())
         self.accumulated_box.setAlignment(Qt.AlignCenter)
         accumulated_layout.addWidget(self.accumulated_box)
@@ -990,7 +991,7 @@ class BarcodeMainScreen(QMainWindow):
         return False
         
     def init_ui(self):
-        self.setWindowTitle("바코드 시스템 메인 화면")
+        self.setWindowTitle("바코드 시스템 메인 화면 v1.0.0")
         self.setGeometry(50, 50, 570, 850)  # 기본창 크기 절반으로 축소 (1140→570, 760→380)
         self.setStyleSheet(get_main_window_style())
         
@@ -1017,6 +1018,9 @@ class BarcodeMainScreen(QMainWindow):
         self.image_timer = QTimer()
         self.image_timer.timeout.connect(self.safe_update_title_image)
         self.image_timer.start(1000)  # 1초마다 체크 (빈도 감소)
+        
+        # 상태바 추가
+        self.create_status_bar()
     
     def create_header(self, layout):
         """헤더 생성 - 간단하고 실용적으로"""
@@ -1043,21 +1047,21 @@ class BarcodeMainScreen(QMainWindow):
         
         # 날짜
         date_label = QLabel()
-        date_label.setFont(QFont("Arial", 12, QFont.Bold))
+        date_label.setFont(FontManager.get_main_date_time_font())
         date_label.setStyleSheet(get_main_date_label_style())
         date_label.setAlignment(Qt.AlignCenter)
         datetime_layout.addWidget(date_label)
         
         # 구분선
         separator = QLabel("|")
-        separator.setFont(QFont("Arial", 14))
+        separator.setFont(FontManager.get_main_date_time_font())
         separator.setStyleSheet("color: #95A5A6;")
         separator.setAlignment(Qt.AlignCenter)
         datetime_layout.addWidget(separator)
         
         # 시간
         time_label = QLabel()
-        time_label.setFont(QFont("Arial", 12, QFont.Bold))
+        time_label.setFont(FontManager.get_main_date_time_font())
         time_label.setStyleSheet(get_main_time_label_style())
         time_label.setAlignment(Qt.AlignCenter)
         datetime_layout.addWidget(time_label)
@@ -1070,8 +1074,21 @@ class BarcodeMainScreen(QMainWindow):
         
         layout.addLayout(header_layout)
     
-    
-    
+    def create_status_bar(self):
+        """상태바 생성 - 저작권 및 버전 정보 표시"""
+        from PyQt5.QtWidgets import QStatusBar
+        
+        # 상태바 생성
+        self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
+        
+        # 버전 정보 (왼쪽)
+        version_text = "Version 1.0.0"
+        self.status_bar.showMessage(version_text)
+        
+        # 저작권 정보 (오른쪽)
+        copyright_text = "Copyrightⓒ DAEIL All right reserved"
+        self.status_bar.addPermanentWidget(QLabel(copyright_text))
     
     def create_production_panels(self, layout):
         """생산 패널들 생성"""
@@ -1214,7 +1231,7 @@ class BarcodeMainScreen(QMainWindow):
         else:
             # 이미지 로드 실패 시 텍스트로 대체
             self.title_label.setText("바코드 시스템 모니터링")
-            self.title_label.setFont(QFont("Arial", 16, QFont.Bold))
+            self.title_label.setFont(FontManager.get_dialog_title_font())
             self.title_label.setStyleSheet(get_main_scan_title_style())
     
     def on_resize_event(self, event):
@@ -1746,7 +1763,7 @@ class ScanStatusDialog(QDialog):
         
         # 제목
         title_label = QLabel("Part_No 스캔 현황")
-        title_label.setFont(QFont("Arial", 14, QFont.Bold))
+        title_label.setFont(FontManager.get_dialog_title_font())
         title_label.setStyleSheet(get_main_scan_title_style())
         title_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(title_label)
@@ -1801,7 +1818,7 @@ class ScanStatusDialog(QDialog):
         print(f"DEBUG: ScanStatusDialog - 하위부품 정보 섹션 생성, 하위부품 수: {len(self.child_parts_info)}")
         
         child_parts_group = QGroupBox("하위부품 정보")
-        child_parts_group.setFont(QFont("Arial", 14, QFont.Bold))  # 폰트 크기 증가
+        child_parts_group.setFont(FontManager.get_dialog_title_font())  # 폰트 크기 증가
         child_parts_group.setStyleSheet(get_main_child_parts_group_style())
         child_parts_layout = QVBoxLayout(child_parts_group)
         child_parts_layout.setSpacing(10)  # 레이아웃 간격 증가
@@ -1819,8 +1836,8 @@ class ScanStatusDialog(QDialog):
         self.child_parts_table.setMaximumHeight(400)  # 높이는 유지
         
         # 폰트 크기 조정 (적절한 크기로)
-        table_font = QFont("Arial", 14, QFont.Normal)  # 적절한 크기로 조정
-        header_font = QFont("Arial", 16, QFont.Bold)   # 적절한 크기로 조정
+        table_font = FontManager.get_table_content_font()  # 적절한 크기로 조정
+        header_font = FontManager.get_table_header_font()   # 적절한 크기로 조정
         
         self.child_parts_table.setFont(table_font)
         self.child_parts_table.horizontalHeader().setFont(header_font)
@@ -1891,21 +1908,21 @@ class ScanStatusDialog(QDialog):
         # 총 스캔 수
         total_count = len(self.scanned_parts)
         total_label = QLabel(f"총 스캔: {total_count}")
-        total_label.setFont(QFont("Arial", 11, QFont.Bold))
+        total_label.setFont(FontManager.get_bold_label_font())
         total_label.setStyleSheet("color: #2C3E50;")
         stats_layout.addWidget(total_label)
         
         # OK 수
         ok_count = sum(1 for _, is_ok in self.scanned_parts if is_ok)
         ok_label = QLabel(f"OK: {ok_count}")
-        ok_label.setFont(QFont("Arial", 11, QFont.Bold))
+        ok_label.setFont(FontManager.get_bold_label_font())
         ok_label.setStyleSheet("color: #28A745;")
         stats_layout.addWidget(ok_label)
         
         # NG 수
         ng_count = total_count - ok_count
         ng_label = QLabel(f"NG: {ng_count}")
-        ng_label.setFont(QFont("Arial", 11, QFont.Bold))
+        ng_label.setFont(FontManager.get_bold_label_font())
         ng_label.setStyleSheet("color: #DC3545;")
         stats_layout.addWidget(ng_label)
         
@@ -1924,8 +1941,8 @@ class ScanStatusDialog(QDialog):
         self.scan_table.setMaximumHeight(300)
         
         # 폰트 크기 조정
-        scan_table_font = QFont("Arial", 12, QFont.Normal)
-        scan_header_font = QFont("Arial", 14, QFont.Bold)
+        scan_table_font = FontManager.get_table_scan_font()
+        scan_header_font = FontManager.get_table_scan_header_font()
         
         self.scan_table.setFont(scan_table_font)
         self.scan_table.horizontalHeader().setFont(scan_header_font)

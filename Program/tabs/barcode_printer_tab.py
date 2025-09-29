@@ -16,6 +16,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 #                    get_clean_button_style, get_quality_test_button_style, get_port_status_connected_style,
 #                    get_port_status_disconnected_style)
 from styles import *
+from font_manager import FontManager
 from utils import SettingsManager, SerialConnectionThread
 from modules import SerialConnectionManager
 
@@ -39,7 +40,7 @@ class BarcodePrinterTab(QWidget):
         
         # 제목
         title = QLabel("🖨️ 바코드 프린터 테스트")
-        title.setFont(QFont("Segoe UI", 16, QFont.Bold))
+        title.setFont(FontManager.get_dialog_title_font())
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet(get_tab_title_style())
         layout.addWidget(title)
