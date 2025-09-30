@@ -17,11 +17,15 @@ from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
                              QGroupBox, QMessageBox, QProgressBar)
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QFont, QColor, QPalette
-from font_manager import FontManager
+
+# Program 디렉토리를 Python 경로에 추가
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from utils.font_manager import FontManager
 
 # 기존 모듈들 임포트
-from hkmc_barcode_utils import HKMCBarcodeUtils, BarcodeData, BarcodeType
-from modules.serial_connection_manager import SerialConnectionManager
+from hardware.hkmc_barcode_utils import HKMCBarcodeUtils, BarcodeData, BarcodeType
+from utils.modules.serial_connection_manager import SerialConnectionManager
 
 
 class ProcessValidator:

@@ -13,20 +13,30 @@ from typing import Dict, Any, Optional, Callable
 class PLCDataManager:
     """PLC 데이터 관리 클래스"""
     
-    def __init__(self, main_screen=None):
+    def __init__(self, main_screen=None, simulation_mode=False):
         """
         초기화
         
         Args:
             main_screen: 메인 화면 인스턴스 (UI 업데이트용)
+            simulation_mode: 시뮬레이션 모드 (True: 가짜 데이터, False: 실제 PLC)
         """
         self.main_screen = main_screen
+        self.simulation_mode = simulation_mode
         self.serial_connections = {}
         self.device_connection_status = {}
         self.plc_data = {
             "completion_signal": None,
             "front_lh_division": "",
             "rear_rh_division": ""
+        }
+        
+        # 시뮬레이션 데이터
+        self.simulation_data = {
+            "completion_signal": 0,
+            "front_lh_division": "1",
+            "rear_rh_division": "1",
+            "cycle_count": 0
         }
         
         # 스레드 관리
@@ -38,8 +48,12 @@ class PLCDataManager:
         self.consecutive_errors = 0
         self.max_consecutive_errors = 10
         
-        # PLC 신호 상태 추적 (중복 처리 방지)
+        # 이전 값 저장 (깜박임 방지용)
         self.previous_completion_signal = None
+        self.previous_front_division = ""
+        self.previous_rear_division = ""
+        
+        # PLC 신호 상태 추적 (중복 처리 방지)
         self.completion_processed = {
             "front_lh": False,
             "rear_rh": False
@@ -236,6 +250,11 @@ class PLCDataManager:
     
     def start_plc_connection_monitor(self):
         """PLC 연결 상태 모니터링 스레드 시작"""
+        # 시뮬레이션 모드에서는 모니터링 스레드를 시작하지 않음
+        if self.simulation_mode:
+            print("DEBUG: 시뮬레이션 모드 - PLC 연결 모니터링 스레드 시작하지 않음")
+            return
+            
         if self.monitor_thread and self.monitor_thread.is_alive():
             print("DEBUG: PLC 연결 모니터링 스레드가 이미 실행 중입니다.")
             return
@@ -327,8 +346,14 @@ class PLCDataManager:
     
     def _update_plc_connection_display(self, status: str):
         """PLC 연결 상태에 따른 UI 업데이트"""
+        # 시뮬레이션 모드에서는 항상 연결 상태를 유지
+        if self.simulation_mode:
+            status = 'normal'  # 시뮬레이션 모드에서는 항상 정상 상태로 표시
+            print(f"DEBUG: 시뮬레이션 모드 - PLC 연결 상태를 정상으로 강제 설정 (요청된 상태: {status})")
+        
         if self.main_screen and hasattr(self.main_screen, 'front_panel') and hasattr(self.main_screen, 'rear_panel'):
             try:
+                print(f"DEBUG: PLC 연결 상태 UI 업데이트 - 상태: {status}")
                 self.main_screen.front_panel.update_plc_connection_display(status)
                 self.main_screen.rear_panel.update_plc_connection_display(status)
             except Exception as e:
@@ -346,15 +371,37 @@ class PLCDataManager:
         plc_connected = self.device_connection_status.get("PLC", False)
         print(f"DEBUG: PLC 연결 상태: {plc_connected}")
         
-        # PLC 데이터가 비어있거나 연결이 끊어진 경우
-        if not plc_connected or self.plc_data.get("completion_signal") is None:
+        # PLC 데이터가 비어있거나 연결이 끊어진 경우 (시뮬레이션 모드 제외)
+        if not self.simulation_mode and (not plc_connected or self.plc_data.get("completion_signal") is None):
             # PLC 연결 끊김 또는 데이터 없음 - PLC LINK OFF 표시
             print(f"DEBUG: PLC 연결 끊김 또는 데이터 없음 - PLC LINK OFF 표시")
             self._update_plc_connection_display('disconnected')
             return
+        elif self.simulation_mode and self.plc_data.get("completion_signal") is None:
+            # 시뮬레이션 모드에서는 데이터가 없어도 연결 상태 유지
+            print(f"DEBUG: 시뮬레이션 모드 - 데이터 없어도 연결 상태 유지")
+            self._update_plc_connection_display('normal')
+            return
         
         # PLC 연결됨 - 정상 데이터 처리
         completion_signal = self.plc_data["completion_signal"]
+        front_division = self.plc_data.get("front_lh_division", "")
+        rear_division = self.plc_data.get("rear_rh_division", "")
+        
+        # 데이터 변화 감지 (신호, 구분값 모두 확인)
+        signal_changed = (self.previous_completion_signal != completion_signal)
+        front_division_changed = (getattr(self, 'previous_front_division', '') != front_division)
+        rear_division_changed = (getattr(self, 'previous_rear_division', '') != rear_division)
+        
+        # 데이터가 변경되지 않았으면 UI 업데이트 생략 (깜박임 방지)
+        if not (signal_changed or front_division_changed or rear_division_changed):
+            print(f"DEBUG: PLC 데이터 변경 없음 - UI 업데이트 생략 (깜박임 방지)")
+            return
+        
+        print(f"DEBUG: PLC 데이터 변화 감지")
+        print(f"  - 신호 변화: {signal_changed} (이전: {getattr(self, 'previous_completion_signal', None)}, 현재: {completion_signal})")
+        print(f"  - FRONT 구분값 변화: {front_division_changed} (이전: {getattr(self, 'previous_front_division', '')}, 현재: {front_division})")
+        print(f"  - REAR 구분값 변화: {rear_division_changed} (이전: {getattr(self, 'previous_rear_division', '')}, 현재: {rear_division})")
         
         # PLC 데이터가 정상적으로 수신되면 정상 상태로 표시
         print(f"DEBUG: PLC 데이터 정상 수신 - 정상 상태로 표시")
@@ -365,10 +412,6 @@ class PLCDataManager:
         
         # PLC 작업상태 처리: 0=작업중, 1=FRONT/LH 작업완료, 2=REAR/RH 작업완료
         # 중요: 0에서 1/2로 변화할 때만 작업완료 처리 (중복 처리 방지)
-        
-        # 이전 신호와 현재 신호 비교
-        signal_changed = (self.previous_completion_signal != completion_signal)
-        print(f"DEBUG: PLC 신호 변화 감지 - 이전: {self.previous_completion_signal}, 현재: {completion_signal}, 변화: {signal_changed}")
         
         if completion_signal == 0:
             # 작업중 - 모든 패널을 작업중으로 설정하고 완료 처리 상태 리셋
@@ -424,23 +467,27 @@ class PLCDataManager:
         
         # 이전 신호 상태 업데이트
         self.previous_completion_signal = completion_signal
+        self.previous_front_division = front_division
+        self.previous_rear_division = rear_division
         
         # 구분값 매칭 확인 및 상태 업데이트
         print(f"DEBUG: 구분값 상태 업데이트")
         print(f"  - FRONT/LH 구분값: '{self.plc_data['front_lh_division']}'")
         print(f"  - REAR/RH 구분값: '{self.plc_data['rear_rh_division']}'")
         
-        # FRONT/LH 구분값 매칭 확인
+        # FRONT/LH 구분값 매칭 확인 및 부품정보 업데이트
         if self.plc_data['front_lh_division']:
             try:
-                self.main_screen.front_panel.update_division_status(self.plc_data['front_lh_division'])
+                print(f"DEBUG: FRONT/LH 구분값 '{self.plc_data['front_lh_division']}' 기준정보 매칭 시작")
+                self.main_screen.update_division_status("FRONT/LH", self.plc_data['front_lh_division'])
             except Exception as e:
                 print(f"DEBUG: FRONT/LH 구분값 업데이트 오류: {e}")
         
-        # REAR/RH 구분값 매칭 확인
+        # REAR/RH 구분값 매칭 확인 및 부품정보 업데이트
         if self.plc_data['rear_rh_division']:
             try:
-                self.main_screen.rear_panel.update_division_status(self.plc_data['rear_rh_division'])
+                print(f"DEBUG: REAR/RH 구분값 '{self.plc_data['rear_rh_division']}' 기준정보 매칭 시작")
+                self.main_screen.update_division_status("REAR/RH", self.plc_data['rear_rh_division'])
             except Exception as e:
                 print(f"DEBUG: REAR/RH 구분값 업데이트 오류: {e}")
     
@@ -538,6 +585,112 @@ class PLCDataManager:
             
         except Exception as e:
             print(f"ERROR: 사이클 상태 리셋 오류: {e}")
+    
+    def start_simulation(self):
+        """시뮬레이션 모드 시작"""
+        if not self.simulation_mode:
+            print("시뮬레이션 모드가 아닙니다.")
+            return
+        
+        print("PLC 시뮬레이션 모드 시작")
+        self.is_running = True
+        self.data_thread = threading.Thread(target=self._simulation_loop, daemon=True)
+        self.data_thread.start()
+        
+        # 연결 상태를 시뮬레이션으로 설정
+        self.device_connection_status["PLC"] = True
+        if self.main_screen:
+            self._update_plc_connection_display('connected')
+    
+    def stop_simulation(self):
+        """시뮬레이션 모드 중지"""
+        print("PLC 시뮬레이션 모드 중지")
+        self.is_running = False
+        if self.data_thread:
+            self.data_thread.join(timeout=2)
+    
+    def _simulation_loop(self):
+        """시뮬레이션 데이터 생성 루프"""
+        import random
+        
+        while self.is_running:
+            try:
+                # 시뮬레이션 데이터 생성
+                self._generate_simulation_data()
+                
+                # PLC 데이터 업데이트
+                self._update_plc_data_from_simulation()
+                
+                # UI 업데이트
+                if self.main_screen:
+                    self._update_plc_ui()
+                
+                time.sleep(1.0)  # 1초마다 데이터 생성 (더 빠른 신호 전송)
+                
+            except Exception as e:
+                print(f"시뮬레이션 오류: {e}")
+                time.sleep(1.0)
+    
+    def _generate_simulation_data(self):
+        """시뮬레이션 데이터 생성 - 실제 PLC 데이터처럼"""
+        import random
+        
+        # 사이클 카운터 증가
+        self.simulation_data["cycle_count"] += 1
+        cycle = self.simulation_data["cycle_count"]
+        
+        # 실제 PLC 신호 시뮬레이션 - 계속해서 신호 보내기
+        print(f"PLC 시뮬레이션 사이클 {cycle} - 신호 전송 중...")
+        
+        # 랜덤하게 완료 신호 생성 (더 자주 발생하도록)
+        signal_probability = 0.4  # 40% 확률로 완료 신호
+        if random.random() < signal_probability:
+            # 완료 신호 생성
+            if random.random() < 0.5:  # 50% 확률로 FRONT/LH 완료
+                self.simulation_data["completion_signal"] = 1
+                self.simulation_data["front_lh_division"] = "1"
+                self.simulation_data["rear_rh_division"] = "1"
+                print(f"  -> FRONT/LH 완료 신호 전송 (신호값: 1)")
+            else:  # 50% 확률로 REAR/RH 완료
+                self.simulation_data["completion_signal"] = 2
+                self.simulation_data["front_lh_division"] = "1"
+                self.simulation_data["rear_rh_division"] = "1"
+                print(f"  -> REAR/RH 완료 신호 전송 (신호값: 2)")
+        else:
+            # 작업 중 상태 (신호값 0)
+            self.simulation_data["completion_signal"] = 0
+            # 실제 부품 구분값 시뮬레이션 (1-9번)
+            divisions = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+            self.simulation_data["front_lh_division"] = random.choice(divisions)
+            self.simulation_data["rear_rh_division"] = random.choice(divisions)
+            print(f"  -> 작업 중 상태 (신호값: 0, 구분값: {self.simulation_data['front_lh_division']}/{self.simulation_data['rear_rh_division']})")
+        
+        print(f"PLC 시뮬레이션 데이터: {self.simulation_data}")
+    
+    def _update_plc_data_from_simulation(self):
+        """시뮬레이션 데이터를 PLC 데이터로 업데이트"""
+        self.plc_data["completion_signal"] = self.simulation_data["completion_signal"]
+        self.plc_data["front_lh_division"] = self.simulation_data["front_lh_division"]
+        self.plc_data["rear_rh_division"] = self.simulation_data["rear_rh_division"]
+    
+    def _update_plc_ui(self):
+        """PLC UI 업데이트 - 시뮬레이션에서 실제 UI 업데이트 호출"""
+        try:
+            if self.main_screen:
+                # 실제 PLC 데이터 UI 업데이트 메서드 호출
+                self._update_plc_data_ui()
+                print("시뮬레이션 UI 업데이트 완료")
+        except Exception as e:
+            print(f"시뮬레이션 UI 업데이트 오류: {e}")
+    
+    def set_simulation_data(self, data):
+        """시뮬레이션 데이터 수동 설정"""
+        if not self.simulation_mode:
+            print("시뮬레이션 모드가 아닙니다.")
+            return
+        
+        self.simulation_data.update(data)
+        print(f"시뮬레이션 데이터 설정: {self.simulation_data}")
 
 
 # 테스트 코드
@@ -555,3 +708,8 @@ if __name__ == "__main__":
     plc_manager.set_plc_data(test_data)
     print(f"PLC 데이터: {plc_manager.get_plc_data()}")
     print(f"PLC 연결 상태: {plc_manager.is_plc_connected()}")
+    
+    # 시뮬레이션 모드 테스트
+    sim_manager = PLCDataManager(simulation_mode=True)
+    sim_manager.start_simulation()
+    print("시뮬레이션 모드 시작됨")

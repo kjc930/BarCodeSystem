@@ -15,10 +15,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 #                    get_save_button_style, get_test_print_button_style, get_status_check_button_style,
 #                    get_clean_button_style, get_quality_test_button_style, get_port_status_connected_style,
 #                    get_port_status_disconnected_style)
-from styles import *
-from font_manager import FontManager
-from utils import SettingsManager, SerialConnectionThread
-from modules import SerialConnectionManager
+from ui.styles import *
+from utils.font_manager import FontManager
+from utils.utils import SettingsManager, SerialConnectionThread
+from utils.modules import SerialConnectionManager
 
 class BarcodePrinterTab(QWidget):
     """바코드 프린터 테스트 탭"""

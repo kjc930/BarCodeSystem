@@ -15,7 +15,7 @@ import traceback
 from typing import Dict, Optional, Tuple, List
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
-from utils import SerialConnectionThread
+from utils.utils import SerialConnectionThread
 
 # 로깅 설정
 logging.basicConfig(

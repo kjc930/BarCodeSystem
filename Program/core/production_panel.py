@@ -5,8 +5,12 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushBut
                              QGroupBox, QFrame, QSizePolicy)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
-from font_manager import FontManager
-from styles import *
+
+# Program 디렉토리를 Python 경로에 추가
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from utils.font_manager import FontManager
+from ui.styles import *
 
 class ProductionPanel(QWidget):
     """생산 패널 (FRONT/LH, REAR/RH) - 실용적 디자인"""
@@ -355,6 +359,12 @@ class ProductionPanel(QWidget):
         """PLC 연결 상태에 따른 작업완료/구분값 표시 업데이트 - 스타일 변경 시에만 적용
         status: 'disconnected', 'connected', 'no_data', 'normal'
         """
+        # 시뮬레이션 모드에서는 PLC 연결 상태를 강제로 유지
+        if hasattr(self, 'main_window') and hasattr(self.main_window, 'plc_data_manager') and self.main_window.plc_data_manager.simulation_mode:
+            if status == 'disconnected':
+                print("DEBUG: 시뮬레이션 모드 - PLC 연결 끊김 상태를 정상으로 강제 변경")
+                status = 'normal'
+        
         # 현재 상태와 비교하여 변경이 필요한 경우에만 업데이트
         if not hasattr(self, '_current_plc_status') or self._current_plc_status != status:
             self._current_plc_status = status

@@ -1601,3 +1601,510 @@
 2025-09-30 07:53:01,737 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
 2025-09-30 07:53:01,737 - modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
 2025-09-30 07:53:01,737 - modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:13:57,469 - modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-09-30 12:13:57,470 - modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 12:13:57,545 - modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 12:13:57,545 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 12:13:57,545 - modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 12:13:57,546 - modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:13:57,546 - modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:13:57,546 - modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM5 - AX99100 PCIe to High Speed Serial Port(COM5)
+2025-09-30 12:13:57,547 - modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 12:13:57,621 - modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM5 (9600bps)
+2025-09-30 12:13:57,621 - modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-30 12:13:57,621 - modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-09-30 12:13:57,622 - modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:13:57,622 - modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:13:57,623 - modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-30 12:13:57,623 - modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-09-30 12:13:57,623 - modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:13:57,623 - modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:26:54,924 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 12:26:54,925 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 12:26:55,004 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 12:26:55,004 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 12:26:55,004 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 12:26:55,005 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:26:55,005 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:26:55,005 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 12:26:55,005 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 12:26:55,006 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:26:55,006 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:26:55,007 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-30 12:26:55,008 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-09-30 12:26:55,008 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:26:55,008 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:26:55,009 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-30 12:26:55,009 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-09-30 12:26:55,009 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:26:55,010 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:28:25,092 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 12:28:25,093 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 12:28:25,173 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 12:28:25,173 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 12:28:25,173 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 12:28:25,174 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:28:25,174 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:28:25,175 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 12:28:25,175 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 12:28:25,175 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:28:25,175 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:28:25,176 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-30 12:28:25,176 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-09-30 12:28:25,176 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:28:25,176 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:28:25,177 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-30 12:28:25,177 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-09-30 12:28:25,178 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:28:25,178 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:29:23,044 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 12:29:23,045 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 12:29:23,126 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 12:29:23,126 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 12:29:23,126 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 12:29:23,127 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:29:23,127 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:29:23,128 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 12:29:23,128 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 12:29:23,128 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:29:23,128 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 12:29:23,129 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-09-30 12:29:23,129 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-09-30 12:29:23,129 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:29:23,130 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:29:23,130 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-09-30 12:29:23,131 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-09-30 12:29:23,131 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 12:29:23,131 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-09-30 13:47:33,435 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 13:47:33,436 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 13:47:33,513 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 13:47:33,513 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 13:47:33,513 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 13:47:33,514 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 13:47:33,514 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 13:47:33,515 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 13:47:33,515 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 13:47:33,515 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 13:47:33,515 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 13:47:33,516 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 13:47:33,516 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 13:47:33,516 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 13:47:33,516 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 13:47:33,517 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 13:47:33,517 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 13:47:33,591 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 14:04:06,654 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 14:04:06,655 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 14:04:06,743 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 14:04:06,743 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 14:04:06,743 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 14:04:06,744 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 14:04:06,744 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 14:04:06,745 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 14:04:06,745 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 14:04:06,745 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 14:04:06,745 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 14:04:06,746 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 14:04:06,746 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 14:04:06,746 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 14:04:06,747 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 14:04:06,747 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 14:04:06,747 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 14:04:06,821 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 14:05:06,391 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 14:05:06,392 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 14:05:06,467 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 14:05:06,467 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 14:05:06,467 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 14:05:06,468 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 14:05:06,468 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 14:05:06,468 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 14:05:06,468 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 14:05:06,469 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 14:05:06,469 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 14:05:06,470 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 14:05:06,470 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 14:05:06,470 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 14:05:06,470 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 14:05:06,471 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 14:05:06,471 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 14:05:06,546 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:05:23,903 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:05:23,905 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:05:23,983 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:05:23,983 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:05:23,983 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:05:23,985 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:05:23,985 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:05:23,985 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:05:23,986 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:05:23,986 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:05:23,986 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:05:23,987 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:05:23,987 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:05:23,987 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:05:23,988 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:05:23,988 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:05:23,989 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:05:24,061 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:10:17,091 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:10:17,091 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:10:17,176 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:10:17,176 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:10:17,176 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:10:17,176 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:10:17,176 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:10:17,177 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:10:17,177 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:10:17,178 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:10:17,178 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:10:17,178 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:10:17,178 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:10:17,179 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:10:17,179 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:10:17,179 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:10:17,179 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:10:17,253 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:14:38,027 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:14:38,028 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:14:38,108 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:14:38,108 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:14:38,108 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:14:38,110 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:14:38,110 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:14:38,111 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:14:38,111 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:14:38,112 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:14:38,112 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:14:38,113 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:14:38,113 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:14:38,113 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:14:38,113 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:14:38,114 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:14:38,114 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:14:38,184 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:16:39,640 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:16:39,641 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:16:39,721 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:16:39,721 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:16:39,721 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:16:39,722 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:16:39,722 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:16:39,723 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:16:39,723 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:16:39,723 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:16:39,723 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:16:39,724 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:16:39,724 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:16:39,724 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:16:39,725 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:16:39,725 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:16:39,725 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:16:39,799 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:26:07,718 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:26:07,719 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:26:07,805 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:26:07,805 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:26:07,806 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:26:07,807 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:26:07,807 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:26:07,808 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:26:07,809 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:26:07,809 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:26:07,810 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:26:07,810 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:26:07,811 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:26:07,811 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:26:07,811 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:26:07,812 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:26:07,812 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:26:07,895 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:29:14,169 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:29:14,170 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:29:14,246 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:29:14,246 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:29:14,246 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:29:14,247 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:29:14,247 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:29:14,248 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:29:14,248 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:29:14,248 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:29:14,249 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:29:14,249 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:29:14,250 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:29:14,250 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:29:14,250 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:29:14,251 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:29:14,251 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:29:14,322 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:30:20,434 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:30:20,435 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:30:20,521 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:30:20,521 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:30:20,522 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:30:20,522 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:30:20,523 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:30:20,524 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:30:20,524 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:30:20,525 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:30:20,525 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:30:20,526 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:30:20,526 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:30:20,526 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:30:20,526 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:30:20,527 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:30:20,527 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:30:20,596 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:33:23,325 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:33:23,325 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:33:23,412 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:33:23,412 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:33:23,412 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:33:23,413 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:33:23,413 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:33:23,414 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:33:23,414 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:33:23,414 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:33:23,414 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:33:23,415 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:33:23,415 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:33:23,415 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:33:23,415 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:33:23,416 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:33:23,416 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:33:23,489 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:36:37,546 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:36:37,547 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:36:37,623 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:36:37,623 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:36:37,623 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:36:37,623 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:36:37,624 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:36:37,624 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:36:37,625 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:36:37,625 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:36:37,625 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:36:37,626 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:36:37,626 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:36:37,626 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:36:37,626 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:36:37,627 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:36:37,627 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:36:37,699 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:39:27,468 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:39:27,468 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:39:27,543 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:39:27,543 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:39:27,543 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:39:27,543 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:39:27,544 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:39:27,544 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:39:27,545 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:39:27,545 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:39:27,545 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:39:27,546 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:39:27,546 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:39:27,547 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:39:27,547 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:39:27,548 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:39:27,548 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:39:27,621 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:40:52,248 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:40:52,249 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:40:52,322 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:40:52,322 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:40:52,322 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:40:52,323 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:40:52,323 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:40:52,324 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:40:52,324 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:40:52,324 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:40:52,325 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:40:52,325 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:40:52,326 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:40:52,326 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:40:52,326 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:40:52,327 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:40:52,327 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:40:52,399 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:51:29,279 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:51:29,279 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:51:29,360 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:51:29,360 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:51:29,360 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:51:29,360 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:51:29,361 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:51:29,361 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:51:29,362 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:51:29,362 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:51:29,362 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:51:29,363 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:51:29,363 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:51:29,363 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:51:29,363 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:51:29,364 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:51:29,364 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:51:29,435 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:54:34,700 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:54:34,701 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:54:34,781 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:54:34,781 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:54:34,781 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:54:34,782 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:54:34,782 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:54:34,783 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:54:34,783 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:54:34,783 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:54:34,783 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:54:34,784 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:54:34,784 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:54:34,784 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:54:34,784 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:54:34,785 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:54:34,785 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:54:34,857 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:55:39,982 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:55:39,983 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:55:40,063 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:55:40,063 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:55:40,064 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:55:40,065 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:55:40,065 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:55:40,066 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:55:40,066 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:55:40,067 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:55:40,067 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:55:40,068 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:55:40,068 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:55:40,068 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:55:40,068 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:55:40,069 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:55:40,069 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:55:40,139 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 15:59:22,188 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 15:59:22,189 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 15:59:22,261 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 15:59:22,261 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 15:59:22,261 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:59:22,261 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:59:22,262 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:59:22,262 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 15:59:22,263 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 15:59:22,263 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:59:22,263 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:59:22,264 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 15:59:22,264 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 15:59:22,264 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:59:22,264 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 15:59:22,265 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 15:59:22,265 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 15:59:22,339 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 16:03:23,952 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 16:03:23,952 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 16:03:24,038 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 16:03:24,038 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 16:03:24,039 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 16:03:24,039 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:03:24,039 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:03:24,040 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 16:03:24,041 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 16:03:24,041 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:03:24,041 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:03:24,042 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 16:03:24,042 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 16:03:24,042 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:03:24,043 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:03:24,043 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 16:03:24,044 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 16:03:24,116 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 16:04:23,983 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 16:04:23,984 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 16:04:24,060 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 16:04:24,061 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 16:04:24,062 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 16:04:24,063 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:04:24,063 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:04:24,065 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 16:04:24,065 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 16:04:24,065 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:04:24,066 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:04:24,066 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 16:04:24,067 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 16:04:24,067 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:04:24,067 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:04:24,068 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 16:04:24,068 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 16:04:24,150 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 16:06:34,890 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 16:06:34,890 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 16:06:34,974 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 16:06:34,974 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 16:06:34,975 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 16:06:34,975 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:06:34,975 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:06:34,976 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 16:06:34,976 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 16:06:34,977 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:06:34,977 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:06:34,978 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 16:06:34,978 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 16:06:34,978 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:06:34,978 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:06:34,979 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 16:06:34,979 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 16:06:35,051 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 16:08:37,688 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 16:08:37,689 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 16:08:37,769 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 16:08:37,769 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 16:08:37,769 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 16:08:37,770 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:08:37,770 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:08:37,770 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 16:08:37,771 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 16:08:37,771 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:08:37,771 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:08:37,772 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 16:08:37,772 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 16:08:37,772 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:08:37,772 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:08:37,773 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 16:08:37,773 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 16:08:37,846 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 16:12:41,481 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 16:12:41,481 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 16:12:41,559 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 16:12:41,560 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 16:12:41,560 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 16:12:41,560 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:12:41,560 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:12:41,561 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 16:12:41,561 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 16:12:41,562 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:12:41,562 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:12:41,563 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 16:12:41,563 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 16:12:41,563 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:12:41,563 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:12:41,564 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 16:12:41,564 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 16:12:41,635 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)
+2025-09-30 16:21:24,732 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-09-30 16:21:24,733 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-09-30 16:21:24,810 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-09-30 16:21:24,810 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4
+2025-09-30 16:21:24,810 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 16:21:24,810 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:21:24,811 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:21:24,811 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-09-30 16:21:24,811 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-09-30 16:21:24,812 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:21:24,812 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:21:24,812 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-09-30 16:21:24,813 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-09-30 16:21:24,813 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:21:24,813 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-09-30 16:21:24,814 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-09-30 16:21:24,814 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-09-30 16:21:24,885 - utils.modules.serial_connection_manager - INFO - 너트2 연결 성공 - COM5 (9600bps)

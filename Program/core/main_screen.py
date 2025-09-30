@@ -12,16 +12,21 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QFrame, QSizePolicy, QDialog)
 from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal
 from PyQt5.QtGui import QFont, QPalette, QColor, QPixmap, QPainter
-from AdminPanel import AdminPanel
-from print_module import PrintManager
-from modules.serial_connection_manager import AutoSerialConnector
-from barcode_scan_workflow import BarcodeScanWorkflow, LabelColorManager
-from child_part_barcode_validator import ChildPartBarcodeValidator
-from plc_data_manager import PLCDataManager
-from styles import *
-from font_manager import FontManager
-from production_panel import ProductionPanel
-from scan_status_dialog import ScanStatusDialog
+
+# Program 디렉토리를 Python 경로에 추가
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.AdminPanel import AdminPanel
+from hardware.print_module import PrintManager
+from utils.modules.serial_connection_manager import AutoSerialConnector
+from hardware.barcode_scan_workflow import BarcodeScanWorkflow, LabelColorManager
+from hardware.child_part_barcode_validator import ChildPartBarcodeValidator
+from hardware.plc_data_manager import PLCDataManager
+from ui.styles import *
+from utils.font_manager import FontManager
+from core.production_panel import ProductionPanel
+from ui.scan_status_dialog import ScanStatusDialog
+from ui.plc_simulation_dialog import PLCSimulationDialog
 
 
 class BarcodeMainScreen(QMainWindow):
@@ -36,7 +41,7 @@ class BarcodeMainScreen(QMainWindow):
             try:
                 self.config = self.load_config()
             except Exception as e:
-                print(f"⚠️ 설정 파일 로드 실패: {e}")
+                print(f"설정 파일 로드 실패: {e}")
                 self.config = {}
             
             # 공용 시리얼 연결 관리자 초기화 (config 로드 후)
@@ -58,7 +63,7 @@ class BarcodeMainScreen(QMainWindow):
             try:
                 self.master_data = self.load_master_data()
             except Exception as e:
-                print(f"⚠️ 기준정보 로드 실패: {e}")
+                print(f"기준정보 로드 실패: {e}")
                 self.master_data = []
             
             # 패널 타이틀 로드
@@ -66,7 +71,7 @@ class BarcodeMainScreen(QMainWindow):
                 self.panel_titles = self.load_panel_titles()
                 print(f"DEBUG: 로드된 패널 타이틀: {self.panel_titles}")
             except Exception as e:
-                print(f"⚠️ 패널 타이틀 로드 실패: {e}")
+                print(f"패널 타이틀 로드 실패: {e}")
                 self.panel_titles = {
                     "front_lh": "FRONT/LH",
                     "rear_rh": "REAR/RH"
@@ -93,35 +98,51 @@ class BarcodeMainScreen(QMainWindow):
                 if not os.path.exists(self.log_dir):
                     os.makedirs(self.log_dir)
             except Exception as e:
-                print(f"⚠️ 로그 디렉토리 생성 실패: {e}")
+                print(f" 로그 디렉토리 생성 실패: {e}")
                 self.log_dir = "."
             
             # 프린트 매니저 초기화
             try:
                 self.print_manager = PrintManager(self)
             except Exception as e:
-                print(f"⚠️ 프린트 매니저 초기화 실패: {e}")
+                print(f" 프린트 매니저 초기화 실패: {e}")
                 self.print_manager = None
             
-            # PLC 데이터 매니저 초기화
+            # PLC 데이터 매니저 초기화 (시뮬레이션 모드 옵션)
             try:
-                self.plc_data_manager = PLCDataManager(self)
+                # 시뮬레이션 모드 설정 (환경변수 또는 설정으로 제어)
+                simulation_mode = os.getenv('PLC_SIMULATION', 'false').lower() == 'true'
+                if simulation_mode:
+                    print("🎭 PLC 시뮬레이션 모드 활성화")
+                
+                self.plc_data_manager = PLCDataManager(self, simulation_mode=simulation_mode)
                 self.plc_data_manager.set_serial_connections(self.serial_connections)
                 self.plc_data_manager.set_device_connection_status(self.device_connection_status)
-                print("✅ PLC 데이터 매니저 초기화 완료")
+                
+                # 시뮬레이션 모드인 경우 시뮬레이션 시작
+                if simulation_mode:
+                    # 시뮬레이션 모드에서는 PLC 연결 상태를 True로 설정
+                    self.device_connection_status["PLC"] = True
+                    self.plc_data_manager.set_device_connection_status(self.device_connection_status)
+                    self.plc_data_manager.start_simulation()
+                
+                print("PLC 데이터 매니저 초기화 완료")
             except Exception as e:
-                print(f"⚠️ PLC 데이터 매니저 초기화 실패: {e}")
+                print(f"PLC 데이터 매니저 초기화 실패: {e}")
                 self.plc_data_manager = None
             
             
             # 생산카운터 초기화 플래그
             self._initialization_complete = False
             
+            # PLC 시뮬레이션 다이얼로그 초기화
+            self.plc_simulation_dialog = None
+            
             # 하위부품 바코드 검증기 초기화
             try:
                 self.child_part_validator = ChildPartBarcodeValidator()
             except Exception as e:
-                print(f"⚠️ 바코드 검증기 초기화 실패: {e}")
+                print(f" 바코드 검증기 초기화 실패: {e}")
                 self.child_part_validator = None
             
             # 바코드 스캔 워크플로우 통합
@@ -130,12 +151,14 @@ class BarcodeMainScreen(QMainWindow):
                 self.label_color_manager = LabelColorManager()
                 self.scan_status_dialog = None
                 
-                # 워크플로우 시그널 연결
-                self.workflow_manager.workflow_status_changed.connect(self.on_workflow_status_changed)
-                self.workflow_manager.scan_result.connect(self.on_workflow_scan_result)
+                # 워크플로우 시그널 연결 (PyQt5.QtCore.QObject를 상속받는 경우에만)
+                if hasattr(self.workflow_manager, 'workflow_status_changed'):
+                    self.workflow_manager.workflow_status_changed.connect(self.on_workflow_status_changed)
+                if hasattr(self.workflow_manager, 'scan_result'):
+                    self.workflow_manager.scan_result.connect(self.on_workflow_scan_result)
                 print("DEBUG: 바코드 스캔 워크플로우 통합 완료")
             except Exception as e:
-                print(f"⚠️ 바코드 스캔 워크플로우 통합 실패: {e}")
+                print(f"바코드 스캔 워크플로우 통합 실패: {e}")
                 self.workflow_manager = None
             
             # AdminPanel 인스턴스
@@ -149,20 +172,20 @@ class BarcodeMainScreen(QMainWindow):
             try:
                 self.init_ui()
             except Exception as e:
-                print(f"❌ UI 초기화 실패: {e}")
+                print(f" UI 초기화 실패: {e}")
                 raise
             
             # 타이머 설정
             try:
                 self.setup_timer()
             except Exception as e:
-                print(f"⚠️ 타이머 설정 실패: {e}")
+                print(f" 타이머 설정 실패: {e}")
             
             # 시리얼 포트 자동 연결을 지연 실행 (메인화면 표시 후)
             self.setup_delayed_serial_connection()
                 
         except Exception as e:
-            print(f"❌ 메인 화면 초기화 실패: {e}")
+            print(f" 메인 화면 초기화 실패: {e}")
             import traceback
             traceback.print_exception(type(e), e, e.__traceback__)
             raise
@@ -179,11 +202,11 @@ class BarcodeMainScreen(QMainWindow):
             
             with open(config_file, 'r', encoding='utf-8') as f:
                 config = json.load(f)
-                print(f"✅ 설정 파일 로드 성공 - {config_file}")
+                print(f"설정 파일 로드 성공 - {config_file}")
                 print(f"DEBUG: 로드된 설정 키: {list(config.keys())}")
                 return config
         except Exception as e:
-            print(f"⚠️ 설정 파일 로드 실패: {e}")
+            print(f"설정 파일 로드 실패: {e}")
             print(f"DEBUG: 현재 작업 디렉토리: {os.getcwd()}")
             print(f"DEBUG: 프로젝트 루트: {os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}")
             return {}
@@ -252,32 +275,32 @@ class BarcodeMainScreen(QMainWindow):
                     if self.plc_data_manager:
                         self.plc_data_manager.start_plc_data_thread()
                         self.plc_data_manager.start_plc_connection_monitor()
-                        print("✅ PLC 데이터 읽기 스레드 시작")
+                        print(" PLC 데이터 읽기 스레드 시작")
                     else:
-                        print("⚠️ PLC 데이터 매니저가 초기화되지 않음")
+                        print(" PLC 데이터 매니저가 초기화되지 않음")
                 except Exception as e:
-                    print(f"⚠️ PLC 데이터 스레드 시작 실패: {e}")
+                    print(f" PLC 데이터 스레드 시작 실패: {e}")
             else:
-                print("⚠️ PLC가 연결되지 않아 데이터 읽기 스레드 시작 안함")
+                print(" PLC가 연결되지 않아 데이터 읽기 스레드 시작 안함")
             
             # 연결 결과 요약
             successful_connections = sum(1 for result in connection_results.values() if result)
             total_devices = len(connection_results)
             
-            print(f"📊 자동 연결 결과: {successful_connections}/{total_devices} 장비 연결 성공")
+            print(f" 자동 연결 결과: {successful_connections}/{total_devices} 장비 연결 성공")
             
             if successful_connections == 0:
-                print("⚠️ 모든 장비 연결 실패 - 나중에 수동으로 연결하세요")
+                print(" 모든 장비 연결 실패 - 나중에 수동으로 연결하세요")
             elif successful_connections < total_devices:
                 failed_devices = [device for device, connected in connection_results.items() if not connected]
-                print(f"⚠️ 일부 장비 연결 실패: {', '.join(failed_devices)} - 나중에 수동으로 연결하세요")
+                print(f" 일부 장비 연결 실패: {', '.join(failed_devices)} - 나중에 수동으로 연결하세요")
             else:
-                print("✅ 모든 장비 자동 연결 성공")
+                print(" 모든 장비 자동 연결 성공")
                 
             return connection_results
                 
         except Exception as e:
-            print(f"⚠️ 시리얼 포트 자동 연결 중 오류: {e}")
+            print(f" 시리얼 포트 자동 연결 중 오류: {e}")
             # 오류가 발생해도 프로그램은 계속 실행
             return {}
     
@@ -303,7 +326,7 @@ class BarcodeMainScreen(QMainWindow):
                         connection.close()
                         print(f"DEBUG: {device_name} 시리얼 연결 종료")
                     except Exception as e:
-                        print(f"⚠️ {device_name} 시리얼 연결 종료 실패: {e}")
+                        print(f" {device_name} 시리얼 연결 종료 실패: {e}")
             
             # 프린트 매니저 정리
             if hasattr(self, 'print_manager') and self.print_manager:
@@ -314,7 +337,7 @@ class BarcodeMainScreen(QMainWindow):
                     else:
                         print("DEBUG: PrintManager에 close_connection 메서드 없음 - 스킵")
                 except Exception as e:
-                    print(f"⚠️ 프린트 매니저 정리 실패: {e}")
+                    print(f" 프린트 매니저 정리 실패: {e}")
             
             # PLC 데이터 매니저 정리
             if hasattr(self, 'plc_data_manager') and self.plc_data_manager:
@@ -322,20 +345,20 @@ class BarcodeMainScreen(QMainWindow):
                     self.plc_data_manager.cleanup()
                     print("DEBUG: PLC 데이터 매니저 정리 완료")
                 except Exception as e:
-                    print(f"⚠️ PLC 데이터 매니저 정리 실패: {e}")
+                    print(f" PLC 데이터 매니저 정리 실패: {e}")
             
             # 로그 저장
             try:
                 self.save_logs_to_file()
                 print("DEBUG: 로그 파일 저장 완료")
             except Exception as e:
-                print(f"⚠️ 로그 저장 실패: {e}")
+                print(f" 로그 저장 실패: {e}")
             
             print("DEBUG: 리소스 정리 완료")
             event.accept()
             
         except Exception as e:
-            print(f"❌ 프로그램 종료 중 오류: {e}")
+            print(f" 프로그램 종료 중 오류: {e}")
             event.accept()  # 오류가 있어도 종료는 진행
         
         # 초기 UI 상태 설정 (PLC 연결 끊김 상태로 시작)
@@ -557,13 +580,54 @@ class BarcodeMainScreen(QMainWindow):
         
         # 제목 이미지 (프레임 없이)
         self.title_label = QLabel()
-        self.title_pixmap = QPixmap("Program/img/label_barcodesystem.jpg")
+        # 절대 경로로 이미지 파일 로드
+        image_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                                 "assets", "img", "label_barcodesystem.jpg")
+        print(f"이미지 경로: {image_path}")
+        print(f"파일 존재 여부: {os.path.exists(image_path)}")
+        
+        # 대안 경로들도 시도
+        alt_paths = [
+            "assets/img/label_barcodesystem.jpg",
+            "../assets/img/label_barcodesystem.jpg",
+            os.path.join(os.getcwd(), "assets", "img", "label_barcodesystem.jpg")
+        ]
+        
+        for alt_path in alt_paths:
+            if os.path.exists(alt_path):
+                print(f"대안 경로 발견: {alt_path}")
+                image_path = alt_path
+                break
+        
+        self.title_pixmap = QPixmap(image_path)
         self.update_title_image()
         header_layout.addWidget(self.title_label)
         
         
         header_layout.addStretch()
         
+        # 시뮬레이션 제어 버튼 (개발용)
+        sim_layout = QVBoxLayout()
+        sim_layout.setSpacing(5)
+        
+        self.sim_dialog_btn = QPushButton("PLC 시뮬레이션")
+        self.sim_dialog_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+        """)
+        self.sim_dialog_btn.clicked.connect(self.open_plc_simulation_dialog)
+        sim_layout.addWidget(self.sim_dialog_btn)
+        
+        header_layout.addLayout(sim_layout)
         
         # 날짜/시간 (현재 화면 스타일과 일치하는 모던 디자인)
         datetime_container = QFrame()
@@ -609,13 +673,95 @@ class BarcodeMainScreen(QMainWindow):
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
         
-        # 버전 정보 (왼쪽)
-        version_text = "Version 1.0.0"
+        # 버전 정보 (왼쪽) - 빌드 정보 모듈 사용
+        from build_info import build_info
+        
+        # 상세 버전 정보 표시
+        version_text = build_info.get_detailed_version_string()
         self.status_bar.showMessage(version_text)
+        
+        # 빌드 번호 업데이트 기능 (개발용)
+        self.build_info = build_info
         
         # 저작권 정보 (오른쪽)
         copyright_text = "Copyrightⓒ DAEIL All right reserved"
         self.status_bar.addPermanentWidget(QLabel(copyright_text))
+    
+    def increment_build_number(self):
+        """빌드 번호 증가 (개발용)"""
+        if hasattr(self, 'build_info'):
+            self.build_info.increment_build_number()
+            # 상태바 업데이트
+            version_text = self.build_info.get_detailed_version_string()
+            self.status_bar.showMessage(version_text)
+            print(f"빌드 번호가 증가되었습니다: {self.build_info.get_version_string()}")
+    
+    def get_build_info(self):
+        """현재 빌드 정보 반환"""
+        if hasattr(self, 'build_info'):
+            return {
+                'version': self.build_info.build_data['version'],
+                'build_number': self.build_info.build_data['build_number'],
+                'build_date': self.build_info.build_data['build_date'],
+                'git_commit': self.build_info.build_data.get('git_commit', 'N/A')
+            }
+        return None
+    
+    def open_plc_simulation_dialog(self):
+        """PLC 시뮬레이션 다이얼로그 열기"""
+        if not hasattr(self, 'plc_simulation_dialog') or self.plc_simulation_dialog is None:
+            self.plc_simulation_dialog = PLCSimulationDialog(self)
+            # 시그널 연결
+            self.plc_simulation_dialog.signal_sent.connect(self.handle_plc_simulation_signal)
+        
+        self.plc_simulation_dialog.show()
+        self.plc_simulation_dialog.raise_()
+        self.plc_simulation_dialog.activateWindow()
+        
+    def handle_plc_simulation_signal(self, completion_signal, front_division, rear_division):
+        """PLC 시뮬레이션 신호 처리"""
+        print(f"PLC 시뮬레이션 신호 수신: 신호={completion_signal}, FRONT/LH={front_division}, REAR/RH={rear_division}")
+        
+        # PLC 데이터 매니저가 시뮬레이션 모드인지 확인
+        if hasattr(self, 'plc_data_manager') and self.plc_data_manager:
+            if not self.plc_data_manager.simulation_mode:
+                print("시뮬레이션 모드로 전환 중...")
+                # 시뮬레이션 모드로 재초기화
+                self.plc_data_manager = PLCDataManager(self, simulation_mode=True)
+                self.plc_data_manager.set_serial_connections(self.serial_connections)
+                self.plc_data_manager.set_device_connection_status(self.device_connection_status)
+            
+            # 시뮬레이션 모드에서는 PLC 연결 상태를 True로 설정
+            self.device_connection_status["PLC"] = True
+            self.plc_data_manager.set_device_connection_status(self.device_connection_status)
+            print("시뮬레이션 모드: PLC 연결 상태를 True로 설정")
+            
+            # 시뮬레이션 데이터 설정
+            simulation_data = {
+                "completion_signal": completion_signal,
+                "front_lh_division": front_division,
+                "rear_rh_division": rear_division,
+                "cycle_count": getattr(self.plc_data_manager, 'simulation_data', {}).get('cycle_count', 0) + 1
+            }
+            
+            self.plc_data_manager.set_simulation_data(simulation_data)
+            
+            # PLC 데이터 업데이트
+            self.plc_data_manager._update_plc_data_from_simulation()
+            
+            # UI 업데이트
+            self.plc_data_manager._update_plc_ui()
+            
+            print("PLC 시뮬레이션 신호가 메인 화면에 적용되었습니다.")
+        else:
+            print("PLC 데이터 매니저가 초기화되지 않았습니다.")
+    
+    def set_plc_simulation_data(self, data):
+        """PLC 시뮬레이션 데이터 수동 설정"""
+        if hasattr(self, 'plc_data_manager') and self.plc_data_manager:
+            self.plc_data_manager.set_simulation_data(data)
+        else:
+            print("PLC 데이터 매니저가 초기화되지 않았습니다.")
     
     def create_production_panels(self, layout):
         """생산 패널들 생성"""
@@ -635,6 +781,7 @@ class BarcodeMainScreen(QMainWindow):
             "A001",
             self.device_press_callback
         )
+        self.front_panel.main_window = self  # main_window 참조 설정
         panels_layout.addWidget(self.front_panel)
         
         # REAR/RH 패널
@@ -646,6 +793,7 @@ class BarcodeMainScreen(QMainWindow):
             "B001",
             self.device_press_callback
         )
+        self.rear_panel.main_window = self  # main_window 참조 설정
         panels_layout.addWidget(self.rear_panel)
         
         layout.addLayout(panels_layout)
@@ -679,7 +827,7 @@ class BarcodeMainScreen(QMainWindow):
             print("DEBUG: 지연된 시리얼 포트 자동 연결 시작")
             self.auto_connect_serial_ports()
         except Exception as e:
-            print(f"⚠️ 지연된 시리얼 포트 자동 연결 실패: {e}")
+            print(f" 지연된 시리얼 포트 자동 연결 실패: {e}")
             # 시리얼 연결 실패 시에도 모든 장비를 연결 끊김 상태로 설정
             self.set_all_devices_disconnected()
     
@@ -709,7 +857,7 @@ class BarcodeMainScreen(QMainWindow):
             print("DEBUG: 모든 장비 연결 끊김 상태 설정 완료")
             
         except Exception as e:
-            print(f"⚠️ 장비 상태 설정 실패: {e}")
+            print(f" 장비 상태 설정 실패: {e}")
     
     def update_all_device_status_ui(self, connection_results):
         """모든 장비의 연결 상태를 UI에 업데이트"""
@@ -735,7 +883,7 @@ class BarcodeMainScreen(QMainWindow):
             print("DEBUG: 모든 장비 상태 UI 업데이트 완료")
             
         except Exception as e:
-            print(f"⚠️ 장비 상태 UI 업데이트 실패: {e}")
+            print(f" 장비 상태 UI 업데이트 실패: {e}")
     
     def update_datetime(self):
         """날짜/시간 업데이트"""
@@ -1248,20 +1396,42 @@ class BarcodeMainScreen(QMainWindow):
         child_parts_info = []
         
         # FRONT/LH와 REAR/RH 패널 중에서 하위부품이 있는 패널 찾기
+        print(f"DEBUG: 스캔 다이얼로그 - 하위부품 정보 검색 시작")
+        print(f"DEBUG: 스캔 다이얼로그 - master_data 개수: {len(self.master_data)}")
+        
         for panel_name, panel in [(self.panel_titles["front_lh"], self.front_panel), (self.panel_titles["rear_rh"], self.rear_panel)]:
+            print(f"DEBUG: 스캔 다이얼로그 - {panel_name} 패널 확인")
+            print(f"DEBUG: 스캔 다이얼로그 - hasattr(panel, 'part_number'): {hasattr(panel, 'part_number')}")
+            if hasattr(panel, 'part_number'):
+                print(f"DEBUG: 스캔 다이얼로그 - {panel_name} part_number: '{getattr(panel, 'part_number', 'None')}'")
+            
             if hasattr(panel, 'part_number') and panel.part_number:
+                print(f"DEBUG: 스캔 다이얼로그 - {panel_name} 부품번호 '{panel.part_number}'로 기준정보 검색")
+                found_match = False
                 for part_data in self.master_data:
+                    print(f"DEBUG: 스캔 다이얼로그 - 기준정보 비교: '{part_data.get('part_number')}' == '{panel.part_number}'")
                     if part_data.get("part_number") == panel.part_number:
                         child_parts = part_data.get("child_parts", [])
+                        print(f"DEBUG: 스캔 다이얼로그 - {panel_name} 하위부품 발견: {child_parts}")
                         if child_parts:  # 하위부품이 있는 경우
                             child_parts_info = child_parts
                             print(f"DEBUG: 메인화면 - {panel_name} Part_No {panel.part_number}의 하위부품: {child_parts_info}")
+                            found_match = True
                             break
+                if not found_match:
+                    print(f"DEBUG: 스캔 다이얼로그 - {panel_name} 부품번호 '{panel.part_number}'에 해당하는 기준정보를 찾을 수 없음")
                 if child_parts_info:
                     break
+            else:
+                print(f"DEBUG: 스캔 다이얼로그 - {panel_name} 패널에 부품번호가 설정되지 않음")
         
         if not child_parts_info:
             print("DEBUG: 메인화면 - 하위부품 정보를 찾을 수 없음")
+            print(f"DEBUG: 메인화면 - 현재 패널 상태:")
+            print(f"DEBUG: 메인화면 - FRONT/LH part_number: '{getattr(self.front_panel, 'part_number', 'None')}'")
+            print(f"DEBUG: 메인화면 - REAR/RH part_number: '{getattr(self.rear_panel, 'part_number', 'None')}'")
+        else:
+            print(f"DEBUG: 메인화면 - 최종 하위부품 정보: {child_parts_info}")
         
         self.scan_status_dialog = ScanStatusDialog(self.scanned_parts, self, child_parts_info)
         self.scan_status_dialog.exec_()
@@ -1283,7 +1453,7 @@ def main():
                 sys.__excepthook__(exc_type, exc_value, exc_traceback)
                 return
             
-            print(f"❌ 예상치 못한 오류 발생: {exc_type.__name__}: {exc_value}")
+            print(f" 예상치 못한 오류 발생: {exc_type.__name__}: {exc_value}")
             import traceback
             traceback.print_exception(exc_type, exc_value, exc_traceback)
         
@@ -1296,7 +1466,7 @@ def main():
         sys.exit(app.exec_())
         
     except Exception as e:
-        print(f"❌ 프로그램 시작 오류: {e}")
+        print(f" 프로그램 시작 오류: {e}")
         import traceback
         traceback.print_exception(type(e), e, e.__traceback__)
         sys.exit(1)

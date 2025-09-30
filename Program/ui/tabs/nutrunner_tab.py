@@ -12,9 +12,9 @@ from PyQt5.QtGui import QFont
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # from styles import (get_tab_title_style, get_port_status_connected_style, get_port_status_disconnected_style,
 #                     get_connect_button_style, get_disconnect_button_style, get_save_button_style)
-from styles import *
-from font_manager import FontManager
-from utils import SettingsManager, SerialConnectionThread
+from ui.styles import *
+from utils.font_manager import FontManager
+from utils.utils import SettingsManager, SerialConnectionThread
 
 
 class NutRunnerTab(QWidget):

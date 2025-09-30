@@ -12,19 +12,22 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon
 
+# Program 디렉토리를 Python 경로에 추가
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 # 스타일 임포트
 # from styles import (get_main_window_style, get_tab_widget_style, get_tab_title_style,
 #                    get_button_style, get_status_connected_style, get_status_disconnected_style, get_status_error_style)
-from styles import *
+from ui.styles import *
 
 # 유틸리티 임포트
-from utils import SettingsManager, MasterDataManager, SerialConnectionThread, BackupManager
+from utils.utils import SettingsManager, MasterDataManager, SerialConnectionThread, BackupManager
 
 # 탭 클래스들 임포트
-from tabs import PLCCommunicationTab, BarcodeScannerTab, NutRunnerTab, BarcodePrinterTab, MasterDataTab
+from ui.tabs import PLCCommunicationTab, BarcodeScannerTab, NutRunnerTab, BarcodePrinterTab, MasterDataTab
 
 # 다이얼로그 임포트
-from dialogs import BarcodeAnalysisDialog, ScanHistoryDialog
+from ui.dialogs import BarcodeAnalysisDialog, ScanHistoryDialog
 
 
 class AdminPanel(QMainWindow):

@@ -8,7 +8,11 @@ from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
                              QPushButton, QScrollArea, QListWidget, QListWidgetItem, QWidget, QFileDialog, QMessageBox)
 from PyQt5.QtCore import Qt, QDateTime
 from PyQt5.QtGui import QFont
-from hkmc_barcode_utils import BarcodeData, BarcodeType
+
+# Program 디렉토리를 Python 경로에 추가
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from hardware.hkmc_barcode_utils import BarcodeData, BarcodeType
 
 class BarcodeAnalysisDialog(QDialog):
     """바코드 분석 결과를 보여주는 UI 창"""

@@ -1,10 +1,15 @@
 import sys
+import os
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
                              QTableWidget, QTableWidgetItem, QGroupBox, QFrame)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
-from font_manager import FontManager
-from styles import *
+
+# Program 디렉토리를 Python 경로에 추가
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from utils.font_manager import FontManager
+from ui.styles import *
 
 class ScanStatusDialog(QDialog):
     """스캔 현황 팝업 다이얼로그 - 실용적 디자인"""

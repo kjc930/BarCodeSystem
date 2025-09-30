@@ -16,13 +16,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 #                    get_status_error_style, get_connect_button_style, get_disconnect_button_style, 
 #                    get_save_button_style, get_status_check_button_style, get_test_print_button_style,
 #                    get_port_status_connected_style, get_port_status_disconnected_style)
-from styles import *
-from font_manager import FontManager
+from ui.styles import *
+from utils.font_manager import FontManager
 
-from utils import SerialConnectionThread
-from modules import SerialConnectionManager
-from hkmc_barcode_utils import HKMCBarcodeUtils
-from dialogs import BarcodeAnalysisDialog
+from utils.utils import SerialConnectionThread
+from utils.modules import SerialConnectionManager
+from hardware.hkmc_barcode_utils import HKMCBarcodeUtils
+from ui.dialogs import BarcodeAnalysisDialog
 
 class BarcodeScannerTab(QWidget):
     """바코드 스캐너 테스트 탭"""
