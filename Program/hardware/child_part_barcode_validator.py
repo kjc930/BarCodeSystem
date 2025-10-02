@@ -170,13 +170,22 @@ class ChildPartBarcodeValidator:
             else:
                 errors.append("업체코드를 추출할 수 없습니다.")
             
-            # Part_No 추출 (P 식별자 이후)
-            part_match = re.search(r'P([A-Z0-9]{10,15})', barcode)
+            # Part_No 추출 (P 식별자 이후, S 식별자 전까지)
+            # P89231CU1001-S-E-T... 에서 89231CU1001만 추출 (S 이전까지만)
+            part_match = re.search(r'P([A-Z0-9]{10,15})(?=S[A-Z]|$)', barcode)
             if part_match:
                 part_number = part_match.group(1)  # P 제외한 부품번호만 추출
                 info['part_number'] = part_number
+                print(f"DEBUG: 바코드 검증기 - 추출된 부품번호: '{part_number}'")
             else:
-                errors.append("Part_No를 추출할 수 없습니다. P 식별자를 찾을 수 없습니다.")
+                # S 식별자가 없는 경우 대안으로 다른 대문자 전까지 추출
+                part_match = re.search(r'P([A-Z0-9]{10,15})(?=[A-Z]|$)', barcode)
+                if part_match:
+                    part_number = part_match.group(1)
+                    info['part_number'] = part_number
+                    print(f"DEBUG: 바코드 검증기 - 추출된 부품번호 (대안): '{part_number}'")
+                else:
+                    errors.append("Part_No를 추출할 수 없습니다. P 식별자를 찾을 수 없습니다.")
             
             return errors, info
             

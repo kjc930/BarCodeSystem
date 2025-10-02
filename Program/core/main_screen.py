@@ -37,6 +37,16 @@ class BarcodeMainScreen(QMainWindow):
             super().__init__()
             self.scanned_parts = []
             
+            # 스캔현황 다이얼로그 데이터 저장 (다이얼로그가 닫힌 후에도 유지)
+            self.scan_status_data = {
+                'real_time_scanned_data': [],
+                'child_parts_info': [],
+                'current_panel_title': ''
+            }
+            
+            # 전역 스캔 데이터 저장 (확실한 방법)
+            self.global_scan_data = []
+            
             # 설정 파일 로드 (먼저 로드)
             try:
                 self.config = self.load_config()
@@ -584,6 +594,10 @@ class BarcodeMainScreen(QMainWindow):
         self.setGeometry(50, 50, 570, 850)  # 기본창 크기 절반으로 축소 (1140→570, 760→380)
         self.setStyleSheet(get_main_window_style())
         
+        # 키보드 포커스 설정
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocus()
+        
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         
@@ -1003,8 +1017,57 @@ class BarcodeMainScreen(QMainWindow):
             self.check_child_part_match(final_part_number)
         
         # 스캔 현황 다이얼로그가 열려있다면 하위부품 상태 업데이트
+        print(f"DEBUG: ===== 스캔현황 다이얼로그 업데이트 시작 =====")
         print(f"DEBUG: 스캔현황 다이얼로그 상태 확인 - hasattr: {hasattr(self, 'scan_status_dialog')}, dialog: {getattr(self, 'scan_status_dialog', None)}")
+        print(f"DEBUG: is_ok: {is_ok}, barcode_info: {barcode_info}")
+        print(f"DEBUG: final_part_number: {final_part_number}")
+        
+        # 스캔 데이터를 전역 변수로 저장 (확실한 방법)
+        from datetime import datetime
+        scan_time = datetime.now().strftime("%H:%M:%S")
+        scan_data = {
+            'time': scan_time,
+            'part_number': final_part_number,
+            'is_ok': is_ok,
+            'status': 'OK' if is_ok else 'NG',
+            'raw_data': raw_barcode_data if raw_barcode_data else final_part_number
+        }
+        
+        # 전역 스캔 데이터 저장 (확실한 방법)
+        self.global_scan_data.insert(0, scan_data)
+        print(f"DEBUG: 전역 스캔 데이터 저장: {scan_data}")
+        print(f"DEBUG: 전역 저장된 데이터: {len(self.global_scan_data)}개 항목")
+        
+        # 저장된 데이터 상세 확인
+        for i, data in enumerate(self.global_scan_data):
+            print(f"DEBUG: 전역 저장된 데이터 {i}: {data}")
+        
+        # 파일로도 저장 (확실한 방법)
+        import json
+        try:
+            with open('scan_data_backup.json', 'w', encoding='utf-8') as f:
+                json.dump(self.global_scan_data, f, ensure_ascii=False, indent=2)
+            print(f"DEBUG: 스캔 데이터 파일 저장 완료")
+        except Exception as e:
+            print(f"DEBUG: 스캔 데이터 파일 저장 실패: {e}")
+        
+        # 프린트용 데이터 저장 (공정바코드 + 하위부품 데이터)
+        self.save_print_data(scan_data)
+        
+        # scan_status_data에도 저장 (기존 방식 유지)
+        if not hasattr(self, 'scan_status_data'):
+            self.scan_status_data = {
+                'real_time_scanned_data': [],
+                'child_parts_info': [],
+                'current_panel_title': ''
+            }
+        
+        self.scan_status_data['real_time_scanned_data'].insert(0, scan_data)
+        print(f"DEBUG: 스캔 데이터 임시 저장: {scan_data}")
+        print(f"DEBUG: 임시 저장된 데이터: {len(self.scan_status_data['real_time_scanned_data'])}개 항목")
+        
         if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
+            print(f"DEBUG: 스캔현황 다이얼로그가 존재함 - 업데이트 시도")
             # 변환된 바코드에서 부품번호 추출하여 매칭 시도
             if is_ok and barcode_info.get('part_number'):
                 extracted_part_number = barcode_info.get('part_number')
@@ -1018,12 +1081,146 @@ class BarcodeMainScreen(QMainWindow):
                 self.scan_status_dialog.update_child_part_scan_status(clean_part_number, is_ok, raw_barcode_data)
             print(f"DEBUG: 스캔현황 다이얼로그 업데이트 완료")
         else:
-            print(f"DEBUG: 스캔현황 다이얼로그가 열려있지 않음")
+            print(f"DEBUG: 스캔현황 다이얼로그가 열려있지 않음 - 임시 저장만 완료")
+        print(f"DEBUG: ===== 스캔현황 다이얼로그 업데이트 끝 =====")
         
         # 스캔 로그 저장
         self.save_scan_log(final_part_number, is_ok)
         
         print(f"DEBUG: 하위부품 스캔 추가 완료 - {final_part_number} ({'OK' if is_ok else 'NG'})")
+    
+    def save_print_data(self, scan_data):
+        """프린트용 데이터 저장 (공정바코드 + 하위부품 데이터)"""
+        print(f"DEBUG: ===== 프린트용 데이터 저장 시작 =====")
+        
+        # 현재 공정바코드 정보 가져오기
+        current_part_number = None
+        current_division = None
+        
+        # Front/LH 패널에서 공정바코드 정보 확인
+        if hasattr(self, 'front_panel') and self.front_panel and hasattr(self.front_panel, 'part_number') and self.front_panel.part_number:
+            current_part_number = self.front_panel.part_number
+            current_division = getattr(self.front_panel, 'division', '')
+            print(f"DEBUG: Front/LH 패널에서 공정바코드 확인: {current_part_number}, Division: {current_division}")
+        
+        # Rear/RH 패널에서 공정바코드 정보 확인
+        elif hasattr(self, 'rear_panel') and self.rear_panel and hasattr(self.rear_panel, 'part_number') and self.rear_panel.part_number:
+            current_part_number = self.rear_panel.part_number
+            current_division = getattr(self.rear_panel, 'division', '')
+            print(f"DEBUG: Rear/RH 패널에서 공정바코드 확인: {current_part_number}, Division: {current_division}")
+        
+        if not current_part_number:
+            print(f"DEBUG: ⚠️ 현재 공정바코드가 없어서 프린트 데이터 저장 불가")
+            return
+        
+        # 기존 프린트 데이터 로드
+        print_data_file = 'print_data.json'
+        existing_data = []
+        
+        try:
+            import json
+            with open(print_data_file, 'r', encoding='utf-8') as f:
+                existing_data = json.load(f)
+            print(f"DEBUG: 기존 프린트 데이터 로드: {len(existing_data)}개 항목")
+        except FileNotFoundError:
+            print(f"DEBUG: 프린트 데이터 파일이 없음 - 새로 생성")
+        except Exception as e:
+            print(f"DEBUG: 프린트 데이터 로드 실패: {e}")
+        
+        # 현재 공정바코드에 해당하는 데이터 찾기
+        process_data = None
+        for data in existing_data:
+            if data.get('process_barcode') == current_part_number:
+                process_data = data
+                break
+        
+        # 기존 데이터가 없으면 새로 생성
+        if not process_data:
+            process_data = {
+                'process_barcode': current_part_number,
+                'division': current_division,
+                'child_parts': [],
+                'created_time': scan_data.get('time', ''),
+                'last_scan_time': scan_data.get('time', '')
+            }
+            existing_data.append(process_data)
+            print(f"DEBUG: 새로운 공정바코드 데이터 생성: {current_part_number}")
+        
+        # 하위부품 데이터 추가
+        child_part_data = {
+            'part_number': scan_data.get('part_number', ''),
+            'status': scan_data.get('status', ''),
+            'scan_time': scan_data.get('time', ''),
+            'raw_barcode': scan_data.get('raw_data', '')
+        }
+        
+        # 중복 확인 (같은 부품번호가 이미 있는지)
+        part_exists = False
+        for existing_part in process_data['child_parts']:
+            if existing_part.get('part_number') == child_part_data['part_number']:
+                # 기존 데이터 업데이트
+                existing_part.update(child_part_data)
+                part_exists = True
+                print(f"DEBUG: 기존 하위부품 데이터 업데이트: {child_part_data['part_number']}")
+                break
+        
+        if not part_exists:
+            process_data['child_parts'].append(child_part_data)
+            print(f"DEBUG: 새로운 하위부품 데이터 추가: {child_part_data['part_number']}")
+        
+        # 마지막 스캔 시간 업데이트
+        process_data['last_scan_time'] = scan_data.get('time', '')
+        
+        # 프린트용 문자열 생성 (# 구분기호로 연결)
+        print_string = self.generate_print_string(process_data)
+        process_data['print_string'] = print_string
+        
+        # 파일로 저장
+        try:
+            with open(print_data_file, 'w', encoding='utf-8') as f:
+                json.dump(existing_data, f, ensure_ascii=False, indent=2)
+            print(f"DEBUG: 프린트 데이터 파일 저장 완료: {print_data_file}")
+        except Exception as e:
+            print(f"DEBUG: 프린트 데이터 파일 저장 실패: {e}")
+        
+        print(f"DEBUG: ===== 프린트용 데이터 저장 완료 =====")
+    
+    def generate_print_string(self, process_data):
+        """프린트용 문자열 생성 (# 구분기호로 연결)"""
+        print(f"DEBUG: ===== 프린트용 문자열 생성 시작 =====")
+        
+        # 공정바코드
+        process_barcode = process_data.get('process_barcode', '')
+        division = process_data.get('division', '')
+        child_parts = process_data.get('child_parts', [])
+        
+        print(f"DEBUG: 공정바코드: {process_barcode}")
+        print(f"DEBUG: Division: {division}")
+        print(f"DEBUG: 하위부품 수: {len(child_parts)}")
+        
+        # 프린트용 문자열 구성
+        print_parts = [process_barcode]  # 공정바코드부터 시작
+        
+        # Division 정보 추가
+        if division:
+            print_parts.append(f"DIV{division}")
+        
+        # 하위부품 정보 추가 (# 구분기호로 연결)
+        for child_part in child_parts:
+            part_number = child_part.get('part_number', '')
+            status = child_part.get('status', '')
+            if part_number:
+                # 부품번호 + 상태를 # 구분기호로 연결
+                print_parts.append(f"{part_number}#{status}")
+                print(f"DEBUG: 하위부품 추가: {part_number}#{status}")
+        
+        # 최종 프린트 문자열 생성
+        print_string = '#'.join(print_parts)
+        
+        print(f"DEBUG: 최종 프린트 문자열: {print_string}")
+        print(f"DEBUG: ===== 프린트용 문자열 생성 완료 =====")
+        
+        return print_string
     
     def on_workflow_status_changed(self, status: str, message: str):
         """워크플로우 상태 변경 처리"""
@@ -1134,6 +1331,52 @@ class BarcodeMainScreen(QMainWindow):
                     # 스캔현황 다이얼로그 생성 및 표시
                     self.scan_status_dialog = ScanStatusDialog([], self, child_parts_info)
                     self.scan_status_dialog.setWindowTitle(f"{current_panel_title} - 스캔 현황")
+                    
+                    # 실제 스캔 데이터 복원 시도
+                    print(f"DEBUG: 메인화면 - 실제 스캔 데이터 복원 시도")
+                    
+                    # 1. 파일에서 스캔 데이터 복원 시도
+                    print(f"DEBUG: 메인화면 - 파일에서 스캔 데이터 복원 시도")
+                    try:
+                        import json
+                        with open('scan_data_backup.json', 'r', encoding='utf-8') as f:
+                            file_scan_data = json.load(f)
+                        print(f"DEBUG: 메인화면 - 파일에서 읽은 데이터: {len(file_scan_data)}개 항목")
+                        
+                        # 파일 데이터 상세 출력
+                        for i, data in enumerate(file_scan_data):
+                            print(f"DEBUG: 메인화면 - 파일 데이터 {i}: {data}")
+                        
+                        # 파일 데이터를 다이얼로그에 복사
+                        self.scan_status_dialog.real_time_scanned_data = file_scan_data.copy()
+                        
+                        # 복원 후 데이터 확인
+                        print(f"DEBUG: 메인화면 - 복원 후 다이얼로그 데이터: {len(self.scan_status_dialog.real_time_scanned_data)}개 항목")
+                        for i, data in enumerate(self.scan_status_dialog.real_time_scanned_data):
+                            print(f"DEBUG: 메인화면 - 복원된 데이터 {i}: {data}")
+                        
+                        # 지연 후 복원 (테이블 생성 완료 후)
+                        from PyQt5.QtCore import QTimer
+                        QTimer.singleShot(500, lambda: self.restore_scan_data())
+                        
+                    except Exception as e:
+                        print(f"DEBUG: 메인화면 - 파일에서 스캔 데이터 복원 실패: {e}")
+                        
+                        # 2. 파일 복원 실패 시 전역 데이터 사용
+                        if hasattr(self, 'global_scan_data') and self.global_scan_data:
+                            print(f"DEBUG: 메인화면 - 전역 데이터로 복원 시도: {len(self.global_scan_data)}개 항목")
+                            for i, data in enumerate(self.global_scan_data):
+                                print(f"DEBUG: 메인화면 - 전역 데이터 {i}: {data}")
+                            
+                            self.scan_status_dialog.real_time_scanned_data = self.global_scan_data.copy()
+                            from PyQt5.QtCore import QTimer
+                            QTimer.singleShot(500, lambda: self.restore_scan_data())
+                        else:
+                            print(f"DEBUG: 메인화면 - 복원할 데이터가 없음 - 대기 상태로 설정")
+                            # 데이터가 없으면 대기 상태로 설정
+                            from PyQt5.QtCore import QTimer
+                            QTimer.singleShot(500, lambda: self.restore_scan_data())
+                    
                     self.scan_status_dialog.show()
                     self.scan_status_dialog.raise_()
                     self.scan_status_dialog.activateWindow()
@@ -1143,6 +1386,34 @@ class BarcodeMainScreen(QMainWindow):
                 
         except Exception as e:
             print(f"ERROR: 스캔현황 다이얼로그 표시 오류: {e}")
+    
+    def restore_scan_data(self):
+        """스캔 데이터 복원 실행"""
+        print(f"DEBUG: 메인화면 - restore_scan_data 시작")
+        if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
+            print(f"DEBUG: 스캔 데이터 복원 실행 - 복원할 데이터: {len(self.scan_status_dialog.real_time_scanned_data)}개 항목")
+            
+            # 복원할 데이터 상세 출력
+            for i, data in enumerate(self.scan_status_dialog.real_time_scanned_data):
+                print(f"DEBUG: 메인화면 - 복원할 데이터 {i}: {data}")
+            
+            # 복원된 데이터로 테이블 업데이트
+            print(f"DEBUG: 메인화면 - 스캔 테이블 업데이트 시작")
+            self.scan_status_dialog.update_scan_table_data()
+            print(f"DEBUG: 메인화면 - 스캔 테이블 업데이트 완료")
+            
+            print(f"DEBUG: 메인화면 - 통계 업데이트 시작")
+            self.scan_status_dialog.update_statistics()
+            print(f"DEBUG: 메인화면 - 통계 업데이트 완료")
+            
+            # 하위부품 스캔 상태도 복원
+            print(f"DEBUG: 메인화면 - 하위부품 상태 복원 시작")
+            self.scan_status_dialog.restore_child_parts_status()
+            print(f"DEBUG: 메인화면 - 하위부품 상태 복원 완료")
+            
+            print(f"DEBUG: 스캔 데이터 복원 완료")
+        else:
+            print(f"DEBUG: 메인화면 - ⚠️ scan_status_dialog가 없어서 복원 실패!")
     
     def update_workflow_label_colors(self, labels: dict):
         """워크플로우 레이블 색상 업데이트"""
@@ -1312,6 +1583,9 @@ class BarcodeMainScreen(QMainWindow):
     
     def keyPressEvent(self, event):
         """키보드 이벤트 처리 - 테스트용"""
+        print(f"DEBUG: 키보드 이벤트 발생 - 키 코드: {event.key()}")
+        
+        # F키 처리
         if event.key() == Qt.Key_F1:
             # F1 키로 Front/LH 부품번호 스캔 테스트 (현재 활성화된 부품번호 사용)
             current_part_number = getattr(self.front_panel, 'part_number', '') if hasattr(self, 'front_panel') else ''
@@ -1328,7 +1602,18 @@ class BarcodeMainScreen(QMainWindow):
                 self.test_barcode_scan(current_part_number)
             else:
                 print("DEBUG: F2 키 - Rear/RH 부품번호가 없음")
+        elif event.key() == Qt.Key_F3:
+            # F3 키로 하위부품 바코드 스캔 테스트
+            test_child_barcode = "[)>06V2812P89231CU1000SET2510022000A0000001M"
+            print(f"DEBUG: F3 키 눌림 - 하위부품 바코드 스캔 테스트: {test_child_barcode}")
+            self.test_barcode_scan(test_child_barcode)
+        elif event.key() == Qt.Key_F4:
+            # F4 키로 다른 하위부품 바코드 스캔 테스트
+            test_child_barcode = "[)>06V2812P89231CU1001SET251002S1B2A0000001M"
+            print(f"DEBUG: F4 키 눌림 - 하위부품 바코드 스캔 테스트: {test_child_barcode}")
+            self.test_barcode_scan(test_child_barcode)
         else:
+            print(f"DEBUG: 다른 키 눌림 - 키 코드: {event.key()}")
             super().keyPressEvent(event)
     
     def save_scan_log(self, part_number, is_ok):
