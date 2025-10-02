@@ -456,6 +456,9 @@ class BarcodeMainScreen(QMainWindow):
                 print(f"DEBUG: FRONT/LH 하위부품 정보 업데이트 - 하위부품 수: {child_count}")
                 self.front_panel.update_child_parts_count(child_count)
                 self.front_panel.reset_child_parts_status()
+                
+                # 구분값 변경 시 레이블 색상 업데이트
+                self.update_panel_icons_after_division_change("Front/LH")
         elif panel_name == "REAR/RH":
             print(f"DEBUG: REAR/RH 패널 상태 업데이트")
             self.rear_panel.update_division_status(has_division, division_value)
@@ -473,6 +476,91 @@ class BarcodeMainScreen(QMainWindow):
                 print(f"DEBUG: REAR/RH 하위부품 정보 업데이트 - 하위부품 수: {child_count}")
                 self.rear_panel.update_child_parts_count(child_count)
                 self.rear_panel.reset_child_parts_status()
+                
+                # 구분값 변경 시 레이블 색상 업데이트
+                self.update_panel_icons_after_division_change("Rear/RH")
+    
+    def update_panel_icons_after_division_change(self, panel_name):
+        """구분값 변경 시 패널 아이콘 색상 업데이트"""
+        print(f"DEBUG: 구분값 변경 시 패널 아이콘 색상 업데이트 - {panel_name}")
+        
+        # 스캔 데이터에서 해당 패널의 스캔된 하위부품 개수 계산
+        scanned_count = 0
+        if hasattr(self, 'global_scan_data') and self.global_scan_data:
+            for scan_data in self.global_scan_data:
+                if scan_data.get('panel') == panel_name and scan_data.get('status') in ['OK', 'NG']:
+                    scanned_count += 1
+        
+        print(f"DEBUG: {panel_name} 패널 스캔된 하위부품 개수: {scanned_count}")
+        
+        # 해당 패널의 아이콘 색상 업데이트
+        if panel_name == "Front/LH" and hasattr(self, 'front_panel') and self.front_panel:
+            if hasattr(self.front_panel, 'child_parts_icons') and self.front_panel.child_parts_icons:
+                print(f"DEBUG: Front/LH 패널 아이콘 색상 업데이트 시작: {len(self.front_panel.child_parts_icons)}개 아이콘")
+                
+                for i, icon in enumerate(self.front_panel.child_parts_icons):
+                    if icon:
+                        if i < scanned_count:
+                            # 스캔된 개수만큼 녹색으로 변경
+                            icon.setStyleSheet("""
+                                QLabel {
+                                    background-color: #28a745;
+                                    color: white;
+                                    border: 2px solid #1e7e34;
+                                    border-radius: 5px;
+                                    padding: 5px;
+                                    font-weight: bold;
+                                }
+                            """)
+                            print(f"DEBUG: Front/LH 아이콘 {i+1} 색상 변경: 적색 → 녹색 (스캔됨)")
+                        else:
+                            # 스캔되지 않은 개수는 적색 유지
+                            icon.setStyleSheet("""
+                                QLabel {
+                                    background-color: #dc3545;
+                                    color: white;
+                                    border: 2px solid #c82333;
+                                    border-radius: 5px;
+                                    padding: 5px;
+                                    font-weight: bold;
+                                }
+                            """)
+                            print(f"DEBUG: Front/LH 아이콘 {i+1} 색상 유지: 적색 (미스캔)")
+                            
+        elif panel_name == "Rear/RH" and hasattr(self, 'rear_panel') and self.rear_panel:
+            if hasattr(self.rear_panel, 'child_parts_icons') and self.rear_panel.child_parts_icons:
+                print(f"DEBUG: Rear/RH 패널 아이콘 색상 업데이트 시작: {len(self.rear_panel.child_parts_icons)}개 아이콘")
+                
+                for i, icon in enumerate(self.rear_panel.child_parts_icons):
+                    if icon:
+                        if i < scanned_count:
+                            # 스캔된 개수만큼 녹색으로 변경
+                            icon.setStyleSheet("""
+                                QLabel {
+                                    background-color: #28a745;
+                                    color: white;
+                                    border: 2px solid #1e7e34;
+                                    border-radius: 5px;
+                                    padding: 5px;
+                                    font-weight: bold;
+                                }
+                            """)
+                            print(f"DEBUG: Rear/RH 아이콘 {i+1} 색상 변경: 적색 → 녹색 (스캔됨)")
+                        else:
+                            # 스캔되지 않은 개수는 적색 유지
+                            icon.setStyleSheet("""
+                                QLabel {
+                                    background-color: #dc3545;
+                                    color: white;
+                                    border: 2px solid #c82333;
+                                    border-radius: 5px;
+                                    padding: 5px;
+                                    font-weight: bold;
+                                }
+                            """)
+                            print(f"DEBUG: Rear/RH 아이콘 {i+1} 색상 유지: 적색 (미스캔)")
+        
+        print(f"DEBUG: 구분값 변경 시 패널 아이콘 색상 업데이트 완료 - {panel_name}")
     
     def update_production_counters(self, part_number, panel_name):
         """생산카운터 업데이트 (일자별, 부품코드별)"""
@@ -1025,12 +1113,21 @@ class BarcodeMainScreen(QMainWindow):
         # 스캔 데이터를 전역 변수로 저장 (확실한 방법)
         from datetime import datetime
         scan_time = datetime.now().strftime("%H:%M:%S")
+        
+        # 현재 활성화된 패널 확인
+        current_panel = None
+        if hasattr(self, 'front_panel') and self.front_panel and hasattr(self.front_panel, 'part_number') and self.front_panel.part_number:
+            current_panel = "Front/LH"
+        elif hasattr(self, 'rear_panel') and self.rear_panel and hasattr(self.rear_panel, 'part_number') and self.rear_panel.part_number:
+            current_panel = "Rear/RH"
+        
         scan_data = {
             'time': scan_time,
             'part_number': final_part_number,
             'is_ok': is_ok,
             'status': 'OK' if is_ok else 'NG',
-            'raw_data': raw_barcode_data if raw_barcode_data else final_part_number
+            'raw_data': raw_barcode_data if raw_barcode_data else final_part_number,
+            'panel': current_panel  # 패널 구분 정보 추가
         }
         
         # 전역 스캔 데이터 저장 (확실한 방법)

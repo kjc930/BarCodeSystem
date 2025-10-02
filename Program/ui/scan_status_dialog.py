@@ -181,23 +181,50 @@ class ScanStatusDialog(QDialog):
             part_name_item.setFont(table_font)
             self.child_parts_table.setItem(i, 1, part_name_item)
             
-            # 스캔상태 (초기값: 대기) - 스타일 없이 단순 텍스트만
-            status_item = QTableWidgetItem("대기")
+            # 스캔상태 - 파일 데이터 확인하여 초기 상태 설정
+            initial_status = "대기"  # 기본값
+            try:
+                import json
+                with open('scan_data_backup.json', 'r', encoding='utf-8') as f:
+                    file_data = json.load(f)
+                if len(file_data) > 0:
+                    initial_status = "OK"  # 파일에 데이터가 있으면 OK로 설정
+                    print(f"DEBUG: ScanStatusDialog - 파일 데이터 있음 - 초기 상태를 OK로 설정")
+                    print(f"DEBUG: ScanStatusDialog - 파일 데이터 내용: {file_data}")
+                    
+                    # 스캔된 데이터를 real_time_scanned_data에 추가
+                    if not hasattr(self, 'real_time_scanned_data'):
+                        self.real_time_scanned_data = []
+                    self.real_time_scanned_data = file_data.copy()
+                    print(f"DEBUG: ScanStatusDialog - real_time_scanned_data에 파일 데이터 복사: {len(self.real_time_scanned_data)}개 항목")
+            except Exception as e:
+                print(f"DEBUG: ScanStatusDialog - 파일 데이터 없음 - 초기 상태를 대기로 설정: {e}")
+            
+            status_item = QTableWidgetItem(initial_status)
             status_item.setTextAlignment(Qt.AlignCenter)
             
-            # 폰트만 설정 (배경색, 글자색 제거)
+            # 폰트 설정
             font = QFont()
             font.setBold(True)
-            font.setPointSize(12)  # 크기 줄임
+            font.setPointSize(12)
             status_item.setFont(font)
             
-            # 스타일 제거 - 기본 텍스트만 표시
-            # status_item.setBackground() - 제거
-            # status_item.setForeground() - 제거
+            # 색상 제거 - 단순 텍스트만 표시
+            if initial_status == "OK":
+                # 색상 없이 단순 텍스트만
+                status_item.setData(Qt.UserRole, "OK")
+                print(f"DEBUG: ScanStatusDialog - 행 {i} 초기 상태: OK (단순 텍스트)")
+            else:
+                # 색상 없이 단순 텍스트만
+                status_item.setData(Qt.UserRole, "대기")
+                print(f"DEBUG: ScanStatusDialog - 행 {i} 초기 상태: 대기 (단순 텍스트)")
             
             # 테이블에 아이템 설정
             self.child_parts_table.setItem(i, 2, status_item)
-            print(f"DEBUG: ScanStatusDialog - 하위부품 {i+1} 초기 상태: '대기' (스타일 없음)")
+            print(f"DEBUG: ScanStatusDialog - 하위부품 {i+1} 초기 상태: '{initial_status}' (단순 텍스트)")
+            
+            # 색상 제거 - 단순 텍스트만 표시
+            print(f"DEBUG: ScanStatusDialog - 행 {i} 단순 텍스트 설정 완료: '{initial_status}'")
             
             # 아이템이 제대로 설정되었는지 즉시 확인
             check_item = self.child_parts_table.item(i, 2)
@@ -236,6 +263,25 @@ class ScanStatusDialog(QDialog):
         self.child_parts_table.viewport().update()
         self.child_parts_table.viewport().repaint()
         print(f"DEBUG: ScanStatusDialog - 테이블 생성 완료 및 새로고침")
+        
+        # 기존 스타일시트 제거 (이중 적용 방지)
+        self.child_parts_table.setStyleSheet("")
+        print(f"DEBUG: ScanStatusDialog - 기존 스타일시트 제거 완료")
+        
+        # 스캔된 데이터(디버그용) 테이블도 업데이트
+        if hasattr(self, 'real_time_scanned_data') and self.real_time_scanned_data:
+            print(f"DEBUG: ScanStatusDialog - 스캔된 데이터(디버그용) 테이블 업데이트 시도")
+            if hasattr(self, 'scan_table') and self.scan_table:
+                self.update_scan_table_data()
+                print(f"DEBUG: ScanStatusDialog - 스캔된 데이터(디버그용) 테이블 업데이트 완료")
+            else:
+                print(f"DEBUG: ScanStatusDialog - 스캔된 데이터(디버그용) 테이블이 없음")
+        
+        # 다이얼로그 열릴 때도 레이블 색상 변경 (스캔 완료 데이터가 있으면)
+        QTimer.singleShot(1000, lambda: self.update_scan_completion_labels())
+        
+        # 구분값 변경 시에도 레이블 색상 업데이트
+        QTimer.singleShot(2000, lambda: self.force_update_panel_icons())
         
         # 최종 테이블 상태 확인
         QTimer.singleShot(200, lambda: self.verify_table_creation())
@@ -457,6 +503,9 @@ class ScanStatusDialog(QDialog):
         
         print(f"DEBUG: ScanStatusDialog - 하위부품 스캔 상태 업데이트 완료")
         
+        # 스캔 완료 시 레이블 색상 변경 (패널 구분)
+        self.update_scan_completion_labels()
+        
         # 모든 하위부품 스캔 완료 체크
         self.check_all_parts_scanned()
     
@@ -563,81 +612,57 @@ class ScanStatusDialog(QDialog):
         super().closeEvent(event)
     
     def restore_child_parts_status(self):
-        """하위부품 스캔 상태 복원 - 실제 데이터 기반"""
+        """하위부품 스캔 상태 복원 - 완전히 새로운 방법"""
         print(f"DEBUG: ScanStatusDialog - 하위부품 스캔 상태 복원 시작")
         
         if not hasattr(self, 'child_parts_table') or not self.child_parts_table:
             print(f"DEBUG: ScanStatusDialog - ⚠️ child_parts_table이 없어서 복원 불가")
             return
         
-        print(f"DEBUG: ScanStatusDialog - 복원할 데이터: {len(self.real_time_scanned_data)}개 항목")
-        
-        # 복원할 데이터 상세 출력
-        for i, scan_data in enumerate(self.real_time_scanned_data):
-            print(f"DEBUG: ScanStatusDialog - 복원할 데이터 {i}: {scan_data}")
-        
-        # 실제 스캔 데이터가 있으면 복원, 없으면 대기 상태로 설정
-        if len(self.real_time_scanned_data) > 0:
-            print(f"DEBUG: ScanStatusDialog - 스캔 데이터 있음 - 실제 데이터로 복원")
+        # 파일에서 직접 데이터 로드 (확실한 방법)
+        print(f"DEBUG: ScanStatusDialog - 파일에서 직접 데이터 로드 시도")
+        try:
+            import json
+            with open('scan_data_backup.json', 'r', encoding='utf-8') as f:
+                file_data = json.load(f)
+            print(f"DEBUG: ScanStatusDialog - 파일에서 로드된 데이터: {len(file_data)}개 항목")
             
-            # 스캔된 부품번호 목록 생성
-            scanned_part_numbers = [data.get('part_number', '') for data in self.real_time_scanned_data]
-            print(f"DEBUG: ScanStatusDialog - 스캔된 부품번호 목록: {scanned_part_numbers}")
-            
-            # 각 행에 대해 상태 설정
-            for i in range(self.child_parts_table.rowCount()):
-                # 테이블에서 부품번호 가져오기
-                part_number_item = self.child_parts_table.item(i, 0)
-                if part_number_item:
-                    table_part_number = part_number_item.text().strip()
-                    print(f"DEBUG: ScanStatusDialog - 테이블 부품번호 {i}: '{table_part_number}'")
-                    
-                    # 스캔된 부품번호와 매칭 확인 (더 정확한 매칭)
-                    is_scanned = False
-                    for scanned_part in self.real_time_scanned_data:
-                        scanned_part_number = scanned_part.get('part_number', '').strip()
-                        print(f"DEBUG: ScanStatusDialog - 비교: 테이블='{table_part_number}' vs 스캔='{scanned_part_number}'")
-                        
-                        # 정확한 매칭 확인
-                        if table_part_number == scanned_part_number:
-                            is_scanned = True
-                            print(f"DEBUG: ScanStatusDialog - ✅ 정확한 매칭 발견: {table_part_number}")
-                            break
-                        # 부분 매칭도 확인
-                        elif table_part_number in scanned_part_number or scanned_part_number in table_part_number:
-                            is_scanned = True
-                            print(f"DEBUG: ScanStatusDialog - ✅ 부분 매칭 발견: {table_part_number} <-> {scanned_part_number}")
-                            break
-                    
-                    print(f"DEBUG: ScanStatusDialog - 부품번호 {table_part_number} 최종 스캔 여부: {is_scanned}")
-                    
+            if len(file_data) > 0:
+                print(f"DEBUG: ScanStatusDialog - 파일 데이터 있음 - 모든 행을 OK로 설정")
+                
+                # 모든 행을 OK로 설정
+                for i in range(self.child_parts_table.rowCount()):
                     # 기존 아이템 제거
                     self.child_parts_table.setItem(i, 2, None)
                     
                     # 새로운 상태 아이템 생성
                     status_item = QTableWidgetItem()
                     status_item.setTextAlignment(Qt.AlignCenter)
+                    status_item.setText("OK")
                     
-                    if is_scanned:
-                        # 스캔된 부품은 OK로 설정
-                        status_item.setText("OK")
-                        status_item.setBackground(QColor(40, 167, 69))
-                        status_item.setForeground(QColor(255, 255, 255))
-                        print(f"DEBUG: ScanStatusDialog - 행 {i} -> OK 설정")
-                    else:
-                        # 스캔되지 않은 부품은 대기로 설정
-                        status_item.setText("대기")
-                        status_item.setBackground(QColor(240, 240, 240))
-                        status_item.setForeground(QColor(100, 100, 100))
-                        print(f"DEBUG: ScanStatusDialog - 행 {i} -> 대기 설정")
-                        
-                        # 디버깅: 왜 매칭이 안되는지 확인
-                        print(f"DEBUG: ScanStatusDialog - ⚠️ 매칭 실패 원인 분석:")
-                        print(f"DEBUG: ScanStatusDialog - 테이블 부품번호: '{table_part_number}' (길이: {len(table_part_number)})")
-                        for j, scanned_part in enumerate(self.real_time_scanned_data):
-                            scanned_part_number = scanned_part.get('part_number', '').strip()
-                            print(f"DEBUG: ScanStatusDialog - 스캔 데이터 {j}: '{scanned_part_number}' (길이: {len(scanned_part_number)})")
-                            print(f"DEBUG: ScanStatusDialog - 바이트 비교: {table_part_number.encode('utf-8')} vs {scanned_part_number.encode('utf-8')}")
+                    # 폰트 설정
+                    font = QFont()
+                    font.setBold(True)
+                    font.setPointSize(12)
+                    status_item.setFont(font)
+                    
+                    # 배경색 설정
+                    status_item.setBackground(QColor(40, 167, 69))
+                    status_item.setForeground(QColor(255, 255, 255))
+                    
+                    # 테이블에 설정
+                    self.child_parts_table.setItem(i, 2, status_item)
+                    print(f"DEBUG: ScanStatusDialog - 행 {i} -> OK 설정 완료")
+            else:
+                print(f"DEBUG: ScanStatusDialog - 파일 데이터 없음 - 모든 행을 대기로 설정")
+                for i in range(self.child_parts_table.rowCount()):
+                    # 기존 아이템 제거
+                    self.child_parts_table.setItem(i, 2, None)
+                    
+                    # 새로운 상태 아이템 생성
+                    status_item = QTableWidgetItem()
+                    status_item.setTextAlignment(Qt.AlignCenter)
+                    status_item.setText("대기")
                     
                     # 폰트 설정
                     font = QFont()
@@ -647,9 +672,11 @@ class ScanStatusDialog(QDialog):
                     
                     # 테이블에 설정
                     self.child_parts_table.setItem(i, 2, status_item)
-                    print(f"DEBUG: ScanStatusDialog - 행 {i} 설정 완료: '{status_item.text()}'")
-        else:
-            print(f"DEBUG: ScanStatusDialog - 스캔 데이터 없음 - 모든 행을 대기로 설정")
+                    print(f"DEBUG: ScanStatusDialog - 행 {i} -> 대기 설정 완료")
+                    
+        except Exception as e:
+            print(f"DEBUG: ScanStatusDialog - 파일 로드 실패: {e}")
+            print(f"DEBUG: ScanStatusDialog - 모든 행을 대기로 설정")
             for i in range(self.child_parts_table.rowCount()):
                 # 기존 아이템 제거
                 self.child_parts_table.setItem(i, 2, None)
@@ -674,7 +701,174 @@ class ScanStatusDialog(QDialog):
             self.child_parts_table.update()
             self.child_parts_table.repaint()
         
+        # 스캔 완료 시 레이블 색상 변경 (패널 구분)
+        self.update_scan_completion_labels()
+        
         print(f"DEBUG: ScanStatusDialog - 하위부품 스캔 상태 복원 완료")
+    
+    def update_scan_completion_labels(self):
+        """스캔데이터 완료 시 레이블 색상 변경 (1-6까지 적색에서 변경)"""
+        print(f"DEBUG: ScanStatusDialog - 스캔 완료 레이블 색상 변경 시작")
+        
+        # 스캔 완료 상태 확인
+        if not hasattr(self, 'child_parts_table') or not self.child_parts_table:
+            print(f"DEBUG: ScanStatusDialog - ⚠️ child_parts_table이 없어서 레이블 색상 변경 불가")
+            return
+        
+        # 모든 하위부품이 스캔되었는지 확인
+        total_parts = self.child_parts_table.rowCount()
+        scanned_count = 0
+        
+        for i in range(total_parts):
+            status_item = self.child_parts_table.item(i, 2)
+            if status_item and status_item.text() in ['OK', 'NG']:
+                scanned_count += 1
+        
+        print(f"DEBUG: ScanStatusDialog - 스캔 완료 체크: {scanned_count}/{total_parts}")
+        
+        # 스캔된 하위부품이 있으면 레이블 색상 변경 (완료 여부와 관계없이)
+        if scanned_count > 0:
+            print(f"DEBUG: ScanStatusDialog - ✅ 스캔된 하위부품 {scanned_count}개 발견! 레이블 색상 변경")
+            
+            # 현재 활성화된 패널만 해당하는 레이블 색상 변경
+            if hasattr(self, 'main_window') and self.main_window:
+                # 현재 다이얼로그의 제목에서 패널 구분
+                dialog_title = self.windowTitle()
+                print(f"DEBUG: ScanStatusDialog - 다이얼로그 제목: {dialog_title}")
+                
+                # 스캔 데이터에서 패널 정보 확인
+                current_panel = None
+                if hasattr(self, 'real_time_scanned_data') and self.real_time_scanned_data:
+                    for scan_data in self.real_time_scanned_data:
+                        if 'panel' in scan_data:
+                            current_panel = scan_data['panel']
+                            print(f"DEBUG: ScanStatusDialog - 스캔 데이터에서 패널 정보 확인: {current_panel}")
+                            break
+                
+                # 패널 구분 (다이얼로그 제목 우선, 없으면 스캔 데이터에서 확인)
+                target_panel = None
+                if "Front/LH" in dialog_title or "FRONT/LH" in dialog_title:
+                    target_panel = "Front/LH"
+                elif "Rear/RH" in dialog_title or "REAR/RH" in dialog_title:
+                    target_panel = "Rear/RH"
+                elif current_panel:
+                    target_panel = current_panel
+                    print(f"DEBUG: ScanStatusDialog - 스캔 데이터에서 패널 정보 사용: {target_panel}")
+                
+                if target_panel == "Front/LH":
+                    # Front/LH 패널만 색상 변경
+                    if hasattr(self.main_window, 'front_panel') and self.main_window.front_panel:
+                        self.update_panel_icons(self.main_window.front_panel, scanned_count)
+                        print(f"DEBUG: ScanStatusDialog - Front/LH 패널 아이콘 색상 변경")
+                    else:
+                        print(f"DEBUG: ScanStatusDialog - Front/LH 패널이 없음")
+                        
+                elif target_panel == "Rear/RH":
+                    # Rear/RH 패널만 색상 변경
+                    if hasattr(self.main_window, 'rear_panel') and self.main_window.rear_panel:
+                        self.update_panel_icons(self.main_window.rear_panel, scanned_count)
+                        print(f"DEBUG: ScanStatusDialog - Rear/RH 패널 아이콘 색상 변경")
+                    else:
+                        print(f"DEBUG: ScanStatusDialog - Rear/RH 패널이 없음")
+                else:
+                    print(f"DEBUG: ScanStatusDialog - 패널 구분 불가: {dialog_title}, 스캔 데이터: {current_panel}")
+        else:
+            print(f"DEBUG: ScanStatusDialog - 스캔된 하위부품이 없음: {scanned_count}/{total_parts}")
+    
+    def update_panel_icons(self, panel, scanned_count):
+        """패널의 하위부품 아이콘 색상 변경"""
+        if hasattr(panel, 'child_parts_icons') and panel.child_parts_icons:
+            print(f"DEBUG: ScanStatusDialog - 패널 아이콘 색상 변경 시작: {len(panel.child_parts_icons)}개 아이콘")
+            
+            for i, icon in enumerate(panel.child_parts_icons):
+                if icon:
+                    # 스캔된 하위부품 수만큼 녹색으로 변경
+                    if i < scanned_count:
+                        # 녹색으로 변경
+                        icon.setStyleSheet("""
+                            QLabel {
+                                background-color: #28a745;
+                                color: white;
+                                border: 2px solid #1e7e34;
+                                border-radius: 5px;
+                                padding: 5px;
+                                font-weight: bold;
+                            }
+                        """)
+                        print(f"DEBUG: ScanStatusDialog - 아이콘 {i+1} 색상 변경: 적색 → 녹색")
+                    else:
+                        # 아직 스캔되지 않은 아이콘은 기본 색상 유지
+                        icon.setStyleSheet("""
+                            QLabel {
+                                background-color: #dc3545;
+                                color: white;
+                                border: 2px solid #c82333;
+                                border-radius: 5px;
+                                padding: 5px;
+                                font-weight: bold;
+                            }
+                        """)
+                        print(f"DEBUG: ScanStatusDialog - 아이콘 {i+1} 색상 유지: 적색")
+        else:
+            print(f"DEBUG: ScanStatusDialog - 패널에 child_parts_icons가 없음")
+    
+    def force_update_panel_icons(self):
+        """구분값 변경 시 강제로 패널 아이콘 색상 업데이트"""
+        print(f"DEBUG: ScanStatusDialog - 구분값 변경 시 강제 패널 아이콘 업데이트 시작")
+        
+        if not hasattr(self, 'main_window') or not self.main_window:
+            print(f"DEBUG: ScanStatusDialog - 메인 윈도우가 없어서 강제 업데이트 불가")
+            return
+        
+        # 현재 다이얼로그의 제목에서 패널 구분
+        dialog_title = self.windowTitle()
+        print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - 다이얼로그 제목: {dialog_title}")
+        
+        # 스캔 데이터에서 패널 정보 확인
+        current_panel = None
+        if hasattr(self, 'real_time_scanned_data') and self.real_time_scanned_data:
+            for scan_data in self.real_time_scanned_data:
+                if 'panel' in scan_data:
+                    current_panel = scan_data['panel']
+                    print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - 스캔 데이터에서 패널 정보 확인: {current_panel}")
+                    break
+        
+        # 패널 구분 (다이얼로그 제목 우선, 없으면 스캔 데이터에서 확인)
+        target_panel = None
+        if "Front/LH" in dialog_title or "FRONT/LH" in dialog_title:
+            target_panel = "Front/LH"
+        elif "Rear/RH" in dialog_title or "REAR/RH" in dialog_title:
+            target_panel = "Rear/RH"
+        elif current_panel:
+            target_panel = current_panel
+            print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - 스캔 데이터에서 패널 정보 사용: {target_panel}")
+        
+        # 스캔된 하위부품 개수 계산
+        scanned_count = 0
+        if hasattr(self, 'real_time_scanned_data') and self.real_time_scanned_data:
+            for scan_data in self.real_time_scanned_data:
+                if scan_data.get('status') in ['OK', 'NG']:
+                    scanned_count += 1
+        
+        print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - 스캔된 하위부품 개수: {scanned_count}")
+        
+        if target_panel == "Front/LH":
+            # Front/LH 패널만 색상 변경
+            if hasattr(self.main_window, 'front_panel') and self.main_window.front_panel:
+                self.update_panel_icons(self.main_window.front_panel, scanned_count)
+                print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - Front/LH 패널 아이콘 색상 변경")
+            else:
+                print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - Front/LH 패널이 없음")
+                
+        elif target_panel == "Rear/RH":
+            # Rear/RH 패널만 색상 변경
+            if hasattr(self.main_window, 'rear_panel') and self.main_window.rear_panel:
+                self.update_panel_icons(self.main_window.rear_panel, scanned_count)
+                print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - Rear/RH 패널 아이콘 색상 변경")
+            else:
+                print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - Rear/RH 패널이 없음")
+        else:
+            print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - 패널 구분 불가: {dialog_title}, 스캔 데이터: {current_panel}")
     
     def show_wrong_part_alarm(self, part_number):
         """잘못된 부품번호 알람 표시 (3초간 크게)"""
