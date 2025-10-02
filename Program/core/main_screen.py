@@ -1053,26 +1053,46 @@ class BarcodeMainScreen(QMainWindow):
         except Exception as e:
             print(f"ERROR: 바코드 워크플로우 리셋 오류: {e}")
     
-    def show_scan_status_dialog(self):
-        """스캔현황 다이얼로그 표시 - 현재 활성화된 패널의 하위부품 정보 사용"""
+    def show_scan_status_dialog(self, scanned_barcode=None):
+        """스캔현황 다이얼로그 표시 - 스캔된 바코드에 해당하는 패널의 하위부품 정보 사용"""
         try:
             # 현재 활성화된 패널 확인 (Front/LH 또는 Rear/RH)
             current_panel = None
             current_panel_title = ""
             
-            # Front/LH 패널 확인
-            if hasattr(self, 'front_panel') and self.front_panel:
-                if hasattr(self.front_panel, 'part_number') and self.front_panel.part_number:
-                    current_panel = self.front_panel
-                    current_panel_title = self.front_panel.title
-                    print(f"DEBUG: Front/LH 패널 활성화 - {self.front_panel.part_number}")
+            # 스캔된 바코드가 있는 경우, 해당 바코드와 일치하는 패널 찾기
+            if scanned_barcode:
+                print(f"DEBUG: 스캔된 바코드로 패널 찾기 - {scanned_barcode}")
+                
+                # Front/LH 패널 확인
+                if hasattr(self, 'front_panel') and self.front_panel:
+                    if hasattr(self.front_panel, 'part_number') and self.front_panel.part_number == scanned_barcode:
+                        current_panel = self.front_panel
+                        current_panel_title = self.front_panel.title
+                        print(f"DEBUG: Front/LH 패널 매칭 - {self.front_panel.part_number}")
+                
+                # Rear/RH 패널 확인
+                if not current_panel and hasattr(self, 'rear_panel') and self.rear_panel:
+                    if hasattr(self.rear_panel, 'part_number') and self.rear_panel.part_number == scanned_barcode:
+                        current_panel = self.rear_panel
+                        current_panel_title = self.rear_panel.title
+                        print(f"DEBUG: Rear/RH 패널 매칭 - {self.rear_panel.part_number}")
             
-            # Rear/RH 패널 확인 (Front/LH가 없거나 비어있는 경우)
-            if not current_panel and hasattr(self, 'rear_panel') and self.rear_panel:
-                if hasattr(self.rear_panel, 'part_number') and self.rear_panel.part_number:
-                    current_panel = self.rear_panel
-                    current_panel_title = self.rear_panel.title
-                    print(f"DEBUG: Rear/RH 패널 활성화 - {self.rear_panel.part_number}")
+            # 스캔된 바코드가 없거나 매칭되지 않은 경우, 기존 로직 사용
+            if not current_panel:
+                # Front/LH 패널 확인
+                if hasattr(self, 'front_panel') and self.front_panel:
+                    if hasattr(self.front_panel, 'part_number') and self.front_panel.part_number:
+                        current_panel = self.front_panel
+                        current_panel_title = self.front_panel.title
+                        print(f"DEBUG: Front/LH 패널 활성화 - {self.front_panel.part_number}")
+                
+                # Rear/RH 패널 확인 (Front/LH가 없거나 비어있는 경우)
+                if not current_panel and hasattr(self, 'rear_panel') and self.rear_panel:
+                    if hasattr(self.rear_panel, 'part_number') and self.rear_panel.part_number:
+                        current_panel = self.rear_panel
+                        current_panel_title = self.rear_panel.title
+                        print(f"DEBUG: Rear/RH 패널 활성화 - {self.rear_panel.part_number}")
             
             if current_panel:
                 # 현재 패널의 하위부품 정보 가져오기
@@ -1189,7 +1209,7 @@ class BarcodeMainScreen(QMainWindow):
                     print("DEBUG: 하위자재 없음 - 빈 다이얼로그 표시")
                 
                 # 하위부품 유무와 관계없이 스캔현황 다이얼로그 표시
-                self.show_scan_status_dialog()
+                self.show_scan_status_dialog(barcode)
             else:
                 print(f"DEBUG: 바코드와 부품번호 불일치 - 바코드: {barcode}, 부품번호: {current_part_number}")
                 

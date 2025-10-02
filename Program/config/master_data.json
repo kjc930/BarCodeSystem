@@ -67,7 +67,7 @@
   {
     "supplier_code": "V2812",
     "division": "4",
-    "part_number": "89131CU213",
+    "part_number": "89131CU214",
     "part_name": "TEST4",
     "sequence_code": "",
     "eo_number": "",
@@ -76,12 +76,12 @@
     "memo": "TEST4",
     "child_parts": [
       {
-        "part_number": "P89231CU21",
+        "part_number": "89231CU1002",
         "part_name": "하위부품1",
         "use_status": "Y"
       },
       {
-        "part_number": "P89231CU22",
+        "part_number": "89331CU1003",
         "part_name": "하위부품2",
         "use_status": "Y"
       }
@@ -131,7 +131,7 @@
         "use_status": "Y"
       },
       {
-        "part_number": "89231CU101",
+        "part_number": "89231CU1001",
         "part_name": "하위부품2",
         "use_status": "Y"
       }
