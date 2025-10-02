@@ -85,6 +85,7 @@ class ScanStatusDialog(QDialog):
     def create_child_parts_section(self, layout):
         """하위부품 정보 섹션 생성 - 시인성 개선"""
         print(f"DEBUG: ScanStatusDialog - 하위부품 정보 섹션 생성, 하위부품 수: {len(self.child_parts_info)}")
+        print(f"DEBUG: ScanStatusDialog - 하위부품 정보 내용: {self.child_parts_info}")
         
         child_parts_group = QGroupBox("하위부품 정보")
         child_parts_group.setFont(FontManager.get_dialog_title_font())  # 폰트 크기 증가

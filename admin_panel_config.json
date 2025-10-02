@@ -8,13 +8,13 @@
     "test_value": 100
   },
   "scanner": {
-    "port": "COM4",
+    "port": "COM5",
     "baudrate": 9600,
     "terminator": "\\r\\n (CRLF)",
     "auto_scan": true
   },
   "printer": {
-    "port": "COM5 - AX99100 PCIe to High Speed Serial Port(COM5)",
+    "port": "COM4 - AX99100 PCIe to High Speed Serial Port(COM4)",
     "baudrate": 9600,
     "quality": "표준 (4 DPS)"
   },

@@ -15,14 +15,40 @@
   {
     "supplier_code": "V2812",
     "division": "2",
-    "part_number": "89131CU211",
-    "part_name": "TEST2",
+    "part_number": "89131CU210",
+    "part_name": "TEST1",
     "sequence_code": "",
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
-    "memo": "TEST2",
-    "child_parts": [],
+    "memo": "TEST",
+    "child_parts": [
+      {
+        "part_number": "111111111",
+        "part_name": "subassy",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "333333",
+        "part_name": "111",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "44444",
+        "part_name": "4444",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "555555",
+        "part_name": "5555",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "666666",
+        "part_name": "6666",
+        "use_status": "Y"
+      }
+    ],
     "modified_time": "2025-09-12 10:37:43"
   },
   {
@@ -52,6 +78,11 @@
       {
         "part_number": "P89231CU21",
         "part_name": "하위부품1",
+        "use_status": "Y"
+      },
+      {
+        "part_number": "P89231CU22",
+        "part_name": "하위부품2",
         "use_status": "Y"
       }
     ],

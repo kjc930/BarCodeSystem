@@ -452,23 +452,42 @@ class ProductionPanel(QWidget):
         
         # print(f"DEBUG: {device_name} 라벨 토글 - {label.text()}")
     
-    def update_part_info(self, part_number, part_name):
+    def update_part_info(self, part_number, part_name, division=None):
         """부품정보 업데이트"""
         self.part_number = part_number
         self.part_name = part_name
+        
+        # 구분값도 업데이트 (제공된 경우)
+        if division is not None:
+            self.division = division
+            print(f"DEBUG: {self.title} 구분값 업데이트: {self.division}")
         
         # UI 업데이트
         self.part_number_label.setText(part_number)
         self.part_name_label.setText(part_name)
         
-        # print(f"DEBUG: {self.title} 부품정보 업데이트 - Part_No: {part_number}, Part_Name: {part_name}")
+        print(f"DEBUG: {self.title} 부품정보 업데이트 - Part_No: {part_number}, Part_Name: {part_name}, Division: {self.division}")
     
     def show_scan_status(self):
         """스캔 현황 보기 (각 패널별 독립적)"""
+        print(f"DEBUG: ===== {self.title} 스캔현황 버튼 클릭 =====")
+        print(f"DEBUG: {self.title} 현재 부품번호: {self.part_number}")
+        print(f"DEBUG: {self.title} 현재 부품명: {self.part_name}")
+        
         # 현재 패널의 하위부품 정보 가져오기
         child_parts_info = self.get_child_parts_info()
         print(f"DEBUG: {self.title} 하위부품 정보 - {child_parts_info}")
-        from scan_status_dialog import ScanStatusDialog
+        print(f"DEBUG: {self.title} 하위부품 정보 타입: {type(child_parts_info)}")
+        print(f"DEBUG: {self.title} 하위부품 정보 길이: {len(child_parts_info) if child_parts_info else 0}")
+        
+        # 하위부품 정보가 비어있는 경우 경고 메시지
+        if not child_parts_info or len(child_parts_info) == 0:
+            print(f"⚠️ WARNING: {self.title} 하위부품 정보가 비어있습니다!")
+            print(f"⚠️ WARNING: 부품번호 {self.part_number}에 대한 하위부품을 찾을 수 없습니다.")
+        else:
+            print(f"✅ SUCCESS: {self.title} 하위부품 {len(child_parts_info)}개 발견!")
+        
+        from ui.scan_status_dialog import ScanStatusDialog
         dialog = ScanStatusDialog([], self, child_parts_info)
         dialog.setWindowTitle(f"{self.title} - 스캔 현황")
         dialog.exec_()
@@ -476,13 +495,35 @@ class ProductionPanel(QWidget):
     def get_child_parts_info(self):
         """현재 패널의 하위부품 정보 가져오기"""
         # 메인 화면에서 현재 부품번호의 하위부품 정보 찾기
-        main_window = self.find_main_window()
-        if main_window and hasattr(main_window, 'master_data'):
-            for part_data in main_window.master_data:
-                if part_data.get("part_number") == self.part_number:
-                    child_parts = part_data.get("child_parts", [])
-                    print(f"DEBUG: {self.title} 부품번호 {self.part_number}의 하위부품: {child_parts}")
-                    return child_parts
+        print(f"DEBUG: {self.title} get_child_parts_info - self.main_window: {getattr(self, 'main_window', None)}")
+        print(f"DEBUG: {self.title} get_child_parts_info - 현재 부품번호: {self.part_number}")
+        print(f"DEBUG: {self.title} get_child_parts_info - 현재 구분값: {self.division}")
+        
+        if hasattr(self, 'main_window') and self.main_window:
+            print(f"DEBUG: {self.title} get_child_parts_info - hasattr(main_window, 'master_data'): {hasattr(self.main_window, 'master_data')}")
+            
+            if hasattr(self.main_window, 'master_data'):
+                print(f"DEBUG: {self.title} get_child_parts_info - master_data 개수: {len(self.main_window.master_data)}")
+                for i, part_data in enumerate(self.main_window.master_data):
+                    print(f"DEBUG: {self.title} get_child_parts_info - master_data[{i}] part_number: {part_data.get('part_number')}, division: {part_data.get('division')}")
+                    if part_data.get("part_number") == self.part_number and part_data.get("division") == self.division:
+                        child_parts = part_data.get("child_parts", [])
+                        print(f"DEBUG: {self.title} 부품번호 {self.part_number} (구분값 {self.division})의 하위부품: {child_parts}")
+                        print(f"DEBUG: {self.title} 하위부품 개수: {len(child_parts)}")
+                        return child_parts
+        else:
+            print(f"DEBUG: {self.title} get_child_parts_info - main_window 참조가 없음, find_main_window() 시도")
+            main_window = self.find_main_window()
+            if main_window and hasattr(main_window, 'master_data'):
+                print(f"DEBUG: {self.title} get_child_parts_info - find_main_window로 찾은 master_data 개수: {len(main_window.master_data)}")
+                for i, part_data in enumerate(main_window.master_data):
+                    print(f"DEBUG: {self.title} get_child_parts_info - master_data[{i}] part_number: {part_data.get('part_number')}, division: {part_data.get('division')}")
+                    if part_data.get("part_number") == self.part_number and part_data.get("division") == self.division:
+                        child_parts = part_data.get("child_parts", [])
+                        print(f"DEBUG: {self.title} 부품번호 {self.part_number} (구분값 {self.division})의 하위부품: {child_parts}")
+                        print(f"DEBUG: {self.title} 하위부품 개수: {len(child_parts)}")
+                        return child_parts
+        
         print(f"DEBUG: {self.title} 하위부품 정보를 찾을 수 없음 - 부품번호: {self.part_number}")
         return []
     
@@ -494,8 +535,11 @@ class ProductionPanel(QWidget):
             try:
                 from main_screen import BarcodeMainScreen
                 if isinstance(widget, BarcodeMainScreen):
+                    print(f"DEBUG: {self.title} find_main_window - 메인 윈도우 찾음: {widget}")
                     return widget
-            except ImportError:
+            except ImportError as e:
+                print(f"DEBUG: {self.title} find_main_window - ImportError: {e}")
                 pass
             widget = widget.parent()
+        print(f"DEBUG: {self.title} find_main_window - 메인 윈도우를 찾을 수 없음")
         return None

@@ -214,8 +214,17 @@ class BarcodeMainScreen(QMainWindow):
     def load_master_data(self):
         """기준정보 로드"""
         try:
-            with open('master_data.json', 'r', encoding='utf-8') as f:
-                return json.load(f)
+            # 절대 경로로 마스터 데이터 파일 로드
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            master_data_file = os.path.join(project_root, "config", "master_data.json")
+            
+            print(f"DEBUG: 마스터 데이터 파일 경로: {master_data_file}")
+            print(f"DEBUG: 마스터 데이터 파일 존재 여부: {os.path.exists(master_data_file)}")
+            
+            with open(master_data_file, 'r', encoding='utf-8') as f:
+                master_data = json.load(f)
+                print(f"DEBUG: 마스터 데이터 로드 성공 - {len(master_data)}개 항목")
+                return master_data
         except Exception as e:
             print(f"기준정보 로드 오류: {e}")
             return []
@@ -265,6 +274,36 @@ class BarcodeMainScreen(QMainWindow):
             
             # 시리얼 연결 객체를 serial_connector에서 가져옴
             self.serial_connections = self.serial_connector.serial_connections
+            
+            # 스캐너 데이터 수신 연결 (스캐너가 연결된 경우)
+            print(f"DEBUG: serial_connections 키: {list(self.serial_connections.keys())}")
+            print(f"DEBUG: 스캐너 연결 상태: {'스캐너' in self.serial_connections}")
+            
+            if "스캐너" in self.serial_connections and self.serial_connections["스캐너"]:
+                scanner_connection = self.serial_connections["스캐너"]
+                print(f"DEBUG: 스캐너 연결 객체: {scanner_connection}")
+                print(f"DEBUG: 스캐너 연결 객체 타입: {type(scanner_connection)}")
+                print(f"DEBUG: 스캐너 연결 객체 속성: {dir(scanner_connection)}")
+                print(f"DEBUG: data_received 속성 존재: {hasattr(scanner_connection, 'data_received')}")
+                
+                if hasattr(scanner_connection, 'data_received'):
+                    scanner_connection.data_received.connect(self.on_scanner_data_received)
+                    print("DEBUG: 스캐너 데이터 수신 연결 완료")
+                else:
+                    print("DEBUG: 스캐너 연결 객체에 data_received 속성이 없음")
+                    # 폴링 방식으로 스캐너 데이터 수신 시도
+                    if hasattr(scanner_connection, 'read'):
+                        print("DEBUG: 스캐너 연결 객체에 read 메서드가 있음 - 폴링 방식으로 데이터 수신 시도")
+                        # 폴링 방식으로 스캐너 데이터 수신 (100ms마다 체크)
+                        from PyQt5.QtCore import QTimer
+                        self.scanner_timer = QTimer()
+                        self.scanner_timer.timeout.connect(self.check_scanner_data)
+                        self.scanner_timer.start(100)  # 100ms마다 체크
+                        print("DEBUG: 스캐너 폴링 타이머 시작")
+                    else:
+                        print("DEBUG: 스캐너 연결 객체에 read 메서드도 없음")
+            else:
+                print("DEBUG: 스캐너가 연결되지 않았거나 연결 객체가 없음")
             
             # UI에 연결 상태 업데이트
             self.update_all_device_status_ui(connection_results)
@@ -399,7 +438,7 @@ class BarcodeMainScreen(QMainWindow):
                 part_number = matched_part_data.get("part_number", "")
                 part_name = matched_part_data.get("part_name", "")
                 print(f"DEBUG: FRONT/LH 부품정보 업데이트 - Part_No: {part_number}, Part_Name: {part_name}")
-                self.front_panel.update_part_info(part_number, part_name)
+                self.front_panel.update_part_info(part_number, part_name, division_value)
                 
                 # FRONT/LH 패널의 하위부품 정보 업데이트 (스캔현황에 표시)
                 child_parts = matched_part_data.get("child_parts", [])
@@ -416,7 +455,7 @@ class BarcodeMainScreen(QMainWindow):
                 part_number = matched_part_data.get("part_number", "")
                 part_name = matched_part_data.get("part_name", "")
                 print(f"DEBUG: REAR/RH 부품정보 업데이트 - Part_No: {part_number}, Part_Name: {part_name}")
-                self.rear_panel.update_part_info(part_number, part_name)
+                self.rear_panel.update_part_info(part_number, part_name, division_value)
                 
                 # REAR/RH 패널의 하위부품 정보 업데이트 (스캔현황에 표시)
                 child_parts = matched_part_data.get("child_parts", [])
@@ -1015,18 +1054,41 @@ class BarcodeMainScreen(QMainWindow):
             print(f"ERROR: 바코드 워크플로우 리셋 오류: {e}")
     
     def show_scan_status_dialog(self):
-        """스캔현황 다이얼로그 표시"""
+        """스캔현황 다이얼로그 표시 - 현재 활성화된 패널의 하위부품 정보 사용"""
         try:
-            if not self.scan_status_dialog and self.workflow_manager:
-                self.scan_status_dialog = ScanStatusDialog(self.workflow_manager, self)
+            # 현재 활성화된 패널 확인 (Front/LH 또는 Rear/RH)
+            current_panel = None
+            current_panel_title = ""
             
-            if self.scan_status_dialog:
+            # Front/LH 패널 확인
+            if hasattr(self, 'front_panel') and self.front_panel:
+                if hasattr(self.front_panel, 'part_number') and self.front_panel.part_number:
+                    current_panel = self.front_panel
+                    current_panel_title = self.front_panel.title
+                    print(f"DEBUG: Front/LH 패널 활성화 - {self.front_panel.part_number}")
+            
+            # Rear/RH 패널 확인 (Front/LH가 없거나 비어있는 경우)
+            if not current_panel and hasattr(self, 'rear_panel') and self.rear_panel:
+                if hasattr(self.rear_panel, 'part_number') and self.rear_panel.part_number:
+                    current_panel = self.rear_panel
+                    current_panel_title = self.rear_panel.title
+                    print(f"DEBUG: Rear/RH 패널 활성화 - {self.rear_panel.part_number}")
+            
+            if current_panel:
+                # 현재 패널의 하위부품 정보 가져오기
+                child_parts_info = current_panel.get_child_parts_info()
+                print(f"DEBUG: {current_panel_title} 하위부품 정보 - {child_parts_info}")
+                
+                # 스캔현황 다이얼로그 생성 및 표시
+                self.scan_status_dialog = ScanStatusDialog([], self, child_parts_info)
+                self.scan_status_dialog.setWindowTitle(f"{current_panel_title} - 스캔 현황")
                 self.scan_status_dialog.show()
                 self.scan_status_dialog.raise_()
                 self.scan_status_dialog.activateWindow()
-                print("DEBUG: 스캔현황 다이얼로그 표시됨")
+                print(f"DEBUG: {current_panel_title} 스캔현황 다이얼로그 표시됨")
             else:
-                print("DEBUG: 스캔현황 다이얼로그 생성 실패")
+                print("DEBUG: 활성화된 패널이 없음 - 스캔현황 다이얼로그 표시 안함")
+                
         except Exception as e:
             print(f"ERROR: 스캔현황 다이얼로그 표시 오류: {e}")
     
@@ -1042,26 +1104,55 @@ class BarcodeMainScreen(QMainWindow):
         except Exception as e:
             print(f"ERROR: 워크플로우 레이블 색상 업데이트 오류: {e}")
     
-    def get_current_part_info(self) -> dict:
-        """현재 선택된 부품정보 반환"""
+    def get_current_part_info(self, barcode: str = None) -> dict:
+        """현재 선택된 부품정보 반환 - 바코드와 매칭되는 패널 찾기"""
         try:
-            # 현재 작업 중인 패널의 부품정보 반환
-            current_panel = None
-            if self.plc_data_manager and self.plc_data_manager.get_plc_data().get("completion_signal") == 1:
-                current_panel = self.front_panel
-            elif self.plc_data_manager and self.plc_data_manager.get_plc_data().get("completion_signal") == 2:
-                current_panel = self.rear_panel
+            # 바코드가 제공된 경우, 해당 바코드와 일치하는 패널 찾기
+            if barcode:
+                # Front/LH 패널 확인
+                if hasattr(self, 'front_panel') and self.front_panel and hasattr(self.front_panel, 'part_number'):
+                    if self.front_panel.part_number == barcode:
+                        print(f"DEBUG: Front/LH 패널 매칭 - 바코드: {barcode}, 부품번호: {self.front_panel.part_number}")
+                        child_parts_info = self.front_panel.get_child_parts_info()
+                        return {
+                            'part_number': self.front_panel.part_number,
+                            'expected_sub_parts': child_parts_info
+                        }
+                
+                # Rear/RH 패널 확인
+                if hasattr(self, 'rear_panel') and self.rear_panel and hasattr(self.rear_panel, 'part_number'):
+                    if self.rear_panel.part_number == barcode:
+                        print(f"DEBUG: Rear/RH 패널 매칭 - 바코드: {barcode}, 부품번호: {self.rear_panel.part_number}")
+                        child_parts_info = self.rear_panel.get_child_parts_info()
+                        return {
+                            'part_number': self.rear_panel.part_number,
+                            'expected_sub_parts': child_parts_info
+                        }
             
-            if current_panel:
-                return {
-                    'part_number': current_panel.part_number,
-                    'expected_sub_parts': getattr(current_panel, 'expected_sub_parts', [])
-                }
-            else:
-                return {
-                    'part_number': '',
-                    'expected_sub_parts': []
-                }
+            # 바코드가 없거나 매칭되지 않은 경우, 첫 번째 활성화된 패널 반환
+            if hasattr(self, 'front_panel') and self.front_panel and hasattr(self.front_panel, 'part_number'):
+                if self.front_panel.part_number:
+                    print(f"DEBUG: Front/LH 패널 부품번호: {self.front_panel.part_number}")
+                    child_parts_info = self.front_panel.get_child_parts_info()
+                    return {
+                        'part_number': self.front_panel.part_number,
+                        'expected_sub_parts': child_parts_info
+                    }
+            
+            if hasattr(self, 'rear_panel') and self.rear_panel and hasattr(self.rear_panel, 'part_number'):
+                if self.rear_panel.part_number:
+                    print(f"DEBUG: Rear/RH 패널 부품번호: {self.rear_panel.part_number}")
+                    child_parts_info = self.rear_panel.get_child_parts_info()
+                    return {
+                        'part_number': self.rear_panel.part_number,
+                        'expected_sub_parts': child_parts_info
+                    }
+            
+            print("DEBUG: 활성화된 패널 없음")
+            return {
+                'part_number': '',
+                'expected_sub_parts': []
+            }
         except Exception as e:
             print(f"ERROR: 부품정보 조회 오류: {e}")
             return {
@@ -1074,8 +1165,8 @@ class BarcodeMainScreen(QMainWindow):
         try:
             print(f"DEBUG: 바코드 처리 시작 - {barcode}")
             
-            # 현재 부품정보 조회
-            part_info = self.get_current_part_info()
+            # 현재 부품정보 조회 (바코드 전달)
+            part_info = self.get_current_part_info(barcode)
             current_part_number = part_info.get('part_number', '')
             expected_sub_parts = part_info.get('expected_sub_parts', [])
             
@@ -1087,28 +1178,59 @@ class BarcodeMainScreen(QMainWindow):
             if barcode == current_part_number:
                 print(f"DEBUG: 바코드와 부품번호 일치 - {barcode}")
                 
-                # 하위자재가 있는 경우에만 워크플로우 시작 및 다이얼로그 표시
+                # 하위자재가 있는 경우 워크플로우 시작
                 if expected_sub_parts and len(expected_sub_parts) > 0:
                     print(f"DEBUG: 하위자재 {len(expected_sub_parts)}개 발견 - 워크플로우 시작")
                     
                     # 워크플로우 시작
                     if self.workflow_manager:
                         self.workflow_manager.start_workflow(current_part_number, expected_sub_parts)
-                    
-                    # 스캔현황 다이얼로그 표시
-                    self.show_scan_status_dialog()
                 else:
-                    print("DEBUG: 하위자재 없음 - 다이얼로그 표시 안함")
+                    print("DEBUG: 하위자재 없음 - 빈 다이얼로그 표시")
+                
+                # 하위부품 유무와 관계없이 스캔현황 다이얼로그 표시
+                self.show_scan_status_dialog()
             else:
                 print(f"DEBUG: 바코드와 부품번호 불일치 - 바코드: {barcode}, 부품번호: {current_part_number}")
                 
         except Exception as e:
             print(f"ERROR: 바코드 처리 오류: {e}")
     
+    def on_scanner_data_received(self, data: str):
+        """스캐너 데이터 수신 처리"""
+        try:
+            print(f"DEBUG: ===== 스캐너 데이터 수신 ===== {data}")
+            # 바코드 스캔 이벤트로 전달
+            self.on_barcode_scanned(data.strip())
+        except Exception as e:
+            print(f"ERROR: 스캐너 데이터 처리 오류: {e}")
+    
+    def check_scanner_data(self):
+        """스캐너 데이터 폴링 체크"""
+        try:
+            if "스캐너" in self.serial_connections and self.serial_connections["스캐너"]:
+                scanner_connection = self.serial_connections["스캐너"]
+                if hasattr(scanner_connection, 'read') and hasattr(scanner_connection, 'in_waiting'):
+                    # 데이터가 있는지 확인
+                    if scanner_connection.in_waiting > 0:
+                        # 데이터 읽기
+                        data = scanner_connection.read(scanner_connection.in_waiting)
+                        if data:
+                            # 바이트를 문자열로 변환
+                            data_str = data.decode('utf-8', errors='ignore').strip()
+                            if data_str:
+                                print(f"DEBUG: ===== 스캐너 폴링 데이터 수신 ===== {data_str}")
+                                # 바코드 스캔 이벤트로 전달
+                                self.on_barcode_scanned(data_str)
+        except Exception as e:
+            print(f"ERROR: 스캐너 폴링 데이터 수신 오류: {e}")
+    
     def on_barcode_scanned(self, barcode: str):
         """바코드 스캔 이벤트 처리 - 기존 로직과 통합"""
         try:
-            print(f"DEBUG: 바코드 스캔됨 - {barcode}")
+            print(f"DEBUG: ===== 바코드 스캔 이벤트 발생 ===== {barcode}")
+            print(f"DEBUG: 현재 Front/LH 부품번호: {getattr(self.front_panel, 'part_number', 'None') if hasattr(self, 'front_panel') else 'front_panel 없음'}")
+            print(f"DEBUG: 현재 Rear/RH 부품번호: {getattr(self.rear_panel, 'part_number', 'None') if hasattr(self, 'rear_panel') else 'rear_panel 없음'}")
             
             # 기존 하위부품 스캔 로직 실행
             self.add_scanned_part(barcode, True)
@@ -1118,6 +1240,32 @@ class BarcodeMainScreen(QMainWindow):
             
         except Exception as e:
             print(f"ERROR: 바코드 스캔 처리 오류: {e}")
+    
+    def test_barcode_scan(self, barcode: str):
+        """바코드 스캔 테스트 - 수동 테스트용"""
+        print(f"DEBUG: ===== 수동 바코드 스캔 테스트 ===== {barcode}")
+        self.on_barcode_scanned(barcode)
+    
+    def keyPressEvent(self, event):
+        """키보드 이벤트 처리 - 테스트용"""
+        if event.key() == Qt.Key_F1:
+            # F1 키로 Front/LH 부품번호 스캔 테스트 (현재 활성화된 부품번호 사용)
+            current_part_number = getattr(self.front_panel, 'part_number', '') if hasattr(self, 'front_panel') else ''
+            print(f"DEBUG: F1 키 눌림 - Front/LH 부품번호 스캔 테스트: {current_part_number}")
+            if current_part_number:
+                self.test_barcode_scan(current_part_number)
+            else:
+                print("DEBUG: F1 키 - Front/LH 부품번호가 없음")
+        elif event.key() == Qt.Key_F2:
+            # F2 키로 Rear/RH 부품번호 스캔 테스트 (현재 활성화된 부품번호 사용)
+            current_part_number = getattr(self.rear_panel, 'part_number', '') if hasattr(self, 'rear_panel') else ''
+            print(f"DEBUG: F2 키 눌림 - Rear/RH 부품번호 스캔 테스트: {current_part_number}")
+            if current_part_number:
+                self.test_barcode_scan(current_part_number)
+            else:
+                print("DEBUG: F2 키 - Rear/RH 부품번호가 없음")
+        else:
+            super().keyPressEvent(event)
     
     def save_scan_log(self, part_number, is_ok):
         """스캔 로그 저장"""
