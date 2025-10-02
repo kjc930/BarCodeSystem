@@ -43,16 +43,67 @@ class ChildPartBarcodeValidator:
         try:
             # 바코드 정리
             barcode = barcode.strip()
+            print(f"DEBUG: 원본 바코드: {barcode}")
             
             # ASCII 제어 문자 제거
             cleaned_barcode = re.sub(r'[\x00-\x1F\x7F]', '', barcode)
             cleaned_barcode = re.sub(r'\\x[0-9A-Fa-f]{2}', '', cleaned_barcode)
+            print(f"DEBUG: 제어문자 제거 후: {cleaned_barcode}")
             
-            # HKMC 패턴 추출: [)>06...M
-            start_pos = cleaned_barcode.find('[)>')
-            end_pos = cleaned_barcode.find('M', start_pos)
-            if start_pos != -1 and end_pos != -1:
-                barcode = cleaned_barcode[start_pos:end_pos+1]
+            # HKMC 표준 형식으로 변환 - 단계별 강력한 변환
+            print(f"DEBUG: === 바코드 변환 시작 ===")
+            print(f"DEBUG: 원본 바코드: {cleaned_barcode}")
+            
+            # 1. Header 수정: [)>▲06- → [)>RS06
+            if '[)>▲06-' in cleaned_barcode:
+                cleaned_barcode = cleaned_barcode.replace('[)>▲06-', '[)>RS06')
+                print(f"DEBUG: 1단계 - Header 수정 후: {cleaned_barcode}")
+            elif '[)>' in cleaned_barcode and '▲' in cleaned_barcode:
+                # 다른 형태의 ▲ 포함 헤더 처리
+                cleaned_barcode = re.sub(r'\[\)>.*?▲.*?06-', '[)>RS06', cleaned_barcode)
+                print(f"DEBUG: 1단계 - Header 패턴 수정 후: {cleaned_barcode}")
+            
+            # 2. 불필요한 하이픈 제거: -V2812-P89231CU1002-S-E-T...-M → V2812P89231CU1002S...M
+            cleaned_barcode = re.sub(r'-([A-Z0-9])', r'\1', cleaned_barcode)
+            print(f"DEBUG: 2단계 - 하이픈 제거 후: {cleaned_barcode}")
+            
+            # 3. ▲ 문자 완전 제거
+            cleaned_barcode = cleaned_barcode.replace('▲', '')
+            print(f"DEBUG: 3단계 - ▲ 문자 제거 후: {cleaned_barcode}")
+            
+            # 4. 끝에 있는 ▲ 문자 제거: M▲ → M
+            if cleaned_barcode.endswith('M▲'):
+                cleaned_barcode = cleaned_barcode[:-1]
+                print(f"DEBUG: 4단계 - 끝 ▲ 문자 제거 후: {cleaned_barcode}")
+            
+            # 5. 추가 정리: 연속된 특수문자 제거
+            cleaned_barcode = re.sub(r'[▲\-\s]+', '', cleaned_barcode)
+            print(f"DEBUG: 5단계 - 특수문자 정리 후: {cleaned_barcode}")
+            
+            # 6. 최종 검증 및 수정
+            if not cleaned_barcode.startswith('[)>RS06'):
+                print(f"DEBUG: 6단계 - [)>RS06로 시작하지 않음, 강제 수정")
+                if '[)>' in cleaned_barcode:
+                    # [)> 이후 부분만 추출하여 RS06 추가
+                    start_pos = cleaned_barcode.find('[)>')
+                    if start_pos != -1:
+                        data_part = cleaned_barcode[start_pos+3:]  # [)> 제거
+                        # 기존에 06이 있으면 제거
+                        if data_part.startswith('06'):
+                            data_part = data_part[2:]  # 06 제거
+                        cleaned_barcode = '[)>RS06' + data_part
+                        print(f"DEBUG: 6단계 - 강제 수정 후: {cleaned_barcode}")
+            
+            if not cleaned_barcode.endswith('M'):
+                print(f"DEBUG: 6단계 - M으로 끝나지 않음, M 추가")
+                cleaned_barcode += 'M'
+                print(f"DEBUG: 6단계 - M 추가 후: {cleaned_barcode}")
+            
+            print(f"DEBUG: === 바코드 변환 완료: {cleaned_barcode} ===")
+            
+            # 최종 변환된 바코드 사용
+            barcode = cleaned_barcode
+            print(f"DEBUG: 최종 변환된 바코드: {barcode}")
             
             # 기본 길이 검증
             if len(barcode) < 20:
@@ -102,27 +153,30 @@ class ChildPartBarcodeValidator:
         info = {}
         
         try:
-            # 업체코드 추출 (Header 이후 4바이트)
+            # 업체코드 추출 (Header 이후, 첫 번째 식별자 전까지)
             if len(barcode) > 7:
-                supplier_code = barcode[7:11]
-                info['supplier_code'] = supplier_code
-                
-                if supplier_code in self.supplier_codes:
-                    info['supplier_name'] = self.supplier_codes[supplier_code]
+                # [)>RS06V2812P... 에서 V2812만 추출 (P 식별자 전까지)
+                supplier_match = re.search(r'[A-Z0-9]{4,6}(?=[A-Z])', barcode[7:])
+                if supplier_match:
+                    supplier_code = supplier_match.group()
+                    info['supplier_code'] = supplier_code
+                    
+                    if supplier_code in self.supplier_codes:
+                        info['supplier_name'] = self.supplier_codes[supplier_code]
+                    else:
+                        errors.append(f"알 수 없는 업체코드: {supplier_code}")
                 else:
-                    errors.append(f"알 수 없는 업체코드: {supplier_code}")
+                    errors.append("업체코드를 추출할 수 없습니다.")
             else:
                 errors.append("업체코드를 추출할 수 없습니다.")
             
-            # Part_No 추출 (업체코드 이후 10-15바이트)
-            if len(barcode) > 11:
-                # Part_No는 공백이나 특수문자로 구분
-                part_match = re.search(r'[A-Z0-9]{10,15}', barcode[11:])
-                if part_match:
-                    part_number = part_match.group()
-                    info['part_number'] = part_number
-                else:
-                    errors.append("Part_No를 추출할 수 없습니다.")
+            # Part_No 추출 (P 식별자 이후)
+            part_match = re.search(r'P([A-Z0-9]{10,15})', barcode)
+            if part_match:
+                part_number = part_match.group(1)  # P 제외한 부품번호만 추출
+                info['part_number'] = part_number
+            else:
+                errors.append("Part_No를 추출할 수 없습니다. P 식별자를 찾을 수 없습니다.")
             
             return errors, info
             

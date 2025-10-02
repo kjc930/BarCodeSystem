@@ -968,10 +968,15 @@ class BarcodeMainScreen(QMainWindow):
         except Exception as e:
             print(f"DEBUG: 안전한 타이틀 이미지 업데이트 오류: {e}")
     
-    def add_scanned_part(self, part_number, is_ok=True):
+    def add_scanned_part(self, part_number, is_ok=True, raw_barcode_data=None):
         """하위부품 스캔 추가 (선행조건) - HKMC 바코드 검증 방식 적용"""
-        # 하위부품 바코드 검증 (HKMC 방식)
-        is_valid, errors, barcode_info = self.child_part_validator.validate_child_part_barcode(part_number)
+        print(f"DEBUG: ===== 하위부품 스캔 처리 시작 ===== {part_number}")
+        print(f"DEBUG: 원본 바코드 데이터: {raw_barcode_data}")
+        
+        # 하위부품 바코드 검증 (HKMC 방식) - 원본 바코드 데이터 사용
+        barcode_to_validate = raw_barcode_data if raw_barcode_data else part_number
+        print(f"DEBUG: 검증할 바코드: {barcode_to_validate}")
+        is_valid, errors, barcode_info = self.child_part_validator.validate_child_part_barcode(barcode_to_validate)
         
         if not is_valid:
             print(f"DEBUG: 하위부품 바코드 검증 실패 - {part_number}")
@@ -980,9 +985,14 @@ class BarcodeMainScreen(QMainWindow):
         else:
             print(f"DEBUG: 하위부품 바코드 검증 성공 - {part_number}")
             print(f"DEBUG: 바코드 정보: {barcode_info}")
+            # HKMC 바코드에서 추출된 부품번호 사용
+            extracted_part_number = barcode_info.get('part_number', part_number)
+            print(f"DEBUG: 추출된 부품번호: {extracted_part_number}")
             is_ok = True
         
-        self.scanned_parts.insert(0, (part_number, is_ok))
+        # 추출된 부품번호로 스캔된 부품 목록에 추가
+        final_part_number = barcode_info.get('part_number', part_number) if is_ok else part_number
+        self.scanned_parts.insert(0, (final_part_number, is_ok))
         
         # 최대 20개까지만 유지
         if len(self.scanned_parts) > 20:
@@ -990,16 +1000,30 @@ class BarcodeMainScreen(QMainWindow):
         
         # 하위부품 매칭 확인
         if is_ok:
-            self.check_child_part_match(part_number)
+            self.check_child_part_match(final_part_number)
         
         # 스캔 현황 다이얼로그가 열려있다면 하위부품 상태 업데이트
+        print(f"DEBUG: 스캔현황 다이얼로그 상태 확인 - hasattr: {hasattr(self, 'scan_status_dialog')}, dialog: {getattr(self, 'scan_status_dialog', None)}")
         if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
-            self.scan_status_dialog.update_child_part_scan_status(part_number, is_ok)
+            # 변환된 바코드에서 부품번호 추출하여 매칭 시도
+            if is_ok and barcode_info.get('part_number'):
+                extracted_part_number = barcode_info.get('part_number')
+                print(f"DEBUG: 스캔현황 다이얼로그 업데이트 시도 - 추출된 부품번호: {extracted_part_number}, 상태: {is_ok}")
+                # 추출된 부품번호만 전달 (바코드 전체가 아닌)
+                self.scan_status_dialog.update_child_part_scan_status(extracted_part_number, is_ok, raw_barcode_data)
+            else:
+                print(f"DEBUG: 스캔현황 다이얼로그 업데이트 시도 - 원본 부품번호: {final_part_number}, 상태: {is_ok}")
+                # 원본 부품번호도 정리하여 전달
+                clean_part_number = final_part_number if not final_part_number.startswith('[)>') else part_number
+                self.scan_status_dialog.update_child_part_scan_status(clean_part_number, is_ok, raw_barcode_data)
+            print(f"DEBUG: 스캔현황 다이얼로그 업데이트 완료")
+        else:
+            print(f"DEBUG: 스캔현황 다이얼로그가 열려있지 않음")
         
         # 스캔 로그 저장
-        self.save_scan_log(part_number, is_ok)
+        self.save_scan_log(final_part_number, is_ok)
         
-        print(f"DEBUG: 하위부품 스캔 추가 - {part_number} ({'OK' if is_ok else 'NG'})")
+        print(f"DEBUG: 하위부품 스캔 추가 완료 - {final_part_number} ({'OK' if is_ok else 'NG'})")
     
     def on_workflow_status_changed(self, status: str, message: str):
         """워크플로우 상태 변경 처리"""
@@ -1099,13 +1123,21 @@ class BarcodeMainScreen(QMainWindow):
                 child_parts_info = current_panel.get_child_parts_info()
                 print(f"DEBUG: {current_panel_title} 하위부품 정보 - {child_parts_info}")
                 
-                # 스캔현황 다이얼로그 생성 및 표시
-                self.scan_status_dialog = ScanStatusDialog([], self, child_parts_info)
-                self.scan_status_dialog.setWindowTitle(f"{current_panel_title} - 스캔 현황")
-                self.scan_status_dialog.show()
-                self.scan_status_dialog.raise_()
-                self.scan_status_dialog.activateWindow()
-                print(f"DEBUG: {current_panel_title} 스캔현황 다이얼로그 표시됨")
+                # 기존 스캔현황 다이얼로그가 열려있는지 확인
+                if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog and self.scan_status_dialog.isVisible():
+                    print(f"DEBUG: 기존 스캔현황 다이얼로그가 열려있음 - 기존 다이얼로그 재사용")
+                    # 기존 다이얼로그를 맨 앞으로 가져오기
+                    self.scan_status_dialog.raise_()
+                    self.scan_status_dialog.activateWindow()
+                else:
+                    print(f"DEBUG: 새로운 스캔현황 다이얼로그 생성")
+                    # 스캔현황 다이얼로그 생성 및 표시
+                    self.scan_status_dialog = ScanStatusDialog([], self, child_parts_info)
+                    self.scan_status_dialog.setWindowTitle(f"{current_panel_title} - 스캔 현황")
+                    self.scan_status_dialog.show()
+                    self.scan_status_dialog.raise_()
+                    self.scan_status_dialog.activateWindow()
+                    print(f"DEBUG: {current_panel_title} 스캔현황 다이얼로그 표시됨")
             else:
                 print("DEBUG: 활성화된 패널이 없음 - 스캔현황 다이얼로그 표시 안함")
                 
@@ -1246,17 +1278,29 @@ class BarcodeMainScreen(QMainWindow):
             print(f"ERROR: 스캐너 폴링 데이터 수신 오류: {e}")
     
     def on_barcode_scanned(self, barcode: str):
-        """바코드 스캔 이벤트 처리 - 기존 로직과 통합"""
+        """바코드 스캔 이벤트 처리 - 메인 부품번호와 하위부품 구분"""
         try:
             print(f"DEBUG: ===== 바코드 스캔 이벤트 발생 ===== {barcode}")
             print(f"DEBUG: 현재 Front/LH 부품번호: {getattr(self.front_panel, 'part_number', 'None') if hasattr(self, 'front_panel') else 'front_panel 없음'}")
             print(f"DEBUG: 현재 Rear/RH 부품번호: {getattr(self.rear_panel, 'part_number', 'None') if hasattr(self, 'rear_panel') else 'rear_panel 없음'}")
             
-            # 기존 하위부품 스캔 로직 실행
-            self.add_scanned_part(barcode, True)
+            # 바코드가 메인 부품번호인지 확인
+            is_main_part = False
+            if hasattr(self, 'front_panel') and self.front_panel and self.front_panel.part_number == barcode:
+                print(f"DEBUG: Front/LH 메인 부품번호 스캔 - {barcode}")
+                is_main_part = True
+            elif hasattr(self, 'rear_panel') and self.rear_panel and self.rear_panel.part_number == barcode:
+                print(f"DEBUG: Rear/RH 메인 부품번호 스캔 - {barcode}")
+                is_main_part = True
             
-            # 워크플로우 통합 처리
-            self.process_barcode_with_workflow(barcode)
+            if is_main_part:
+                # 메인 부품번호 스캔 - 워크플로우 통합 처리
+                print(f"DEBUG: 메인 부품번호 스캔 처리 - {barcode}")
+                self.process_barcode_with_workflow(barcode)
+            else:
+                # 하위부품 스캔 - 하위부품 처리 로직 실행
+                print(f"DEBUG: 하위부품 스캔으로 판단 - {barcode}")
+                self.add_scanned_part(barcode, True, raw_barcode_data=barcode)
             
         except Exception as e:
             print(f"ERROR: 바코드 스캔 처리 오류: {e}")

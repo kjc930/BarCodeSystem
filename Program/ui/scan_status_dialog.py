@@ -18,6 +18,7 @@ class ScanStatusDialog(QDialog):
         super().__init__(parent)
         self.scanned_parts = scanned_parts
         self.child_parts_info = child_parts_info or []
+        self.real_time_scanned_data = []  # 실시간 스캔 데이터 저장
         self.init_ui()
         
     def init_ui(self):
@@ -151,23 +152,117 @@ class ScanStatusDialog(QDialog):
         child_parts_layout.addWidget(self.child_parts_table)
         layout.addWidget(child_parts_group)
     
-    def update_child_part_scan_status(self, part_number, is_ok):
+    def update_child_part_scan_status(self, part_number, is_ok, raw_barcode_data=None):
         """하위부품 스캔 상태 업데이트"""
+        print(f"DEBUG: ScanStatusDialog - 하위부품 스캔 상태 업데이트 시도")
+        print(f"DEBUG: ScanStatusDialog - 스캔된 부품번호: {part_number}")
+        print(f"DEBUG: ScanStatusDialog - 스캔 상태: {is_ok}")
+        print(f"DEBUG: ScanStatusDialog - 원본 바코드 데이터: {raw_barcode_data}")
+        
+        # 실시간 스캔 데이터에 추가 (원본 바코드 데이터 사용)
+        from datetime import datetime
+        scan_time = datetime.now().strftime("%H:%M:%S")
+        display_data = raw_barcode_data if raw_barcode_data else part_number
+        self.real_time_scanned_data.insert(0, {
+            'time': scan_time,
+            'part_number': part_number,
+            'is_ok': is_ok,
+            'status': 'OK' if is_ok else 'NG',
+            'raw_data': display_data
+        })
+        
+        # 최대 50개까지만 유지
+        if len(self.real_time_scanned_data) > 50:
+            self.real_time_scanned_data = self.real_time_scanned_data[:50]
+        
+        print(f"DEBUG: ScanStatusDialog - 실시간 스캔 데이터 추가: {scan_time} - {part_number} ({'OK' if is_ok else 'NG'})")
+        
         if not hasattr(self, 'child_parts_table'):
+            print(f"DEBUG: ScanStatusDialog - child_parts_table이 없음")
+            # 스캔 테이블은 항상 업데이트 (가시성과 관계없이)
+            self.update_scan_table_data()
+            self.update_statistics()
             return
+        
+        print(f"DEBUG: ScanStatusDialog - 테이블 행 수: {self.child_parts_table.rowCount()}")
         
         for i in range(self.child_parts_table.rowCount()):
             item = self.child_parts_table.item(i, 0)  # 하위부품 Part_No 컬럼
-            if item and item.text() == part_number:
-                status_item = self.child_parts_table.item(i, 2)  # 스캔상태 컬럼
-                if status_item:
-                    if is_ok:
-                        status_item.setText("OK")
-                        status_item.setBackground(QColor(40, 167, 69, 50))  # 녹색 배경
+            if item:
+                table_part_number = item.text()
+                print(f"DEBUG: ScanStatusDialog - 테이블[{i}] 부품번호: {table_part_number}")
+                print(f"DEBUG: ScanStatusDialog - 매칭 비교: '{table_part_number}' == '{part_number}' ? {table_part_number == part_number}")
+                
+                if table_part_number == part_number:
+                    print(f"DEBUG: ScanStatusDialog - 부품번호 매칭 성공!")
+                    status_item = self.child_parts_table.item(i, 2)  # 스캔상태 컬럼
+                    if status_item:
+                        if is_ok:
+                            status_item.setText("OK")
+                            status_item.setBackground(QColor(40, 167, 69, 50))  # 녹색 배경
+                            print(f"DEBUG: ScanStatusDialog - 상태를 OK로 업데이트")
+                        else:
+                            status_item.setText("NG")
+                            status_item.setBackground(QColor(220, 53, 69, 50))  # 빨간색 배경
+                            print(f"DEBUG: ScanStatusDialog - 상태를 NG로 업데이트")
                     else:
-                        status_item.setText("NG")
-                        status_item.setBackground(QColor(220, 53, 69, 50))  # 빨간색 배경
-                break
+                        print(f"DEBUG: ScanStatusDialog - 상태 아이템이 없음")
+                    break
+                else:
+                    print(f"DEBUG: ScanStatusDialog - 부품번호 불일치")
+        
+        print(f"DEBUG: ScanStatusDialog - 하위부품 스캔 상태 업데이트 완료")
+        
+        # 스캔 테이블은 항상 업데이트 (가시성과 관계없이)
+        self.update_scan_table_data()
+        self.update_statistics()
+    
+    def update_scan_table_data(self):
+        """스캔 테이블 데이터 실시간 업데이트"""
+        if not hasattr(self, 'scan_table'):
+            return
+        
+        print(f"DEBUG: ScanStatusDialog - 스캔 테이블 데이터 업데이트: {len(self.real_time_scanned_data)}개 항목")
+        
+        # 실시간 스캔 데이터로 테이블 설정
+        self.scan_table.setRowCount(len(self.real_time_scanned_data))
+        
+        scan_table_font = FontManager.get_table_scan_font()
+        
+        for i, scan_data in enumerate(self.real_time_scanned_data):
+            # 원본 바코드 데이터 표시 (raw_data 사용)
+            raw_data = scan_data.get('raw_data', scan_data['part_number'])
+            data_text = f"[{scan_data['time']}] {scan_data['status']}: {raw_data}"
+            data_item = QTableWidgetItem(data_text)
+            data_item.setTextAlignment(Qt.AlignLeft)
+            data_item.setFont(scan_table_font)
+            
+            # 상태에 따른 색상 설정
+            if scan_data['is_ok']:
+                data_item.setBackground(QColor(40, 167, 69, 50))  # 녹색
+            else:
+                data_item.setBackground(QColor(220, 53, 69, 50))  # 빨간색
+            
+            self.scan_table.setItem(i, 0, data_item)
+        
+        # 컬럼 너비 자동 조정
+        self.scan_table.resizeColumnsToContents()
+        self.scan_table.setColumnWidth(0, max(600, self.scan_table.columnWidth(0)))
+    
+    def update_statistics(self):
+        """스캔 통계 업데이트"""
+        if not hasattr(self, 'total_scan_label'):
+            return
+            
+        total_scans = len(self.real_time_scanned_data)
+        ok_count = sum(1 for scan_data in self.real_time_scanned_data if scan_data['is_ok'])
+        ng_count = total_scans - ok_count
+
+        self.total_scan_label.setText(f"총 스캔: {total_scans}")
+        self.ok_label.setText(f"OK: {ok_count}")
+        self.ng_label.setText(f"NG: {ng_count}")
+        
+        print(f"DEBUG: ScanStatusDialog - 통계 업데이트: 총 {total_scans}, OK {ok_count}, NG {ng_count}")
     
     def create_statistics(self, layout):
         """통계 섹션 생성"""
@@ -175,26 +270,26 @@ class ScanStatusDialog(QDialog):
         stats_frame.setStyleSheet(get_main_stats_frame_style())
         stats_layout = QHBoxLayout(stats_frame)
         
-        # 총 스캔 수
-        total_count = len(self.scanned_parts)
-        total_label = QLabel(f"총 스캔: {total_count}")
-        total_label.setFont(FontManager.get_bold_label_font())
-        total_label.setStyleSheet("color: #2C3E50;")
-        stats_layout.addWidget(total_label)
+        # 총 스캔 수 (real_time_scanned_data 사용)
+        total_count = len(self.real_time_scanned_data)
+        self.total_scan_label = QLabel(f"총 스캔: {total_count}")
+        self.total_scan_label.setFont(FontManager.get_bold_label_font())
+        self.total_scan_label.setStyleSheet("color: #2C3E50;")
+        stats_layout.addWidget(self.total_scan_label)
         
         # OK 수
-        ok_count = sum(1 for _, is_ok in self.scanned_parts if is_ok)
-        ok_label = QLabel(f"OK: {ok_count}")
-        ok_label.setFont(FontManager.get_bold_label_font())
-        ok_label.setStyleSheet("color: #28A745;")
-        stats_layout.addWidget(ok_label)
+        ok_count = sum(1 for scan_data in self.real_time_scanned_data if scan_data['is_ok'])
+        self.ok_label = QLabel(f"OK: {ok_count}")
+        self.ok_label.setFont(FontManager.get_bold_label_font())
+        self.ok_label.setStyleSheet("color: #28A745;")
+        stats_layout.addWidget(self.ok_label)
         
         # NG 수
         ng_count = total_count - ok_count
-        ng_label = QLabel(f"NG: {ng_count}")
-        ng_label.setFont(FontManager.get_bold_label_font())
-        ng_label.setStyleSheet("color: #DC3545;")
-        stats_layout.addWidget(ng_label)
+        self.ng_label = QLabel(f"NG: {ng_count}")
+        self.ng_label.setFont(FontManager.get_bold_label_font())
+        self.ng_label.setStyleSheet("color: #DC3545;")
+        stats_layout.addWidget(self.ng_label)
         
         stats_layout.addStretch()
         layout.addWidget(stats_frame)
@@ -219,22 +314,8 @@ class ScanStatusDialog(QDialog):
         
         self.scan_table.setStyleSheet(get_main_scan_table_style())
         
-        # 데이터 설정 - 스캔된 데이터를 그대로 표시
-        self.scan_table.setRowCount(len(self.scanned_parts))
-        for i, (part, is_ok) in enumerate(self.scanned_parts):
-            # 스캔된 데이터 (상태 포함)
-            data_text = f"{'OK' if is_ok else 'NG'}: {part}"
-            data_item = QTableWidgetItem(data_text)
-            data_item.setTextAlignment(Qt.AlignLeft)
-            data_item.setFont(scan_table_font)
-            
-            # 상태에 따른 색상 설정
-            if is_ok:
-                data_item.setBackground(QColor(40, 167, 69, 50))
-            else:
-                data_item.setBackground(QColor(220, 53, 69, 50))
-            
-            self.scan_table.setItem(i, 0, data_item)
+        # 실시간 스캔 데이터로 테이블 업데이트
+        self.update_scan_table_data()
         
         # 컬럼 너비 자동 조정
         self.scan_table.resizeColumnsToContents()
