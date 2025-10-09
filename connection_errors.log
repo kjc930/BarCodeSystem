@@ -658,3 +658,6 @@
 [2025-10-02 16:55:48] 프린터 연결 실패 - 포트: COM1, 오류: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
 [2025-10-02 16:55:48] 너트1 연결 실패 - 포트: COM4, 오류: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
 [2025-10-02 16:55:48] 너트2 연결 실패 - 포트: COM5, 오류: could not open port 'COM5': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+[2025-10-10 07:54:01] 프린터 연결 실패 - 포트: COM1, 오류: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+[2025-10-10 07:54:01] 너트1 연결 실패 - 포트: COM4, 오류: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+[2025-10-10 07:54:01] 너트2 연결 실패 - 포트: COM5, 오류: could not open port 'COM5': PermissionError(13, '액세스가 거부되었습니다.', None, 5)

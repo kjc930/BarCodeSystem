@@ -5012,3 +5012,21 @@
 2025-10-02 16:55:48,597 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
 2025-10-02 16:55:48,597 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
 2025-10-02 16:55:48,597 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-10 07:54:01,015 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-10-10 07:54:01,015 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-10 07:54:01,095 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-10 07:54:01,095 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM5 - AX99100 PCIe to High Speed Serial Port(COM5)
+2025-10-10 07:54:01,095 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-10 07:54:01,172 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM5 (9600bps)
+2025-10-10 07:54:01,172 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM1
+2025-10-10 07:54:01,172 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM1, 보드레이트: 9600
+2025-10-10 07:54:01,172 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-10-10 07:54:01,173 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM1: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-10-10 07:54:01,173 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-10 07:54:01,173 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-10 07:54:01,174 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-10-10 07:54:01,174 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+2025-10-10 07:54:01,175 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-10 07:54:01,175 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-10 07:54:01,175 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-10 07:54:01,175 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
