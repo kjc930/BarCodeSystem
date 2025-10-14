@@ -1041,6 +1041,9 @@ class ScanStatusDialog(QDialog):
         
         print(f"DEBUG: ScanStatusDialog - 스캔 테이블 데이터 업데이트: {len(self.real_time_scanned_data)}개 항목")
         
+        # 선택 테두리 제거 - 선택 모드 비활성화
+        self.scan_table.setSelectionMode(QTableWidget.NoSelection)
+        
         # 실시간 스캔 데이터로 테이블 설정
         self.scan_table.setRowCount(len(self.real_time_scanned_data))
         
@@ -1124,6 +1127,9 @@ class ScanStatusDialog(QDialog):
         self.scan_table.setColumnCount(1)
         self.scan_table.setHorizontalHeaderLabels(["스캔된 데이터 (디버그용)"])
         
+        # 선택 테두리 제거 - 선택 모드 비활성화
+        self.scan_table.setSelectionMode(QTableWidget.NoSelection)
+        
         # 테이블 크기 설정 (동적 조정)
         self.scan_table.setMinimumSize(750, 300)  # 최소 높이 설정
         self.scan_table.setMaximumHeight(400)     # 최대 높이 설정
@@ -1136,7 +1142,32 @@ class ScanStatusDialog(QDialog):
         self.scan_table.setFont(scan_table_font)
         self.scan_table.horizontalHeader().setFont(scan_header_font)
         
-        self.scan_table.setStyleSheet(get_main_scan_table_style())
+        # 선택 테두리 제거를 위한 스타일시트 설정
+        self.scan_table.setStyleSheet("""
+            QTableWidget {
+                gridline-color: #ddd;
+                background-color: white;
+                border: 1px solid #ddd;
+            }
+            QTableWidget::item {
+                padding: 8px;
+                border: none;
+                background-color: transparent;
+            }
+            QTableWidget::item:hover {
+                background-color: #f0f0f0;
+            }
+            QTableWidget::item:selected {
+                background-color: transparent;
+                border: none;
+            }
+            QHeaderView::section {
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
+                padding: 8px;
+                font-weight: bold;
+            }
+        """)
         
         # 실시간 스캔 데이터로 테이블 업데이트
         self.update_scan_table_data()
