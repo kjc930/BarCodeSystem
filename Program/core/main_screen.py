@@ -37,6 +37,15 @@ class BarcodeMainScreen(QMainWindow):
             super().__init__()
             self.scanned_parts = []
             
+            # ===== 데이터 구조 분리 =====
+            # 임시보관 데이터 (현재 작업용) - 초기화하지 않음
+            if not hasattr(self, 'temp_scan_data'):
+                self.temp_scan_data = []  # 하위부품 스캔 데이터 임시보관
+            
+            # 히스토리 데이터 (영구 저장)
+            if not hasattr(self, 'scan_history'):
+                self.scan_history = []   # 스캔 히스토리 관리
+            
             # 스캔현황 다이얼로그 데이터 저장 (다이얼로그가 닫힌 후에도 유지)
             self.scan_status_data = {
                 'real_time_scanned_data': [],
@@ -44,7 +53,7 @@ class BarcodeMainScreen(QMainWindow):
                 'current_panel_title': ''
             }
             
-            # 전역 스캔 데이터 저장 (확실한 방법)
+            # 전역 스캔 데이터 저장 (확실한 방법) - 기존 호환성 유지
             self.global_scan_data = []
             
             # 설정 파일 로드 (먼저 로드)
@@ -1070,10 +1079,116 @@ class BarcodeMainScreen(QMainWindow):
         except Exception as e:
             print(f"DEBUG: 안전한 타이틀 이미지 업데이트 오류: {e}")
     
+    def check_duplicate_part(self, part_number):
+        """중복 투입 방지 - 과거 스캔 데이터에서 중복 체크"""
+        print(f"DEBUG: 중복 투입 방지 체크 시작 - 부품번호: {part_number}")
+        
+        # TODO: 나중에 실제 중복 방지를 활성화하려면 아래 변수를 False로 변경
+        ALWAYS_ALLOW_DUPLICATE = True  # 하드코딩: 항상 중복 허용 (테스트 편의성)
+        
+        if ALWAYS_ALLOW_DUPLICATE:
+            print(f"DEBUG: 🔧 중복 체크 하드코딩 모드 - 항상 중복 허용 (테스트 편의성)")
+            
+            # 하드코딩 모드에서도 실제 중복 체크 과정을 시뮬레이션
+            self.simulate_duplicate_check_process(part_number)
+            return False  # 항상 중복이 아님 (통과)
+        
+        # 실제 중복 체크 로직 (현재는 비활성화)
+        try:
+            # 1. 현재 세션의 스캔된 부품 목록에서 체크
+            for scanned_part, _ in self.scanned_parts:
+                if scanned_part == part_number:
+                    print(f"DEBUG: ⚠️ 현재 세션에서 중복 발견: {part_number}")
+                    return True
+            
+            # 2. 파일에서 과거 스캔 데이터 체크
+            import json
+            try:
+                with open('scan_data_backup.json', 'r', encoding='utf-8') as f:
+                    file_data = json.load(f)
+                
+                for scan_data in file_data:
+                    if scan_data.get('part_number') == part_number:
+                        print(f"DEBUG: ⚠️ 과거 데이터에서 중복 발견: {part_number}")
+                        return True
+                        
+            except FileNotFoundError:
+                print(f"DEBUG: 스캔 데이터 파일이 없음 - 중복 체크 불가")
+            except Exception as e:
+                print(f"DEBUG: 파일 읽기 오류: {e}")
+            
+            print(f"DEBUG: ✅ 중복 없음 - 부품번호 '{part_number}'은(는) 새로 스캔된 부품입니다.")
+            return False
+            
+        except Exception as e:
+            print(f"DEBUG: 중복 체크 오류: {e}")
+            return False  # 오류 시 중복이 아닌 것으로 처리
+    
+    def simulate_duplicate_check_process(self, part_number):
+        """하드코딩 모드에서 중복 체크 과정 시뮬레이션"""
+        try:
+            print(f"DEBUG: 🔍 중복 체크 시뮬레이션 시작 - 부품번호: {part_number}")
+            
+            # 1. 현재 세션 체크 시뮬레이션
+            current_session_count = 0
+            for scanned_part, _ in self.scanned_parts:
+                if scanned_part == part_number:
+                    current_session_count += 1
+            
+            if current_session_count > 0:
+                print(f"DEBUG: 📋 현재 세션에서 {current_session_count}번 스캔됨 (시뮬레이션)")
+            else:
+                print(f"DEBUG: 📋 현재 세션에서 중복 없음 (시뮬레이션)")
+            
+            # 2. 과거 데이터 체크 시뮬레이션
+            import json
+            try:
+                with open('scan_data_backup.json', 'r', encoding='utf-8') as f:
+                    file_data = json.load(f)
+                
+                past_scan_count = 0
+                for scan_data in file_data:
+                    if scan_data.get('part_number') == part_number:
+                        past_scan_count += 1
+                        scan_time = scan_data.get('time', '알 수 없음')
+                        scan_status = scan_data.get('status', '알 수 없음')
+                        print(f"DEBUG: 📁 과거 데이터에서 발견 - 시간: {scan_time}, 상태: {scan_status} (시뮬레이션)")
+                
+                if past_scan_count > 0:
+                    print(f"DEBUG: 📁 과거 데이터에서 총 {past_scan_count}번 스캔됨 (시뮬레이션)")
+                else:
+                    print(f"DEBUG: 📁 과거 데이터에서 중복 없음 (시뮬레이션)")
+                    
+            except FileNotFoundError:
+                print(f"DEBUG: 📁 스캔 데이터 파일이 없음 - 과거 데이터 체크 불가 (시뮬레이션)")
+            except Exception as e:
+                print(f"DEBUG: 📁 파일 읽기 오류: {e} (시뮬레이션)")
+            
+            print(f"DEBUG: 🔍 중복 체크 시뮬레이션 완료 - 부품번호: {part_number}")
+            
+        except Exception as e:
+            print(f"DEBUG: 중복 체크 시뮬레이션 오류: {e}")
+    
     def add_scanned_part(self, part_number, is_ok=True, raw_barcode_data=None):
         """하위부품 스캔 추가 (선행조건) - HKMC 바코드 검증 방식 적용"""
         print(f"DEBUG: ===== 하위부품 스캔 처리 시작 ===== {part_number}")
         print(f"DEBUG: 원본 바코드 데이터: {raw_barcode_data}")
+        
+        # ===== 중복 투입 방지 로직 (현재는 항상 통과) =====
+        # TODO: 나중에 실제 중복 방지 기능을 활성화하려면 아래 변수를 False로 변경
+        DUPLICATE_CHECK_ENABLED = True  # 하드코딩: 항상 참 (테스트 편의성)
+        
+        if DUPLICATE_CHECK_ENABLED:
+            # 중복 투입 방지 체크 (현재는 항상 통과)
+            is_duplicate = self.check_duplicate_part(part_number)
+            if is_duplicate:
+                print(f"DEBUG: ⚠️ 중복 투입 방지 - 부품번호 '{part_number}'이 이미 스캔되었습니다!")
+                # TODO: 나중에 실제 중복 방지를 활성화하려면 아래 주석을 해제
+                # return  # 중복이면 스캔 처리 중단
+            else:
+                print(f"DEBUG: ✅ 중복 체크 통과 - 부품번호 '{part_number}'은(는) 새로 스캔된 부품입니다.")
+        else:
+            print(f"DEBUG: 중복 투입 방지 기능이 비활성화되어 있습니다.")
         
         # 하위부품 바코드 검증 (HKMC 방식) - 원본 바코드 데이터 사용
         barcode_to_validate = raw_barcode_data if raw_barcode_data else part_number
@@ -1130,7 +1245,14 @@ class BarcodeMainScreen(QMainWindow):
             'panel': current_panel  # 패널 구분 정보 추가
         }
         
-        # 전역 스캔 데이터 저장 (확실한 방법)
+        # ===== 새로운 데이터 관리 방식 =====
+        # 1. 임시보관 데이터에 추가 (현재 작업용)
+        self.add_to_temp_scan_data(scan_data)
+        
+        # 2. 히스토리 데이터에 추가 (영구 저장)
+        self.add_to_scan_history(scan_data)
+        
+        # 3. 기존 호환성을 위한 전역 데이터도 업데이트
         self.global_scan_data.insert(0, scan_data)
         print(f"DEBUG: 전역 스캔 데이터 저장: {scan_data}")
         print(f"DEBUG: 전역 저장된 데이터: {len(self.global_scan_data)}개 항목")
@@ -1139,7 +1261,7 @@ class BarcodeMainScreen(QMainWindow):
         for i, data in enumerate(self.global_scan_data):
             print(f"DEBUG: 전역 저장된 데이터 {i}: {data}")
         
-        # 파일로도 저장 (확실한 방법)
+        # 4. 파일로도 저장 (확실한 방법)
         import json
         try:
             with open('scan_data_backup.json', 'w', encoding='utf-8') as f:
@@ -1148,10 +1270,10 @@ class BarcodeMainScreen(QMainWindow):
         except Exception as e:
             print(f"DEBUG: 스캔 데이터 파일 저장 실패: {e}")
         
-        # 프린트용 데이터 저장 (공정바코드 + 하위부품 데이터)
+        # 5. 프린트용 데이터 저장 (공정바코드 + 하위부품 데이터)
         self.save_print_data(scan_data)
         
-        # scan_status_data에도 저장 (기존 방식 유지)
+        # 6. scan_status_data에도 저장 (기존 방식 유지)
         if not hasattr(self, 'scan_status_data'):
             self.scan_status_data = {
                 'real_time_scanned_data': [],
@@ -1425,58 +1547,68 @@ class BarcodeMainScreen(QMainWindow):
                     self.scan_status_dialog.activateWindow()
                 else:
                     print(f"DEBUG: 새로운 스캔현황 다이얼로그 생성")
-                    # 스캔현황 다이얼로그 생성 및 표시
-                    self.scan_status_dialog = ScanStatusDialog([], self, child_parts_info)
-                    self.scan_status_dialog.setWindowTitle(f"{current_panel_title} - 스캔 현황")
+                    print(f"DEBUG: ⚠️ 부품번호 확인 루틴 건너뛰기 - 바로 하위부품 스캔 준비 상태로 진입")
                     
-                    # 실제 스캔 데이터 복원 시도
-                    print(f"DEBUG: 메인화면 - 실제 스캔 데이터 복원 시도")
-                    
-                    # 1. 파일에서 스캔 데이터 복원 시도
-                    print(f"DEBUG: 메인화면 - 파일에서 스캔 데이터 복원 시도")
+                    # 스캔현황 다이얼로그 생성 시 임시 파일에서 직접 데이터 로드
+                    initial_data = []
+                    print(f"DEBUG: 메인화면 - 다이얼로그 생성 시 임시 파일에서 직접 데이터 로드")
                     try:
                         import json
-                        with open('scan_data_backup.json', 'r', encoding='utf-8') as f:
-                            file_scan_data = json.load(f)
-                        print(f"DEBUG: 메인화면 - 파일에서 읽은 데이터: {len(file_scan_data)}개 항목")
+                        import os
+                        # 절대 경로로 파일 찾기
+                        script_dir = os.path.dirname(os.path.abspath(__file__))
+                        project_root = os.path.dirname(script_dir)
+                        temp_scan_file = os.path.join(project_root, "temp_scan_data.json")
+                        print(f"DEBUG: 메인화면 - 임시 파일 절대 경로: {temp_scan_file}")
+                        print(f"DEBUG: 메인화면 - 현재 작업 디렉토리: {os.getcwd()}")
+                        print(f"DEBUG: 메인화면 - 스크립트 디렉토리: {script_dir}")
+                        print(f"DEBUG: 메인화면 - 프로젝트 루트: {project_root}")
+                        print(f"DEBUG: 메인화면 - 파일 존재 여부: {os.path.exists(temp_scan_file)}")
                         
-                        # 파일 데이터 상세 출력
-                        for i, data in enumerate(file_scan_data):
-                            print(f"DEBUG: 메인화면 - 파일 데이터 {i}: {data}")
-                        
-                        # 파일 데이터를 다이얼로그에 복사
-                        self.scan_status_dialog.real_time_scanned_data = file_scan_data.copy()
-                        
-                        # 복원 후 데이터 확인
-                        print(f"DEBUG: 메인화면 - 복원 후 다이얼로그 데이터: {len(self.scan_status_dialog.real_time_scanned_data)}개 항목")
-                        for i, data in enumerate(self.scan_status_dialog.real_time_scanned_data):
-                            print(f"DEBUG: 메인화면 - 복원된 데이터 {i}: {data}")
-                        
-                        # 지연 후 복원 (테이블 생성 완료 후)
-                        from PyQt5.QtCore import QTimer
-                        QTimer.singleShot(500, lambda: self.restore_scan_data())
-                        
-                    except Exception as e:
-                        print(f"DEBUG: 메인화면 - 파일에서 스캔 데이터 복원 실패: {e}")
-                        
-                        # 2. 파일 복원 실패 시 전역 데이터 사용
-                        if hasattr(self, 'global_scan_data') and self.global_scan_data:
-                            print(f"DEBUG: 메인화면 - 전역 데이터로 복원 시도: {len(self.global_scan_data)}개 항목")
-                            for i, data in enumerate(self.global_scan_data):
-                                print(f"DEBUG: 메인화면 - 전역 데이터 {i}: {data}")
-                            
-                            self.scan_status_dialog.real_time_scanned_data = self.global_scan_data.copy()
-                            from PyQt5.QtCore import QTimer
-                            QTimer.singleShot(500, lambda: self.restore_scan_data())
+                        if os.path.exists(temp_scan_file):
+                            with open(temp_scan_file, 'r', encoding='utf-8') as f:
+                                temp_data = json.load(f)
+                                if temp_data and len(temp_data) > 0:
+                                    initial_data = temp_data.copy()
+                                    print(f"DEBUG: 메인화면 - 임시 파일에서 로드된 데이터: {len(initial_data)}개 항목")
+                                    for i, data in enumerate(initial_data):
+                                        print(f"DEBUG: 메인화면 - 로드된 데이터 {i}: {data}")
+                                else:
+                                    print(f"DEBUG: 메인화면 - 임시 파일에 데이터 없음")
                         else:
-                            print(f"DEBUG: 메인화면 - 복원할 데이터가 없음 - 대기 상태로 설정")
-                            # 데이터가 없으면 대기 상태로 설정
-                            from PyQt5.QtCore import QTimer
-                            QTimer.singleShot(500, lambda: self.restore_scan_data())
+                            print(f"DEBUG: 메인화면 - 임시 파일이 존재하지 않음")
+                    except Exception as e:
+                        print(f"DEBUG: 메인화면 - 임시 파일 로드 오류: {e}")
                     
+                    # 스캔현황 다이얼로그 생성 및 표시
+                    self.scan_status_dialog = ScanStatusDialog(initial_data, self, child_parts_info)
+                    self.scan_status_dialog.setWindowTitle(f"{current_panel_title} - 스캔 현황")
+                    
+                    # 다이얼로그 생성 후 데이터 상태 확인
+                    print(f"DEBUG: 메인화면 - 다이얼로그 생성 후 데이터 상태 확인")
+                    print(f"DEBUG: 메인화면 - 다이얼로그 real_time_scanned_data: {len(self.scan_status_dialog.real_time_scanned_data)}개 항목")
+                    for i, data in enumerate(self.scan_status_dialog.real_time_scanned_data):
+                        print(f"DEBUG: 메인화면 - 다이얼로그 데이터 {i}: {data}")
+                    
+                    # 2. 다이얼로그 표시 후 즉시 복원 시도
                     self.scan_status_dialog.show()
                     self.scan_status_dialog.raise_()
                     self.scan_status_dialog.activateWindow()
+                    
+                    # 데이터가 있으면 복원 시도
+                    if self.scan_status_dialog.real_time_scanned_data:
+                        print(f"DEBUG: 메인화면 - 데이터가 있으므로 복원 시도")
+                        from PyQt5.QtCore import QTimer
+                        QTimer.singleShot(100, lambda: self.scan_status_dialog.restore_child_parts_status())
+                        
+                        # 추가 복원 시도 (더 강력한 복원)
+                        QTimer.singleShot(500, lambda: self.force_restore_scan_data())
+                        
+                        # 최종 복원 시도 (매우 강력한 복원)
+                        QTimer.singleShot(1000, lambda: self.ultimate_restore_scan_data())
+                    else:
+                        print(f"DEBUG: 메인화면 - 데이터가 없으므로 대기 상태로 시작")
+                    
                     print(f"DEBUG: {current_panel_title} 스캔현황 다이얼로그 표시됨")
             else:
                 print("DEBUG: 활성화된 패널이 없음 - 스캔현황 다이얼로그 표시 안함")
@@ -1494,6 +1626,18 @@ class BarcodeMainScreen(QMainWindow):
             for i, data in enumerate(self.scan_status_dialog.real_time_scanned_data):
                 print(f"DEBUG: 메인화면 - 복원할 데이터 {i}: {data}")
             
+            # 다이얼로그 데이터 상태 확인
+            if hasattr(self.scan_status_dialog, 'real_time_scanned_data'):
+                print(f"DEBUG: 메인화면 - 다이얼로그 real_time_scanned_data 존재: {len(self.scan_status_dialog.real_time_scanned_data)}개 항목")
+                if self.scan_status_dialog.real_time_scanned_data:
+                    print(f"DEBUG: 메인화면 - 다이얼로그 데이터 내용:")
+                    for i, data in enumerate(self.scan_status_dialog.real_time_scanned_data):
+                        print(f"DEBUG: 메인화면 -   {i}: {data}")
+                else:
+                    print(f"DEBUG: 메인화면 - ⚠️ 다이얼로그 데이터가 비어있음!")
+            else:
+                print(f"DEBUG: 메인화면 - ⚠️ 다이얼로그에 real_time_scanned_data 속성이 없음!")
+            
             # 복원된 데이터로 테이블 업데이트
             print(f"DEBUG: 메인화면 - 스캔 테이블 업데이트 시작")
             self.scan_status_dialog.update_scan_table_data()
@@ -1505,12 +1649,213 @@ class BarcodeMainScreen(QMainWindow):
             
             # 하위부품 스캔 상태도 복원
             print(f"DEBUG: 메인화면 - 하위부품 상태 복원 시작")
+            print(f"DEBUG: 메인화면 - 복원 전 real_time_scanned_data: {len(self.scan_status_dialog.real_time_scanned_data)}개")
             self.scan_status_dialog.restore_child_parts_status()
             print(f"DEBUG: 메인화면 - 하위부품 상태 복원 완료")
             
             print(f"DEBUG: 스캔 데이터 복원 완료")
         else:
             print(f"DEBUG: 메인화면 - ⚠️ scan_status_dialog가 없어서 복원 실패!")
+    
+    def force_restore_scan_data(self):
+        """강제 스캔 데이터 복원 (더 강력한 복원)"""
+        try:
+            print(f"DEBUG: 메인화면 - 강제 스캔 데이터 복원 시작")
+            if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
+                print(f"DEBUG: 메인화면 - 강제 복원 시 다이얼로그 데이터: {len(self.scan_status_dialog.real_time_scanned_data)}개 항목")
+                
+                # 다이얼로그 데이터 상태 확인
+                if hasattr(self.scan_status_dialog, 'real_time_scanned_data'):
+                    print(f"DEBUG: 메인화면 - 강제 복원 시 다이얼로그 real_time_scanned_data 존재: {len(self.scan_status_dialog.real_time_scanned_data)}개 항목")
+                    if self.scan_status_dialog.real_time_scanned_data:
+                        print(f"DEBUG: 메인화면 - 강제 복원 시 다이얼로그 데이터 내용:")
+                        for i, data in enumerate(self.scan_status_dialog.real_time_scanned_data):
+                            print(f"DEBUG: 메인화면 -   {i}: {data}")
+                    else:
+                        print(f"DEBUG: 메인화면 - ⚠️ 강제 복원 시 다이얼로그 데이터가 비어있음!")
+                else:
+                    print(f"DEBUG: 메인화면 - ⚠️ 강제 복원 시 다이얼로그에 real_time_scanned_data 속성이 없음!")
+                
+                # 다이얼로그의 restore_child_parts_status 메서드 직접 호출
+                if hasattr(self.scan_status_dialog, 'restore_child_parts_status'):
+                    print(f"DEBUG: 메인화면 - 강제 복원 시 restore_child_parts_status 호출")
+                    self.scan_status_dialog.restore_child_parts_status()
+                    print(f"DEBUG: 메인화면 - 강제 복원 시 restore_child_parts_status 호출 완료")
+                else:
+                    print(f"DEBUG: 메인화면 - 강제 복원 시 restore_child_parts_status 메서드가 없음")
+                
+                # 다이얼로그 강제 새로고침
+                if hasattr(self.scan_status_dialog, 'force_ui_refresh'):
+                    print(f"DEBUG: 메인화면 - 강제 복원 시 UI 강제 새로고침")
+                    self.scan_status_dialog.force_ui_refresh()
+                    print(f"DEBUG: 메인화면 - 강제 복원 시 UI 강제 새로고침 완료")
+                
+                # 테이블 강제 업데이트
+                if hasattr(self.scan_status_dialog, 'child_parts_table'):
+                    print(f"DEBUG: 메인화면 - 강제 복원 시 테이블 강제 업데이트")
+                    self.scan_status_dialog.child_parts_table.update()
+                    self.scan_status_dialog.child_parts_table.repaint()
+                    print(f"DEBUG: 메인화면 - 강제 복원 시 테이블 강제 업데이트 완료")
+                
+                # 다이얼로그 강제 새로고침
+                if hasattr(self.scan_status_dialog, 'update'):
+                    print(f"DEBUG: 메인화면 - 강제 복원 시 다이얼로그 강제 새로고침")
+                    self.scan_status_dialog.update()
+                    print(f"DEBUG: 메인화면 - 강제 복원 시 다이얼로그 강제 새로고침 완료")
+                
+                print(f"DEBUG: 메인화면 - 강제 스캔 데이터 복원 완료")
+            else:
+                print(f"DEBUG: 메인화면 - 강제 복원 시 스캔현황 다이얼로그가 없음")
+        except Exception as e:
+            print(f"ERROR: 강제 스캔 데이터 복원 오류: {e}")
+            import traceback
+            print(f"ERROR: 강제 복원 상세 오류: {traceback.format_exc()}")
+    
+    def immediate_restore_scan_data(self):
+        """즉시 스캔 데이터 복원 (간단하고 직접적인 방법)"""
+        try:
+            print(f"DEBUG: 메인화면 - 즉시 스캔 데이터 복원 시작")
+            if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
+                print(f"DEBUG: 메인화면 - 즉시 복원 시 다이얼로그 데이터: {len(self.scan_status_dialog.real_time_scanned_data)}개 항목")
+                
+                # 임시 파일에서 직접 데이터 로드
+                print(f"DEBUG: 메인화면 - 즉시 복원 시 임시 파일에서 직접 데이터 로드")
+                try:
+                    import json
+                    import os
+                    # 절대 경로로 파일 찾기
+                    script_dir = os.path.dirname(os.path.abspath(__file__))
+                    project_root = os.path.dirname(script_dir)
+                    temp_scan_file = os.path.join(project_root, "temp_scan_data.json")
+                    print(f"DEBUG: 메인화면 - 즉시 복원 시 임시 파일 절대 경로: {temp_scan_file}")
+                    print(f"DEBUG: 메인화면 - 즉시 복원 시 현재 작업 디렉토리: {os.getcwd()}")
+                    print(f"DEBUG: 메인화면 - 즉시 복원 시 스크립트 디렉토리: {script_dir}")
+                    print(f"DEBUG: 메인화면 - 즉시 복원 시 프로젝트 루트: {project_root}")
+                    print(f"DEBUG: 메인화면 - 즉시 복원 시 파일 존재 여부: {os.path.exists(temp_scan_file)}")
+                    
+                    if os.path.exists(temp_scan_file):
+                        with open(temp_scan_file, 'r', encoding='utf-8') as f:
+                            temp_data = json.load(f)
+                            if temp_data and len(temp_data) > 0:
+                                print(f"DEBUG: 메인화면 - 즉시 복원 시 임시 파일에서 로드된 데이터: {len(temp_data)}개 항목")
+                                
+                                # 다이얼로그에 직접 설정
+                                self.scan_status_dialog.real_time_scanned_data = temp_data.copy()
+                                print(f"DEBUG: 메인화면 - 즉시 복원 시 다이얼로그에 직접 설정 완료")
+                                
+                                # 강제 복원 시도
+                                if hasattr(self.scan_status_dialog, 'restore_child_parts_status'):
+                                    print(f"DEBUG: 메인화면 - 즉시 복원 시 restore_child_parts_status 강제 호출")
+                                    self.scan_status_dialog.restore_child_parts_status()
+                                    print(f"DEBUG: 메인화면 - 즉시 복원 시 restore_child_parts_status 강제 호출 완료")
+                                
+                                # UI 강제 새로고침
+                                if hasattr(self.scan_status_dialog, 'force_ui_refresh'):
+                                    print(f"DEBUG: 메인화면 - 즉시 복원 시 UI 강제 새로고침")
+                                    self.scan_status_dialog.force_ui_refresh()
+                                    print(f"DEBUG: 메인화면 - 즉시 복원 시 UI 강제 새로고침 완료")
+                                
+                                # 테이블 강제 업데이트
+                                if hasattr(self.scan_status_dialog, 'child_parts_table'):
+                                    print(f"DEBUG: 메인화면 - 즉시 복원 시 테이블 강제 업데이트")
+                                    self.scan_status_dialog.child_parts_table.update()
+                                    self.scan_status_dialog.child_parts_table.repaint()
+                                    print(f"DEBUG: 메인화면 - 즉시 복원 시 테이블 강제 업데이트 완료")
+                                
+                                # 다이얼로그 강제 새로고침
+                                if hasattr(self.scan_status_dialog, 'update'):
+                                    print(f"DEBUG: 메인화면 - 즉시 복원 시 다이얼로그 강제 새로고침")
+                                    self.scan_status_dialog.update()
+                                    print(f"DEBUG: 메인화면 - 즉시 복원 시 다이얼로그 강제 새로고침 완료")
+                                
+                                print(f"DEBUG: 메인화면 - 즉시 복원 시 복원 완료")
+                            else:
+                                print(f"DEBUG: 메인화면 - 즉시 복원 시 임시 파일에 데이터 없음")
+                    else:
+                        print(f"DEBUG: 메인화면 - 즉시 복원 시 임시 파일이 존재하지 않음")
+                except Exception as e:
+                    print(f"ERROR: 즉시 복원 시 임시 파일 로드 오류: {e}")
+                
+                print(f"DEBUG: 메인화면 - 즉시 스캔 데이터 복원 완료")
+            else:
+                print(f"DEBUG: 메인화면 - 즉시 복원 시 스캔현황 다이얼로그가 없음")
+        except Exception as e:
+            print(f"ERROR: 즉시 스캔 데이터 복원 오류: {e}")
+            import traceback
+            print(f"ERROR: 즉시 복원 상세 오류: {traceback.format_exc()}")
+    
+    def ultimate_restore_scan_data(self):
+        """최종 스캔 데이터 복원 (매우 강력한 복원)"""
+        try:
+            print(f"DEBUG: 메인화면 - 최종 스캔 데이터 복원 시작")
+            if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
+                print(f"DEBUG: 메인화면 - 최종 복원 시 다이얼로그 데이터: {len(self.scan_status_dialog.real_time_scanned_data)}개 항목")
+                
+                # 임시 파일에서 직접 데이터 다시 로드
+                print(f"DEBUG: 메인화면 - 최종 복원 시 임시 파일에서 직접 데이터 로드")
+                try:
+                    import json
+                    import os
+                    # 절대 경로로 파일 찾기
+                    script_dir = os.path.dirname(os.path.abspath(__file__))
+                    project_root = os.path.dirname(script_dir)
+                    temp_scan_file = os.path.join(project_root, "temp_scan_data.json")
+                    print(f"DEBUG: 메인화면 - 최종 복원 시 임시 파일 절대 경로: {temp_scan_file}")
+                    print(f"DEBUG: 메인화면 - 최종 복원 시 현재 작업 디렉토리: {os.getcwd()}")
+                    print(f"DEBUG: 메인화면 - 최종 복원 시 스크립트 디렉토리: {script_dir}")
+                    print(f"DEBUG: 메인화면 - 최종 복원 시 프로젝트 루트: {project_root}")
+                    print(f"DEBUG: 메인화면 - 최종 복원 시 파일 존재 여부: {os.path.exists(temp_scan_file)}")
+                    
+                    if os.path.exists(temp_scan_file):
+                        with open(temp_scan_file, 'r', encoding='utf-8') as f:
+                            temp_data = json.load(f)
+                            if temp_data and len(temp_data) > 0:
+                                print(f"DEBUG: 메인화면 - 최종 복원 시 임시 파일에서 로드된 데이터: {len(temp_data)}개 항목")
+                                
+                                # 다이얼로그에 직접 설정
+                                self.scan_status_dialog.real_time_scanned_data = temp_data.copy()
+                                print(f"DEBUG: 메인화면 - 최종 복원 시 다이얼로그에 직접 설정 완료")
+                                
+                                # 강제 복원 시도
+                                if hasattr(self.scan_status_dialog, 'restore_child_parts_status'):
+                                    print(f"DEBUG: 메인화면 - 최종 복원 시 restore_child_parts_status 강제 호출")
+                                    self.scan_status_dialog.restore_child_parts_status()
+                                    print(f"DEBUG: 메인화면 - 최종 복원 시 restore_child_parts_status 강제 호출 완료")
+                                
+                                # UI 강제 새로고침
+                                if hasattr(self.scan_status_dialog, 'force_ui_refresh'):
+                                    print(f"DEBUG: 메인화면 - 최종 복원 시 UI 강제 새로고침")
+                                    self.scan_status_dialog.force_ui_refresh()
+                                    print(f"DEBUG: 메인화면 - 최종 복원 시 UI 강제 새로고침 완료")
+                                
+                                # 테이블 강제 업데이트
+                                if hasattr(self.scan_status_dialog, 'child_parts_table'):
+                                    print(f"DEBUG: 메인화면 - 최종 복원 시 테이블 강제 업데이트")
+                                    self.scan_status_dialog.child_parts_table.update()
+                                    self.scan_status_dialog.child_parts_table.repaint()
+                                    print(f"DEBUG: 메인화면 - 최종 복원 시 테이블 강제 업데이트 완료")
+                                
+                                # 다이얼로그 강제 새로고침
+                                if hasattr(self.scan_status_dialog, 'update'):
+                                    print(f"DEBUG: 메인화면 - 최종 복원 시 다이얼로그 강제 새로고침")
+                                    self.scan_status_dialog.update()
+                                    print(f"DEBUG: 메인화면 - 최종 복원 시 다이얼로그 강제 새로고침 완료")
+                                
+                                print(f"DEBUG: 메인화면 - 최종 복원 시 복원 완료")
+                            else:
+                                print(f"DEBUG: 메인화면 - 최종 복원 시 임시 파일에 데이터 없음")
+                    else:
+                        print(f"DEBUG: 메인화면 - 최종 복원 시 임시 파일이 존재하지 않음")
+                except Exception as e:
+                    print(f"ERROR: 최종 복원 시 임시 파일 로드 오류: {e}")
+                
+                print(f"DEBUG: 메인화면 - 최종 스캔 데이터 복원 완료")
+            else:
+                print(f"DEBUG: 메인화면 - 최종 복원 시 스캔현황 다이얼로그가 없음")
+        except Exception as e:
+            print(f"ERROR: 최종 스캔 데이터 복원 오류: {e}")
+            import traceback
+            print(f"ERROR: 최종 복원 상세 오류: {traceback.format_exc()}")
     
     def update_workflow_label_colors(self, labels: dict):
         """워크플로우 레이블 색상 업데이트"""
@@ -1598,6 +1943,10 @@ class BarcodeMainScreen(QMainWindow):
             if barcode == current_part_number:
                 print(f"DEBUG: 바코드와 부품번호 일치 - {barcode}")
                 
+                # ===== 신규 작업 시작 - 스캔 현황 데이터 초기화 =====
+                print(f"DEBUG: 신규 작업 시작 - 스캔 현황 데이터 초기화")
+                self.initialize_scan_status_for_new_work(current_part_number, expected_sub_parts)
+                
                 # 하위자재가 있는 경우 워크플로우 시작
                 if expected_sub_parts and len(expected_sub_parts) > 0:
                     print(f"DEBUG: 하위자재 {len(expected_sub_parts)}개 발견 - 워크플로우 시작")
@@ -1615,6 +1964,129 @@ class BarcodeMainScreen(QMainWindow):
                 
         except Exception as e:
             print(f"ERROR: 바코드 처리 오류: {e}")
+    
+    def clear_temp_scan_data(self):
+        """임시보관 데이터 클리어 (신규 작업 시작 시)"""
+        try:
+            print(f"DEBUG: ===== 임시보관 데이터 클리어 시작 =====")
+            
+            # 1. 신규 작업 시작 시 임시보관 데이터 클리어
+            print(f"DEBUG: 신규 작업 시작 - 임시보관 데이터 클리어")
+            print(f"DEBUG: 클리어 전 임시보관 데이터: {len(self.temp_scan_data)}개 항목")
+            if self.temp_scan_data:
+                print(f"DEBUG: 클리어할 임시보관 데이터 내용:")
+                for i, data in enumerate(self.temp_scan_data):
+                    print(f"DEBUG:   {i}: {data}")
+            
+            # 임시보관 데이터 클리어
+            self.temp_scan_data = []
+            print(f"DEBUG: 임시보관 데이터 클리어 완료: {len(self.temp_scan_data)}개 항목")
+            
+            # 임시 TEXT 파일 삭제
+            try:
+                import os
+                temp_scan_file = "temp_scan_data.json"
+                if os.path.exists(temp_scan_file):
+                    os.remove(temp_scan_file)
+                    print(f"DEBUG: 임시 TEXT 파일 삭제 완료: {temp_scan_file}")
+                else:
+                    print(f"DEBUG: 임시 TEXT 파일이 존재하지 않음: {temp_scan_file}")
+            except Exception as e:
+                print(f"DEBUG: 임시 TEXT 파일 삭제 오류: {e}")
+            
+            
+            # 2. 현재 세션의 스캔된 부품 목록 초기화
+            self.scanned_parts = []
+            print(f"DEBUG: 현재 세션 스캔된 부품 목록 초기화 완료")
+            
+            # 3. 전역 스캔 데이터 초기화 (새 작업용)
+            self.global_scan_data = []
+            print(f"DEBUG: 전역 스캔 데이터 초기화 완료")
+            
+            # 4. 스캔 현황 다이얼로그 데이터 초기화
+            self.scan_status_data = {
+                'real_time_scanned_data': [],
+                'child_parts_info': [],
+                'current_panel_title': ''
+            }
+            print(f"DEBUG: 스캔 현황 다이얼로그 데이터 초기화 완료")
+            
+            # 5. 기존 스캔 현황 다이얼로그가 열려있다면 닫기
+            if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
+                print(f"DEBUG: 기존 스캔 현황 다이얼로그 닫기")
+                self.scan_status_dialog.close()
+                self.scan_status_dialog = None
+            
+            # 6. 워크플로우 리셋
+            if hasattr(self, 'workflow_manager') and self.workflow_manager:
+                self.workflow_manager.reset_workflow()
+                print(f"DEBUG: 워크플로우 리셋 완료")
+            
+            print(f"DEBUG: ===== 임시보관 데이터 클리어 완료 =====")
+            
+        except Exception as e:
+            print(f"ERROR: 임시보관 데이터 클리어 오류: {e}")
+    
+    def add_to_scan_history(self, scan_data):
+        """스캔 히스토리에 데이터 추가 (영구 저장)"""
+        try:
+            print(f"DEBUG: 스캔 히스토리에 데이터 추가: {scan_data}")
+            
+            # 히스토리에 추가 (최신순으로 앞에 추가)
+            self.scan_history.insert(0, scan_data.copy())
+            
+            # 최대 1000개까지만 유지 (메모리 관리)
+            if len(self.scan_history) > 1000:
+                self.scan_history = self.scan_history[:1000]
+                print(f"DEBUG: 스캔 히스토리 1000개로 제한됨")
+            
+            print(f"DEBUG: 스캔 히스토리 추가 완료: {len(self.scan_history)}개 항목")
+            
+        except Exception as e:
+            print(f"ERROR: 스캔 히스토리 추가 오류: {e}")
+    
+    def add_to_temp_scan_data(self, scan_data):
+        """임시보관 데이터에 추가 (현재 작업용)"""
+        try:
+            print(f"DEBUG: ===== 임시보관 데이터 추가 시작 =====")
+            print(f"DEBUG: 추가할 데이터: {scan_data}")
+            print(f"DEBUG: 추가 전 임시보관 데이터: {len(self.temp_scan_data)}개 항목")
+            
+            # 임시보관에 추가 (최신순으로 앞에 추가)
+            self.temp_scan_data.insert(0, scan_data.copy())
+            
+            # 최대 100개까지만 유지 (현재 작업용)
+            if len(self.temp_scan_data) > 100:
+                self.temp_scan_data = self.temp_scan_data[:100]
+                print(f"DEBUG: 임시보관 데이터 100개로 제한됨")
+            
+            print(f"DEBUG: 임시보관 데이터 추가 완료: {len(self.temp_scan_data)}개 항목")
+            print(f"DEBUG: 현재 임시보관 데이터 내용:")
+            for i, data in enumerate(self.temp_scan_data):
+                print(f"DEBUG:   {i}: {data}")
+            print(f"DEBUG: ===== 임시보관 데이터 추가 완료 =====")
+            
+        except Exception as e:
+            print(f"ERROR: 임시보관 데이터 추가 오류: {e}")
+    
+    def initialize_scan_status_for_new_work(self, part_number: str, expected_sub_parts: list):
+        """신규 작업 시작 시 스캔 현황 데이터 초기화"""
+        try:
+            print(f"DEBUG: ===== 신규 작업 스캔 현황 데이터 초기화 시작 =====")
+            print(f"DEBUG: 부품번호: {part_number}")
+            print(f"DEBUG: 예상 하위부품: {expected_sub_parts}")
+            
+            # 1. 임시보관 데이터 클리어
+            self.clear_temp_scan_data()
+            
+            # 2. 하위부품 정보 설정
+            self.scan_status_data['child_parts_info'] = expected_sub_parts.copy() if expected_sub_parts else []
+            print(f"DEBUG: 하위부품 정보 설정 완료: {len(self.scan_status_data['child_parts_info'])}개")
+            
+            print(f"DEBUG: ===== 신규 작업 스캔 현황 데이터 초기화 완료 =====")
+            
+        except Exception as e:
+            print(f"ERROR: 신규 작업 스캔 현황 데이터 초기화 오류: {e}")
     
     def on_scanner_data_received(self, data: str):
         """스캐너 데이터 수신 처리"""
@@ -1928,8 +2400,8 @@ class BarcodeMainScreen(QMainWindow):
     
     # AdminPanel 연동 제거 - 메인화면은 독립적으로 시리얼 연결 관리
     
-    def get_device_connection_status(self, device_name):
-        """장비 연결 상태 조회"""
+    def get_device_connection_status_internal(self, device_name):
+        """장비 연결 상태 조회 (내부용)"""
         return self.device_connection_status.get(device_name, False)
     
     def start_press_timer(self, device_name):

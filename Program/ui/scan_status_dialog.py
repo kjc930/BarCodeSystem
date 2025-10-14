@@ -18,8 +18,12 @@ class ScanStatusDialog(QDialog):
         super().__init__(parent)
         self.scanned_parts = scanned_parts
         self.child_parts_info = child_parts_info or []
-        self.real_time_scanned_data = []  # 실시간 스캔 데이터 저장
+        self.real_time_scanned_data = scanned_parts.copy() if scanned_parts else []  # 전달받은 데이터로 초기화
         self.main_window = parent  # 메인 윈도우 참조 저장
+        
+        print(f"DEBUG: ScanStatusDialog - 생성자에서 데이터 초기화: {len(self.real_time_scanned_data)}개 항목")
+        for i, data in enumerate(self.real_time_scanned_data):
+            print(f"DEBUG: ScanStatusDialog - 초기화된 데이터 {i}: {data}")
         
         # 자동 닫기 관련 변수
         self.auto_close_timer = None
@@ -181,24 +185,12 @@ class ScanStatusDialog(QDialog):
             part_name_item.setFont(table_font)
             self.child_parts_table.setItem(i, 1, part_name_item)
             
-            # 스캔상태 - 파일 데이터 확인하여 초기 상태 설정
-            initial_status = "대기"  # 기본값
-            try:
-                import json
-                with open('scan_data_backup.json', 'r', encoding='utf-8') as f:
-                    file_data = json.load(f)
-                if len(file_data) > 0:
-                    initial_status = "OK"  # 파일에 데이터가 있으면 OK로 설정
-                    print(f"DEBUG: ScanStatusDialog - 파일 데이터 있음 - 초기 상태를 OK로 설정")
-                    print(f"DEBUG: ScanStatusDialog - 파일 데이터 내용: {file_data}")
-                    
-                    # 스캔된 데이터를 real_time_scanned_data에 추가
-                    if not hasattr(self, 'real_time_scanned_data'):
-                        self.real_time_scanned_data = []
-                    self.real_time_scanned_data = file_data.copy()
-                    print(f"DEBUG: ScanStatusDialog - real_time_scanned_data에 파일 데이터 복사: {len(self.real_time_scanned_data)}개 항목")
-            except Exception as e:
-                print(f"DEBUG: ScanStatusDialog - 파일 데이터 없음 - 초기 상태를 대기로 설정: {e}")
+            # 스캔상태 - 신규 작업이므로 항상 대기 상태로 시작
+            initial_status = "대기"  # 신규 작업은 항상 대기 상태
+            print(f"DEBUG: ScanStatusDialog - 신규 작업 시작 - 초기 상태를 대기로 설정")
+            
+            # 파일에서 과거 데이터를 로드하지 않음 (신규 작업이므로)
+            # real_time_scanned_data는 빈 상태로 유지
             
             status_item = QTableWidgetItem(initial_status)
             status_item.setTextAlignment(Qt.AlignCenter)
@@ -301,11 +293,39 @@ class ScanStatusDialog(QDialog):
         child_parts_layout.addWidget(self.child_parts_table)
         layout.addWidget(child_parts_group)
     
+    def check_part_match(self, part_number):
+        """현재 기준정보의 하위부품과 매칭 여부 확인"""
+        if not self.child_parts_info:
+            print(f"DEBUG: ScanStatusDialog - 하위부품 정보가 없음")
+            return False
+        
+        part_number_clean = part_number.strip()
+        print(f"DEBUG: ScanStatusDialog - 매칭 확인 대상: '{part_number_clean}'")
+        
+        # 현재 기준정보의 하위부품 목록과 비교
+        for child_part in self.child_parts_info:
+            child_part_number = child_part.get("part_number", "").strip()
+            print(f"DEBUG: ScanStatusDialog - 기준정보 하위부품: '{child_part_number}'")
+            
+            # 정확한 매칭 또는 부분 매칭 확인
+            if (child_part_number == part_number_clean or 
+                child_part_number in part_number_clean or 
+                part_number_clean in child_part_number):
+                print(f"DEBUG: ScanStatusDialog - ✅ 매칭 성공: '{child_part_number}' == '{part_number_clean}'")
+                return True
+        
+        print(f"DEBUG: ScanStatusDialog - ❌ 매칭 실패: '{part_number_clean}'")
+        return False
+    
     def update_child_part_scan_status(self, part_number, is_ok, raw_barcode_data=None, update_ui=True):
         """하위부품 스캔 상태 업데이트 - 간소화된 버전"""
         print(f"DEBUG: ===== ScanStatusDialog - 하위부품 스캔 상태 업데이트 시작 =====")
         print(f"DEBUG: ScanStatusDialog - 스캔된 부품번호: '{part_number}'")
-        print(f"DEBUG: ScanStatusDialog - 스캔 상태: {is_ok}")
+        print(f"DEBUG: ScanStatusDialog - 바코드 검증 상태: {is_ok} (참고용)")
+        
+        # 현재 기준정보의 하위부품과 매칭 여부 확인 (실제 OK/NG 결정 요소)
+        is_matched = self.check_part_match(part_number)
+        print(f"DEBUG: ScanStatusDialog - 하위부품 매칭 여부: {is_matched} (실제 OK/NG 결정)")
         
         # 실시간 스캔 데이터에 추가
         from datetime import datetime
@@ -314,11 +334,15 @@ class ScanStatusDialog(QDialog):
         
         print(f"DEBUG: ScanStatusDialog - 스캔 데이터 추가 전: {len(self.real_time_scanned_data)}개 항목")
         
+        # 등록되지 않은 부품이 스캔되면 NG로 표시
+        final_status = 'OK' if is_matched else 'NG'
+        final_is_ok = is_matched
+        
         scan_data = {
             'time': scan_time,
             'part_number': part_number,
-            'is_ok': is_ok,
-            'status': 'OK' if is_ok else 'NG',
+            'is_ok': final_is_ok,  # 하위부품 매칭 여부로 설정
+            'status': final_status,
             'raw_data': display_data
         }
         
@@ -368,18 +392,18 @@ class ScanStatusDialog(QDialog):
                 status_item.setTextAlignment(Qt.AlignCenter)
                 print(f"DEBUG: ScanStatusDialog - 새 아이템 생성 - 행 {i}")
                 
-                # 상태 설정 - OK/NG에 따른 색상 적용 (중복 제거)
-                print(f"DEBUG: ScanStatusDialog - 상태 설정 시작 - is_ok: {is_ok}")
+                # 상태 설정 - OK/NG에 따른 텍스트만 설정 (색상 제거)
+                print(f"DEBUG: ScanStatusDialog - 상태 설정 시작 - is_matched: {is_matched}")
                 
-                # 아이템 텍스트만 설정 (스타일 제거)
-                if is_ok:
+                # 아이템 텍스트만 설정 (색상 제거)
+                if is_matched:
                     status_item.setText("OK")
                     print(f"DEBUG: ScanStatusDialog - ✅ OK 텍스트 설정")
                 else:
                     status_item.setText("NG")
                     print(f"DEBUG: ScanStatusDialog - ✅ NG 텍스트 설정")
                 
-                # 폰트만 설정 (스타일 제거)
+                # 폰트만 설정 (색상 제거)
                 font = QFont()
                 font.setBold(True)
                 font.setPointSize(12)
@@ -450,10 +474,13 @@ class ScanStatusDialog(QDialog):
                     print(f"DEBUG: ScanStatusDialog - ✅ 테이블 스타일시트 이미 적용됨")
                 break
         
-        # 매칭되지 않은 경우 알람 표시 (update_ui가 True일 때만)
+        # 매칭되지 않은 경우 알람 표시 및 NG 상태로 처리 (update_ui가 True일 때만)
         if not match_found and update_ui:
-            print(f"DEBUG: ScanStatusDialog - ⚠️ 매칭되지 않은 부품번호: '{part_number}'")
+            print(f"DEBUG: ScanStatusDialog - ⚠️ 매칭되지 않은 부품번호: '{part_number}' - NG로 처리")
             self.show_wrong_part_alarm(part_number)
+            
+            # 등록되지 않은 부품이 스캔된 경우에도 스캔 데이터에는 NG로 기록됨
+            # (이미 위에서 scan_data에 NG로 기록되었음)
     
     def ensure_item_display(self, row):
         """아이템 표시 보장 (초기 아이템용)"""
@@ -565,6 +592,24 @@ class ScanStatusDialog(QDialog):
         print(f"DEBUG: ScanStatusDialog - auto_close_dialog 시작 - main_window 존재: {hasattr(self, 'main_window')}")
         if hasattr(self, 'main_window') and self.main_window:
             print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 저장할 데이터: {len(self.real_time_scanned_data)}개 항목")
+            
+            # ===== 새로운 데이터 관리 방식 =====
+            # 1. 임시보관 데이터 업데이트 (현재 작업용)
+            if hasattr(self.main_window, 'temp_scan_data'):
+                print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 다이얼로그 내부 데이터: {len(self.real_time_scanned_data)}개 항목")
+                print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 기존 임시보관 데이터: {len(self.main_window.temp_scan_data)}개 항목")
+                
+                # 다이얼로그 내부 데이터로 임시보관 데이터 덮어쓰기
+                self.main_window.temp_scan_data = self.real_time_scanned_data.copy()
+                print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 임시보관 데이터 업데이트 완료: {len(self.main_window.temp_scan_data)}개 항목")
+                
+                # 업데이트된 데이터 확인
+                for i, data in enumerate(self.main_window.temp_scan_data):
+                    print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 업데이트된 임시보관 데이터 {i}: {data}")
+            else:
+                print(f"DEBUG: ScanStatusDialog - ⚠️ main_window에 temp_scan_data가 없음!")
+            
+            # 2. 기존 호환성을 위한 scan_status_data도 업데이트
             self.main_window.scan_status_data = {
                 'real_time_scanned_data': self.real_time_scanned_data.copy(),
                 'child_parts_info': self.child_parts_info.copy(),
@@ -572,6 +617,44 @@ class ScanStatusDialog(QDialog):
             }
             print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 스캔 데이터 저장 완료: {len(self.real_time_scanned_data)}개 항목")
             print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 저장된 데이터 확인: {len(self.main_window.scan_status_data['real_time_scanned_data'])}개 항목")
+            
+            # 3. 임시 TEXT 파일에 데이터 저장 (closeEvent와 동일한 로직)
+            print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 임시 TEXT 파일에 데이터 저장 시도")
+            try:
+                import json
+                import os
+                
+                # 현재 작업 디렉토리 확인
+                current_dir = os.getcwd()
+                print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 현재 작업 디렉토리: {current_dir}")
+                
+                # 절대 경로로 파일 생성
+                temp_scan_file = os.path.join(current_dir, "temp_scan_data.json")
+                print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 임시 파일 경로: {temp_scan_file}")
+                
+                # 임시 파일에 데이터 저장
+                with open(temp_scan_file, 'w', encoding='utf-8') as f:
+                    json.dump(self.real_time_scanned_data, f, ensure_ascii=False, indent=2)
+                
+                print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 임시 파일 저장 완료: {len(self.real_time_scanned_data)}개 항목")
+                print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 임시 파일 절대 경로: {os.path.abspath(temp_scan_file)}")
+                
+                # 파일 존재 확인
+                if os.path.exists(temp_scan_file):
+                    print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 ✅ 임시 파일 생성 확인됨")
+                    file_size = os.path.getsize(temp_scan_file)
+                    print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 임시 파일 크기: {file_size} bytes")
+                else:
+                    print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 ❌ 임시 파일 생성 실패")
+                
+                # 저장된 데이터 확인
+                for i, data in enumerate(self.real_time_scanned_data):
+                    print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 임시 파일 저장된 데이터 {i}: {data}")
+                    
+            except Exception as e:
+                print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 임시 파일 저장 오류: {e}")
+                import traceback
+                print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 상세 오류: {traceback.format_exc()}")
         else:
             print(f"DEBUG: ScanStatusDialog - ⚠️ 자동 닫기 시 main_window가 없어서 데이터 저장 실패!")
         
@@ -595,6 +678,23 @@ class ScanStatusDialog(QDialog):
             for i, data in enumerate(self.real_time_scanned_data):
                 print(f"DEBUG: ScanStatusDialog - 저장할 데이터 {i}: {data}")
             
+            # ===== 새로운 데이터 관리 방식 =====
+            # 1. 임시보관 데이터 업데이트 (현재 작업용)
+            if hasattr(self.main_window, 'temp_scan_data'):
+                print(f"DEBUG: ScanStatusDialog - 다이얼로그 내부 데이터: {len(self.real_time_scanned_data)}개 항목")
+                print(f"DEBUG: ScanStatusDialog - 기존 임시보관 데이터: {len(self.main_window.temp_scan_data)}개 항목")
+                
+                # 다이얼로그 내부 데이터로 임시보관 데이터 덮어쓰기
+                self.main_window.temp_scan_data = self.real_time_scanned_data.copy()
+                print(f"DEBUG: ScanStatusDialog - 임시보관 데이터 업데이트 완료: {len(self.main_window.temp_scan_data)}개 항목")
+                
+                # 업데이트된 데이터 확인
+                for i, data in enumerate(self.main_window.temp_scan_data):
+                    print(f"DEBUG: ScanStatusDialog - 업데이트된 임시보관 데이터 {i}: {data}")
+            else:
+                print(f"DEBUG: ScanStatusDialog - ⚠️ main_window에 temp_scan_data가 없음!")
+            
+            # 2. 기존 호환성을 위한 scan_status_data도 업데이트
             self.main_window.scan_status_data = {
                 'real_time_scanned_data': self.real_time_scanned_data.copy(),
                 'child_parts_info': self.child_parts_info.copy(),
@@ -606,39 +706,95 @@ class ScanStatusDialog(QDialog):
             # 저장된 데이터 상세 확인
             for i, data in enumerate(self.main_window.scan_status_data['real_time_scanned_data']):
                 print(f"DEBUG: ScanStatusDialog - 저장된 데이터 {i}: {data}")
+            
+            # 3. 임시 TEXT 파일에 데이터 저장
+            print(f"DEBUG: ScanStatusDialog - 임시 TEXT 파일에 데이터 저장 시도")
+            try:
+                import json
+                import os
+                
+                # 현재 작업 디렉토리 확인
+                current_dir = os.getcwd()
+                print(f"DEBUG: ScanStatusDialog - 현재 작업 디렉토리: {current_dir}")
+                
+                # 절대 경로로 파일 생성
+                temp_scan_file = os.path.join(current_dir, "temp_scan_data.json")
+                print(f"DEBUG: ScanStatusDialog - 임시 파일 경로: {temp_scan_file}")
+                
+                # 임시 파일에 데이터 저장
+                with open(temp_scan_file, 'w', encoding='utf-8') as f:
+                    json.dump(self.real_time_scanned_data, f, ensure_ascii=False, indent=2)
+                
+                print(f"DEBUG: ScanStatusDialog - 임시 파일 저장 완료: {len(self.real_time_scanned_data)}개 항목")
+                print(f"DEBUG: ScanStatusDialog - 임시 파일 절대 경로: {os.path.abspath(temp_scan_file)}")
+                
+                # 파일 존재 확인
+                if os.path.exists(temp_scan_file):
+                    print(f"DEBUG: ScanStatusDialog - ✅ 임시 파일 생성 확인됨")
+                    file_size = os.path.getsize(temp_scan_file)
+                    print(f"DEBUG: ScanStatusDialog - 임시 파일 크기: {file_size} bytes")
+                else:
+                    print(f"DEBUG: ScanStatusDialog - ❌ 임시 파일 생성 실패")
+                
+                # 저장된 데이터 확인
+                for i, data in enumerate(self.real_time_scanned_data):
+                    print(f"DEBUG: ScanStatusDialog - 임시 파일 저장된 데이터 {i}: {data}")
+                    
+            except Exception as e:
+                print(f"DEBUG: ScanStatusDialog - 임시 파일 저장 오류: {e}")
+                import traceback
+                print(f"DEBUG: ScanStatusDialog - 상세 오류: {traceback.format_exc()}")
         else:
             print(f"DEBUG: ScanStatusDialog - ⚠️ main_window가 없어서 데이터 저장 실패!")
             
         super().closeEvent(event)
     
     def restore_child_parts_status(self):
-        """하위부품 스캔 상태 복원 - 완전히 새로운 방법"""
+        """하위부품 스캔 상태 복원 - 저장된 스캔 데이터 기반으로 복원"""
         print(f"DEBUG: ScanStatusDialog - 하위부품 스캔 상태 복원 시작")
         
         if not hasattr(self, 'child_parts_table') or not self.child_parts_table:
             print(f"DEBUG: ScanStatusDialog - ⚠️ child_parts_table이 없어서 복원 불가")
             return
         
-        # 파일에서 직접 데이터 로드 (확실한 방법)
-        print(f"DEBUG: ScanStatusDialog - 파일에서 직접 데이터 로드 시도")
-        try:
-            import json
-            with open('scan_data_backup.json', 'r', encoding='utf-8') as f:
-                file_data = json.load(f)
-            print(f"DEBUG: ScanStatusDialog - 파일에서 로드된 데이터: {len(file_data)}개 항목")
+        # 저장된 스캔 데이터가 있는지 확인
+        print(f"DEBUG: ScanStatusDialog - real_time_scanned_data 존재: {hasattr(self, 'real_time_scanned_data')}")
+        if hasattr(self, 'real_time_scanned_data'):
+            print(f"DEBUG: ScanStatusDialog - real_time_scanned_data 길이: {len(self.real_time_scanned_data)}")
+            print(f"DEBUG: ScanStatusDialog - real_time_scanned_data 내용: {self.real_time_scanned_data}")
+        
+        if hasattr(self, 'real_time_scanned_data') and self.real_time_scanned_data:
+            print(f"DEBUG: ScanStatusDialog - 저장된 스캔 데이터로 복원: {len(self.real_time_scanned_data)}개 항목")
             
-            if len(file_data) > 0:
-                print(f"DEBUG: ScanStatusDialog - 파일 데이터 있음 - 모든 행을 OK로 설정")
+            # 스캔된 데이터를 기반으로 하위부품 상태 복원
+            for i in range(self.child_parts_table.rowCount()):
+                # 하위부품 Part_No 가져오기
+                part_number_item = self.child_parts_table.item(i, 0)
+                if not part_number_item:
+                    print(f"DEBUG: ScanStatusDialog - 하위부품 {i} Part_No 아이템이 None")
+                    continue
+                    
+                part_number = part_number_item.text().strip()
+                print(f"DEBUG: ScanStatusDialog - 하위부품 {i} 복원 시도: {part_number}")
                 
-                # 모든 행을 OK로 설정
-                for i in range(self.child_parts_table.rowCount()):
-                    # 기존 아이템 제거
-                    self.child_parts_table.setItem(i, 2, None)
+                # 스캔된 데이터에서 해당 부품번호 찾기
+                found_scan_data = None
+                for scan_data in self.real_time_scanned_data:
+                    print(f"DEBUG: ScanStatusDialog - 스캔 데이터 비교: '{scan_data.get('part_number')}' vs '{part_number}'")
+                    if scan_data.get('part_number') == part_number:
+                        found_scan_data = scan_data
+                        print(f"DEBUG: ScanStatusDialog - 매칭 발견: {scan_data}")
+                        break
+                
+                if found_scan_data:
+                    # 스캔된 데이터가 있으면 상태 설정
+                    status = found_scan_data.get('status', 'OK')
+                    print(f"DEBUG: ScanStatusDialog - 하위부품 {i} 복원: {part_number} -> {status}")
                     
                     # 새로운 상태 아이템 생성
                     status_item = QTableWidgetItem()
                     status_item.setTextAlignment(Qt.AlignCenter)
-                    status_item.setText("OK")
+                    status_item.setText(status)
                     
                     # 폰트 설정
                     font = QFont()
@@ -646,20 +802,14 @@ class ScanStatusDialog(QDialog):
                     font.setPointSize(12)
                     status_item.setFont(font)
                     
-                    # 배경색 설정
-                    status_item.setBackground(QColor(40, 167, 69))
-                    status_item.setForeground(QColor(255, 255, 255))
-                    
                     # 테이블에 설정
                     self.child_parts_table.setItem(i, 2, status_item)
-                    print(f"DEBUG: ScanStatusDialog - 행 {i} -> OK 설정 완료")
-            else:
-                print(f"DEBUG: ScanStatusDialog - 파일 데이터 없음 - 모든 행을 대기로 설정")
-                for i in range(self.child_parts_table.rowCount()):
-                    # 기존 아이템 제거
-                    self.child_parts_table.setItem(i, 2, None)
+                    print(f"DEBUG: ScanStatusDialog - 행 {i} -> {status} 설정 완료")
+                else:
+                    # 스캔된 데이터가 없으면 대기 상태
+                    print(f"DEBUG: ScanStatusDialog - 하위부품 {i} 스캔 데이터 없음: {part_number} -> 대기")
                     
-                    # 새로운 상태 아이템 생성
+                    # 새로운 상태 아이템 생성 (대기 상태)
                     status_item = QTableWidgetItem()
                     status_item.setTextAlignment(Qt.AlignCenter)
                     status_item.setText("대기")
@@ -673,15 +823,15 @@ class ScanStatusDialog(QDialog):
                     # 테이블에 설정
                     self.child_parts_table.setItem(i, 2, status_item)
                     print(f"DEBUG: ScanStatusDialog - 행 {i} -> 대기 설정 완료")
-                    
-        except Exception as e:
-            print(f"DEBUG: ScanStatusDialog - 파일 로드 실패: {e}")
-            print(f"DEBUG: ScanStatusDialog - 모든 행을 대기로 설정")
+        else:
+            print(f"DEBUG: ScanStatusDialog - 저장된 스캔 데이터 없음 - 모든 행을 대기로 설정")
+            
+            # 모든 행을 대기 상태로 설정
             for i in range(self.child_parts_table.rowCount()):
                 # 기존 아이템 제거
                 self.child_parts_table.setItem(i, 2, None)
                 
-                # 새로운 상태 아이템 생성
+                # 새로운 상태 아이템 생성 (대기 상태)
                 status_item = QTableWidgetItem()
                 status_item.setTextAlignment(Qt.AlignCenter)
                 status_item.setText("대기")
@@ -700,9 +850,15 @@ class ScanStatusDialog(QDialog):
         if hasattr(self, 'child_parts_table'):
             self.child_parts_table.update()
             self.child_parts_table.repaint()
+            
+            # 테이블 강제 새로고침
+            self.child_parts_table.viewport().update()
+            print(f"DEBUG: ScanStatusDialog - 테이블 뷰포트 강제 새로고침 완료")
         
-        # 스캔 완료 시 레이블 색상 변경 (패널 구분)
-        self.update_scan_completion_labels()
+        # 다이얼로그 강제 새로고침
+        self.update()
+        self.repaint()
+        print(f"DEBUG: ScanStatusDialog - 다이얼로그 강제 새로고침 완료")
         
         print(f"DEBUG: ScanStatusDialog - 하위부품 스캔 상태 복원 완료")
     
@@ -995,11 +1151,10 @@ class ScanStatusDialog(QDialog):
                     print(f"DEBUG: ScanStatusDialog - ⚠️ 테이블 아이템 업데이트 실패 - 행 {row}: '{item.text()}'")
             else:
                 print(f"DEBUG: ScanStatusDialog - ⚠️ 테이블 아이템 검증 실패 - 행 {row} 아이템이 None!")
-                # 아이템이 None이면 다시 생성 시도
+                # 아이템이 None이면 다시 생성 시도 (색상 제거)
                 new_item = QTableWidgetItem("OK")
                 new_item.setTextAlignment(Qt.AlignCenter)
-                new_item.setBackground(QColor(40, 167, 69, 150))
-                new_item.setForeground(QColor(255, 255, 255))
+                # 색상 제거 - 단순 텍스트만
                 font = QFont()
                 font.setBold(True)
                 font.setPointSize(12)
@@ -1015,11 +1170,10 @@ class ScanStatusDialog(QDialog):
                 print(f"DEBUG: ScanStatusDialog - ✅ 최종 검증 성공 - 행 {row}: '{item.text()}'")
             else:
                 print(f"DEBUG: ScanStatusDialog - ⚠️ 최종 검증 실패 - 행 {row}, 강제 수정 시도")
-                # 강제로 OK 아이템 생성
+                # 강제로 OK 아이템 생성 (색상 제거)
                 force_item = QTableWidgetItem("OK")
                 force_item.setTextAlignment(Qt.AlignCenter)
-                force_item.setBackground(QColor(40, 167, 69, 150))
-                force_item.setForeground(QColor(255, 255, 255))
+                # 색상 제거 - 단순 텍스트만
                 font = QFont()
                 font.setBold(True)
                 font.setPointSize(12)
@@ -1057,11 +1211,8 @@ class ScanStatusDialog(QDialog):
             data_item.setTextAlignment(Qt.AlignLeft)
             data_item.setFont(scan_table_font)
             
-            # 상태에 따른 색상 설정
-            if scan_data['is_ok']:
-                data_item.setBackground(QColor(40, 167, 69, 50))  # 녹색
-            else:
-                data_item.setBackground(QColor(220, 53, 69, 50))  # 빨간색
+            # 색상 제거 - 단순 텍스트만 표시
+            # 상태에 따른 색상 설정 제거
             
             self.scan_table.setItem(i, 0, data_item)
             print(f"DEBUG: ScanStatusDialog - 스캔 테이블 행 {i} 추가: {data_text}")
