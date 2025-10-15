@@ -37,14 +37,13 @@ class BarcodeMainScreen(QMainWindow):
             super().__init__()
             self.scanned_parts = []
             
-            # ===== 데이터 구조 분리 =====
-            # 임시보관 데이터 (현재 작업용) - 초기화하지 않음
-            if not hasattr(self, 'temp_scan_data'):
-                self.temp_scan_data = []  # 하위부품 스캔 데이터 임시보관
+            # ===== 프로그램 시작 시 기본 데이터 초기화 =====
+            print(f"DEBUG: 프로그램 시작 - 기본 데이터 초기화")
             
-            # 히스토리 데이터 (영구 저장)
-            if not hasattr(self, 'scan_history'):
-                self.scan_history = []   # 스캔 히스토리 관리
+            # 프로그램 시작 시에는 기본 초기화만 (과도한 파일 삭제 방지)
+            self.scanned_parts = []  # 스캔된 부품 목록
+            self.temp_scan_data = []  # 하위부품 스캔 데이터 임시보관
+            self.scan_history = []   # 스캔 히스토리 관리
             
             # 스캔현황 다이얼로그 데이터 저장 (다이얼로그가 닫힌 후에도 유지)
             self.scan_status_data = {
@@ -55,6 +54,11 @@ class BarcodeMainScreen(QMainWindow):
             
             # 전역 스캔 데이터 저장 (확실한 방법) - 기존 호환성 유지
             self.global_scan_data = []
+            
+            # 프로그램 시작 시 temp_scan_data.json 파일 초기화 (안전을 위해)
+            self.clear_temp_file_on_startup()
+            
+            print(f"DEBUG: 프로그램 시작 - 기본 데이터 초기화 완료")
             
             # 설정 파일 로드 (먼저 로드)
             try:
@@ -1549,36 +1553,19 @@ class BarcodeMainScreen(QMainWindow):
                     print(f"DEBUG: 새로운 스캔현황 다이얼로그 생성")
                     print(f"DEBUG: ⚠️ 부품번호 확인 루틴 건너뛰기 - 바로 하위부품 스캔 준비 상태로 진입")
                     
-                    # 스캔현황 다이얼로그 생성 시 임시 파일에서 직접 데이터 로드
+                    # 스캔현황 다이얼로그 생성 시 현재 메모리 데이터만 사용 (명확한 로직)
                     initial_data = []
-                    print(f"DEBUG: 메인화면 - 다이얼로그 생성 시 임시 파일에서 직접 데이터 로드")
-                    try:
-                        import json
-                        import os
-                        # 절대 경로로 파일 찾기
-                        script_dir = os.path.dirname(os.path.abspath(__file__))
-                        project_root = os.path.dirname(script_dir)
-                        temp_scan_file = os.path.join(project_root, "temp_scan_data.json")
-                        print(f"DEBUG: 메인화면 - 임시 파일 절대 경로: {temp_scan_file}")
-                        print(f"DEBUG: 메인화면 - 현재 작업 디렉토리: {os.getcwd()}")
-                        print(f"DEBUG: 메인화면 - 스크립트 디렉토리: {script_dir}")
-                        print(f"DEBUG: 메인화면 - 프로젝트 루트: {project_root}")
-                        print(f"DEBUG: 메인화면 - 파일 존재 여부: {os.path.exists(temp_scan_file)}")
-                        
-                        if os.path.exists(temp_scan_file):
-                            with open(temp_scan_file, 'r', encoding='utf-8') as f:
-                                temp_data = json.load(f)
-                                if temp_data and len(temp_data) > 0:
-                                    initial_data = temp_data.copy()
-                                    print(f"DEBUG: 메인화면 - 임시 파일에서 로드된 데이터: {len(initial_data)}개 항목")
-                                    for i, data in enumerate(initial_data):
-                                        print(f"DEBUG: 메인화면 - 로드된 데이터 {i}: {data}")
-                                else:
-                                    print(f"DEBUG: 메인화면 - 임시 파일에 데이터 없음")
-                        else:
-                            print(f"DEBUG: 메인화면 - 임시 파일이 존재하지 않음")
-                    except Exception as e:
-                        print(f"DEBUG: 메인화면 - 임시 파일 로드 오류: {e}")
+                    print(f"DEBUG: 메인화면 - 다이얼로그 생성 시 현재 메모리 데이터 사용")
+                    
+                    # 메인 윈도우의 temp_scan_data만 사용 (임시 파일 로드 안함)
+                    if hasattr(self, 'temp_scan_data') and self.temp_scan_data:
+                        initial_data = self.temp_scan_data.copy()
+                        print(f"DEBUG: 메인화면 - 메인 윈도우 temp_scan_data에서 로드: {len(initial_data)}개 항목")
+                        for i, data in enumerate(initial_data):
+                            print(f"DEBUG: 메인화면 - 로드된 데이터 {i}: {data}")
+                    else:
+                        print(f"DEBUG: 메인화면 - 메인 윈도우 temp_scan_data 없음 - 빈 상태로 시작")
+                        initial_data = []
                     
                     # 스캔현황 다이얼로그 생성 및 표시
                     self.scan_status_dialog = ScanStatusDialog(initial_data, self, child_parts_info)
@@ -1608,6 +1595,10 @@ class BarcodeMainScreen(QMainWindow):
                         QTimer.singleShot(1000, lambda: self.ultimate_restore_scan_data())
                     else:
                         print(f"DEBUG: 메인화면 - 데이터가 없으므로 대기 상태로 시작")
+                        # 데이터가 없어도 임시 파일에서 로드 시도
+                        from PyQt5.QtCore import QTimer
+                        QTimer.singleShot(200, lambda: self.scan_status_dialog.load_scan_data_from_temp_file())
+                        QTimer.singleShot(300, lambda: self.scan_status_dialog.restore_child_parts_status())
                     
                     print(f"DEBUG: {current_panel_title} 스캔현황 다이얼로그 표시됨")
             else:
@@ -1943,9 +1934,19 @@ class BarcodeMainScreen(QMainWindow):
             if barcode == current_part_number:
                 print(f"DEBUG: 바코드와 부품번호 일치 - {barcode}")
                 
+                # ===== 공정 부품코드 스캔 시 완전한 초기화 =====
+                print(f"DEBUG: 공정 부품코드 스캔 - 이전 데이터 완전 삭제")
+                self.complete_reset_for_new_work()
+                
                 # ===== 신규 작업 시작 - 스캔 현황 데이터 초기화 =====
                 print(f"DEBUG: 신규 작업 시작 - 스캔 현황 데이터 초기화")
                 self.initialize_scan_status_for_new_work(current_part_number, expected_sub_parts)
+                
+                # 기존 스캔현황 다이얼로그가 열려있다면 강제로 닫기
+                if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
+                    print(f"DEBUG: 기존 스캔현황 다이얼로그 강제 닫기")
+                    self.scan_status_dialog.close()
+                    self.scan_status_dialog = None
                 
                 # 하위자재가 있는 경우 워크플로우 시작
                 if expected_sub_parts and len(expected_sub_parts) > 0:
@@ -1982,10 +1983,12 @@ class BarcodeMainScreen(QMainWindow):
             self.temp_scan_data = []
             print(f"DEBUG: 임시보관 데이터 클리어 완료: {len(self.temp_scan_data)}개 항목")
             
-            # 임시 TEXT 파일 삭제
+            # 임시 TEXT 파일 삭제 (절대 경로 사용)
             try:
                 import os
-                temp_scan_file = "temp_scan_data.json"
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                project_root = os.path.dirname(script_dir)
+                temp_scan_file = os.path.join(project_root, "temp_scan_data.json")
                 if os.path.exists(temp_scan_file):
                     os.remove(temp_scan_file)
                     print(f"DEBUG: 임시 TEXT 파일 삭제 완료: {temp_scan_file}")
@@ -2026,6 +2029,365 @@ class BarcodeMainScreen(QMainWindow):
             
         except Exception as e:
             print(f"ERROR: 임시보관 데이터 클리어 오류: {e}")
+    
+    def clear_startup_data(self):
+        """프로그램 시작 시 모든 임시 데이터 삭제"""
+        try:
+            print(f"DEBUG: ===== 프로그램 시작 시 데이터 정리 시작 =====")
+            
+            # 1. 임시 스캔 데이터 파일 삭제
+            try:
+                import os
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                project_root = os.path.dirname(script_dir)
+                temp_scan_file = os.path.join(project_root, "temp_scan_data.json")
+                
+                if os.path.exists(temp_scan_file):
+                    os.remove(temp_scan_file)
+                    print(f"DEBUG: 프로그램 시작 - 임시 스캔 데이터 파일 삭제: {temp_scan_file}")
+                else:
+                    print(f"DEBUG: 프로그램 시작 - 임시 스캔 데이터 파일 없음: {temp_scan_file}")
+            except Exception as e:
+                print(f"DEBUG: 프로그램 시작 - 임시 파일 삭제 오류: {e}")
+            
+            # 2. 기타 임시 파일들 삭제
+            try:
+                import os
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                project_root = os.path.dirname(script_dir)
+                
+                # 스캔 데이터 백업 파일들 삭제
+                temp_files = [
+                    "scan_data_backup.json",
+                    "temp_scan_data.json"
+                ]
+                
+                for temp_file in temp_files:
+                    temp_path = os.path.join(project_root, temp_file)
+                    if os.path.exists(temp_path):
+                        os.remove(temp_path)
+                        print(f"DEBUG: 프로그램 시작 - 임시 파일 삭제: {temp_file}")
+            except Exception as e:
+                print(f"DEBUG: 프로그램 시작 - 기타 임시 파일 삭제 오류: {e}")
+            
+            print(f"DEBUG: ===== 프로그램 시작 시 데이터 정리 완료 =====")
+            
+        except Exception as e:
+            print(f"ERROR: 프로그램 시작 시 데이터 정리 오류: {e}")
+    
+    def force_clear_all_temp_files(self):
+        """프로그램 시작 시 모든 임시 파일 강제 삭제"""
+        try:
+            print(f"DEBUG: ===== 프로그램 시작 시 강제 파일 삭제 시작 =====")
+            
+            import os
+            import json
+            
+            # 모든 가능한 경로에서 파일 삭제
+            possible_paths = [
+                # 1. 프로젝트 루트 (절대 경로)
+                os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "temp_scan_data.json"),
+                # 2. 현재 작업 디렉토리
+                "temp_scan_data.json",
+                # 3. Program 디렉토리
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp_scan_data.json"),
+                # 4. 상위 디렉토리
+                os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "temp_scan_data.json")
+            ]
+            
+            deleted_count = 0
+            
+            for temp_file in possible_paths:
+                try:
+                    if os.path.exists(temp_file):
+                        print(f"DEBUG: 프로그램 시작 - 강제 삭제 대상 파일 발견: {temp_file}")
+                        
+                        # 파일 내용 확인
+                        try:
+                            with open(temp_file, 'r', encoding='utf-8') as f:
+                                data = json.load(f)
+                                print(f"DEBUG: 프로그램 시작 - 삭제할 파일 내용: {len(data)}개 항목")
+                        except Exception as e:
+                            print(f"DEBUG: 프로그램 시작 - 파일 내용 읽기 오류: {e}")
+                        
+                        # 파일 삭제
+                        os.remove(temp_file)
+                        deleted_count += 1
+                        print(f"DEBUG: 프로그램 시작 - 강제 삭제 완료: {temp_file}")
+                        
+                        # 삭제 확인
+                        if not os.path.exists(temp_file):
+                            print(f"DEBUG: 프로그램 시작 - 삭제 확인됨: {temp_file}")
+                        else:
+                            print(f"DEBUG: 프로그램 시작 - ⚠️ 삭제 실패: {temp_file}")
+                    else:
+                        print(f"DEBUG: 프로그램 시작 - 파일 없음: {temp_file}")
+                except Exception as e:
+                    print(f"DEBUG: 프로그램 시작 - 파일 삭제 오류: {e}")
+            
+            print(f"DEBUG: 프로그램 시작 - 강제 삭제된 파일 수: {deleted_count}개")
+            print(f"DEBUG: ===== 프로그램 시작 시 강제 파일 삭제 완료 =====")
+            
+        except Exception as e:
+            print(f"ERROR: 프로그램 시작 시 강제 파일 삭제 오류: {e}")
+            import traceback
+            print(f"ERROR: 상세 오류: {traceback.format_exc()}")
+    
+    def clear_temp_file_on_startup(self):
+        """프로그램 시작 시 temp_scan_data.json 파일 초기화 (안전을 위해)"""
+        try:
+            print(f"DEBUG: ===== 프로그램 시작 시 임시 파일 초기화 시작 =====")
+            
+            import os
+            import json
+            
+            # 여러 경로에서 temp_scan_data.json 파일 삭제
+            possible_paths = [
+                os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "temp_scan_data.json"),
+                "temp_scan_data.json",
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp_scan_data.json")
+            ]
+            
+            deleted_count = 0
+            
+            for temp_file in possible_paths:
+                try:
+                    if os.path.exists(temp_file):
+                        # 파일 내용 확인 (디버그용)
+                        try:
+                            with open(temp_file, 'r', encoding='utf-8') as f:
+                                data = json.load(f)
+                                print(f"DEBUG: 프로그램 시작 - 삭제할 임시 파일 내용: {len(data)}개 항목")
+                        except Exception as e:
+                            print(f"DEBUG: 프로그램 시작 - 파일 내용 읽기 오류: {e}")
+                        
+                        # 파일 삭제
+                        os.remove(temp_file)
+                        deleted_count += 1
+                        print(f"DEBUG: 프로그램 시작 - 임시 파일 삭제: {temp_file}")
+                        
+                        # 삭제 확인
+                        if not os.path.exists(temp_file):
+                            print(f"DEBUG: 프로그램 시작 - 삭제 확인됨: {temp_file}")
+                        else:
+                            print(f"DEBUG: 프로그램 시작 - ⚠️ 삭제 실패: {temp_file}")
+                    else:
+                        print(f"DEBUG: 프로그램 시작 - 임시 파일 없음: {temp_file}")
+                except Exception as e:
+                    print(f"DEBUG: 프로그램 시작 - 파일 삭제 오류: {e}")
+            
+            print(f"DEBUG: 프로그램 시작 - 삭제된 임시 파일 수: {deleted_count}개")
+            print(f"DEBUG: ===== 프로그램 시작 시 임시 파일 초기화 완료 =====")
+            
+        except Exception as e:
+            print(f"ERROR: 프로그램 시작 시 임시 파일 초기화 오류: {e}")
+            import traceback
+            print(f"ERROR: 상세 오류: {traceback.format_exc()}")
+    
+    def complete_reset_for_new_work(self):
+        """공정 부품코드 스캔 시 완전한 초기화 (사용자 요구사항에 따른 명확한 로직)"""
+        try:
+            print(f"DEBUG: ===== 공정 부품코드 스캔 시 완전한 초기화 시작 =====")
+            
+            # 1. 모든 메모리 데이터 초기화 (하위부품 데이터 완전 삭제)
+            self.temp_scan_data = []
+            self.scanned_parts = []
+            self.global_scan_data = []
+            self.scan_status_data = {
+                'real_time_scanned_data': [],
+                'child_parts_info': [],
+                'current_panel_title': ''
+            }
+            
+            # 하위부품 관련 추가 초기화
+            if hasattr(self, 'child_part_validator') and self.child_part_validator:
+                # 하위부품 검증기 초기화
+                print(f"DEBUG: 공정 부품코드 스캔 - 하위부품 검증기 초기화")
+            
+            # 패널별 하위부품 데이터 초기화
+            if hasattr(self, 'front_panel') and self.front_panel:
+                if hasattr(self.front_panel, 'scanned_child_parts'):
+                    self.front_panel.scanned_child_parts = []
+                    print(f"DEBUG: 공정 부품코드 스캔 - Front 패널 하위부품 데이터 초기화")
+            
+            if hasattr(self, 'rear_panel') and self.rear_panel:
+                if hasattr(self.rear_panel, 'scanned_child_parts'):
+                    self.rear_panel.scanned_child_parts = []
+                    print(f"DEBUG: 공정 부품코드 스캔 - Rear 패널 하위부품 데이터 초기화")
+            
+            print(f"DEBUG: 공정 부품코드 스캔 - 메모리 데이터 초기화 완료")
+            
+            # 2. 임시 파일 삭제
+            import os
+            import json
+            
+            # 여러 경로에서 temp_scan_data.json 파일 삭제
+            possible_paths = [
+                os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "temp_scan_data.json"),
+                "temp_scan_data.json",
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp_scan_data.json")
+            ]
+            
+            deleted_count = 0
+            for temp_file in possible_paths:
+                if os.path.exists(temp_file):
+                    try:
+                        os.remove(temp_file)
+                        deleted_count += 1
+                        print(f"DEBUG: 공정 부품코드 스캔 - 임시 파일 삭제: {temp_file}")
+                    except Exception as e:
+                        print(f"DEBUG: 공정 부품코드 스캔 - 파일 삭제 오류: {e}")
+            
+            print(f"DEBUG: 공정 부품코드 스캔 - 삭제된 임시 파일 수: {deleted_count}개")
+            
+            # 3. 기존 스캔현황 다이얼로그 닫기
+            if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
+                self.scan_status_dialog.close()
+                self.scan_status_dialog = None
+                print(f"DEBUG: 공정 부품코드 스캔 - 기존 다이얼로그 닫기 완료")
+            
+            # 4. 워크플로우 리셋
+            if hasattr(self, 'workflow_manager') and self.workflow_manager:
+                self.workflow_manager.reset_workflow()
+                print(f"DEBUG: 공정 부품코드 스캔 - 워크플로우 리셋 완료")
+            
+            # 5. 하위부품 스캔 관련 모든 데이터 강제 초기화
+            self.force_clear_child_part_data()
+            
+            print(f"DEBUG: ===== 공정 부품코드 스캔 시 완전한 초기화 완료 =====")
+            
+        except Exception as e:
+            print(f"ERROR: 공정 부품코드 스캔 시 완전한 초기화 오류: {e}")
+            import traceback
+            print(f"ERROR: 상세 오류: {traceback.format_exc()}")
+    
+    def force_clear_child_part_data(self):
+        """하위부품 스캔 관련 모든 데이터 강제 초기화"""
+        try:
+            print(f"DEBUG: ===== 하위부품 데이터 강제 초기화 시작 =====")
+            
+            # 1. 하위부품 스캔 히스토리 초기화
+            if hasattr(self, 'scan_history'):
+                self.scan_history = []
+                print(f"DEBUG: 하위부품 데이터 초기화 - 스캔 히스토리 초기화")
+            
+            # 2. 하위부품 관련 모든 임시 파일 삭제
+            import os
+            import json
+            
+            temp_files = [
+                "temp_scan_data.json",
+                "scan_data_backup.json",
+                os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "temp_scan_data.json"),
+                os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scan_data_backup.json")
+            ]
+            
+            for temp_file in temp_files:
+                if os.path.exists(temp_file):
+                    try:
+                        os.remove(temp_file)
+                        print(f"DEBUG: 하위부품 데이터 초기화 - 임시 파일 삭제: {temp_file}")
+                    except Exception as e:
+                        print(f"DEBUG: 하위부품 데이터 초기화 - 파일 삭제 오류: {e}")
+            
+            # 3. 하위부품 검증기 초기화
+            if hasattr(self, 'child_part_validator') and self.child_part_validator:
+                # 하위부품 검증기 내부 상태 초기화
+                if hasattr(self.child_part_validator, 'reset'):
+                    self.child_part_validator.reset()
+                    print(f"DEBUG: 하위부품 데이터 초기화 - 하위부품 검증기 리셋")
+            
+            # 4. 패널별 하위부품 데이터 강제 초기화
+            if hasattr(self, 'front_panel') and self.front_panel:
+                # Front 패널 하위부품 관련 모든 데이터 초기화
+                if hasattr(self.front_panel, 'scanned_child_parts'):
+                    self.front_panel.scanned_child_parts = []
+                if hasattr(self.front_panel, 'child_parts_status'):
+                    self.front_panel.child_parts_status = {}
+                print(f"DEBUG: 하위부품 데이터 초기화 - Front 패널 하위부품 데이터 초기화")
+            
+            if hasattr(self, 'rear_panel') and self.rear_panel:
+                # Rear 패널 하위부품 관련 모든 데이터 초기화
+                if hasattr(self.rear_panel, 'scanned_child_parts'):
+                    self.rear_panel.scanned_child_parts = []
+                if hasattr(self.rear_panel, 'child_parts_status'):
+                    self.rear_panel.child_parts_status = {}
+                print(f"DEBUG: 하위부품 데이터 초기화 - Rear 패널 하위부품 데이터 초기화")
+            
+            # 5. 하위부품 스캔 관련 전역 변수 초기화
+            if hasattr(self, 'current_child_parts'):
+                self.current_child_parts = []
+            if hasattr(self, 'scanned_child_parts'):
+                self.scanned_child_parts = []
+            
+            print(f"DEBUG: ===== 하위부품 데이터 강제 초기화 완료 =====")
+            
+        except Exception as e:
+            print(f"ERROR: 하위부품 데이터 강제 초기화 오류: {e}")
+            import traceback
+            print(f"ERROR: 상세 오류: {traceback.format_exc()}")
+    
+    def clear_temp_scan_file(self):
+        """부품바코드 선택 시 temp_scan_data.json 파일 즉시 클리어"""
+        try:
+            print(f"DEBUG: ===== 부품바코드 선택 시 임시 파일 클리어 시작 =====")
+            
+            import os
+            import json
+            
+            # 여러 경로에서 파일 삭제 시도
+            possible_paths = [
+                # 1. 프로젝트 루트 (절대 경로)
+                os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "temp_scan_data.json"),
+                # 2. 현재 작업 디렉토리
+                "temp_scan_data.json",
+                # 3. Program 디렉토리
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp_scan_data.json")
+            ]
+            
+            deleted_files = []
+            
+            for temp_scan_file in possible_paths:
+                print(f"DEBUG: 부품바코드 선택 - 임시 파일 경로 확인: {temp_scan_file}")
+                print(f"DEBUG: 부품바코드 선택 - 파일 존재 여부: {os.path.exists(temp_scan_file)}")
+                
+                if os.path.exists(temp_scan_file):
+                    # 파일 내용 확인
+                    try:
+                        with open(temp_scan_file, 'r', encoding='utf-8') as f:
+                            existing_data = json.load(f)
+                            print(f"DEBUG: 부품바코드 선택 - 기존 파일 내용: {len(existing_data)}개 항목")
+                            for i, data in enumerate(existing_data):
+                                print(f"DEBUG: 부품바코드 선택 - 기존 데이터 {i}: {data}")
+                    except Exception as e:
+                        print(f"DEBUG: 부품바코드 선택 - 기존 파일 내용 읽기 오류: {e}")
+                    
+                    # 파일 삭제 시도
+                    try:
+                        os.remove(temp_scan_file)
+                        print(f"DEBUG: 부품바코드 선택 - 임시 파일 삭제 완료: {temp_scan_file}")
+                        deleted_files.append(temp_scan_file)
+                        
+                        # 삭제 확인
+                        if not os.path.exists(temp_scan_file):
+                            print(f"DEBUG: 부품바코드 선택 - 파일 삭제 확인됨: {temp_scan_file}")
+                        else:
+                            print(f"DEBUG: 부품바코드 선택 - ⚠️ 파일 삭제 실패: {temp_scan_file}")
+                    except Exception as e:
+                        print(f"DEBUG: 부품바코드 선택 - 파일 삭제 오류: {e}")
+                else:
+                    print(f"DEBUG: 부품바코드 선택 - 임시 파일이 존재하지 않음: {temp_scan_file}")
+            
+            print(f"DEBUG: 부품바코드 선택 - 삭제된 파일 수: {len(deleted_files)}개")
+            for deleted_file in deleted_files:
+                print(f"DEBUG: 부품바코드 선택 - 삭제된 파일: {deleted_file}")
+            
+            print(f"DEBUG: ===== 부품바코드 선택 시 임시 파일 클리어 완료 =====")
+            
+        except Exception as e:
+            print(f"ERROR: 부품바코드 선택 시 임시 파일 클리어 오류: {e}")
+            import traceback
+            print(f"ERROR: 상세 오류: {traceback.format_exc()}")
     
     def add_to_scan_history(self, scan_data):
         """스캔 히스토리에 데이터 추가 (영구 저장)"""

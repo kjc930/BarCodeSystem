@@ -25,6 +25,16 @@ class ScanStatusDialog(QDialog):
         for i, data in enumerate(self.real_time_scanned_data):
             print(f"DEBUG: ScanStatusDialog - 초기화된 데이터 {i}: {data}")
         
+        # 데이터가 있으면 즉시 복원 시도
+        if self.real_time_scanned_data:
+            print(f"DEBUG: ScanStatusDialog - 생성자에서 데이터 복원 시도")
+            from PyQt5.QtCore import QTimer
+            QTimer.singleShot(100, self.restore_child_parts_status)
+        else:
+            print(f"DEBUG: ScanStatusDialog - 생성자에서 데이터 없음 - 빈 상태로 시작")
+            # 데이터가 없으면 빈 상태로 시작하도록 강제 설정
+            self.real_time_scanned_data = []
+        
         # 자동 닫기 관련 변수
         self.auto_close_timer = None
         self.countdown_timer = None
@@ -108,6 +118,17 @@ class ScanStatusDialog(QDialog):
         button_layout.addWidget(close_btn)
         
         self.main_layout.addLayout(button_layout)
+        
+        # UI 초기화 완료 후 데이터 복원 시도
+        if self.real_time_scanned_data:
+            print(f"DEBUG: ScanStatusDialog - init_ui 완료 후 데이터 복원 시도")
+            from PyQt5.QtCore import QTimer
+            QTimer.singleShot(200, self.restore_child_parts_status)
+        else:
+            print(f"DEBUG: ScanStatusDialog - init_ui 완료 후 데이터 없음 - 임시 파일에서 로드 시도")
+            from PyQt5.QtCore import QTimer
+            QTimer.singleShot(200, self.load_scan_data_from_temp_file)
+            QTimer.singleShot(300, self.restore_child_parts_status)
     
     def toggle_scan_data(self):
         """스캔 데이터 표시/숨김 토글"""
@@ -632,6 +653,12 @@ class ScanStatusDialog(QDialog):
                 temp_scan_file = os.path.join(current_dir, "temp_scan_data.json")
                 print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 임시 파일 경로: {temp_scan_file}")
                 
+                # 기존 파일이 있으면 먼저 삭제
+                if os.path.exists(temp_scan_file):
+                    print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 기존 임시 파일 삭제: {temp_scan_file}")
+                    os.remove(temp_scan_file)
+                    print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 기존 임시 파일 삭제 완료")
+                
                 # 임시 파일에 데이터 저장
                 with open(temp_scan_file, 'w', encoding='utf-8') as f:
                     json.dump(self.real_time_scanned_data, f, ensure_ascii=False, indent=2)
@@ -721,6 +748,12 @@ class ScanStatusDialog(QDialog):
                 temp_scan_file = os.path.join(current_dir, "temp_scan_data.json")
                 print(f"DEBUG: ScanStatusDialog - 임시 파일 경로: {temp_scan_file}")
                 
+                # 기존 파일이 있으면 먼저 삭제
+                if os.path.exists(temp_scan_file):
+                    print(f"DEBUG: ScanStatusDialog - 기존 임시 파일 삭제: {temp_scan_file}")
+                    os.remove(temp_scan_file)
+                    print(f"DEBUG: ScanStatusDialog - 기존 임시 파일 삭제 완료")
+                
                 # 임시 파일에 데이터 저장
                 with open(temp_scan_file, 'w', encoding='utf-8') as f:
                     json.dump(self.real_time_scanned_data, f, ensure_ascii=False, indent=2)
@@ -762,6 +795,23 @@ class ScanStatusDialog(QDialog):
         if hasattr(self, 'real_time_scanned_data'):
             print(f"DEBUG: ScanStatusDialog - real_time_scanned_data 길이: {len(self.real_time_scanned_data)}")
             print(f"DEBUG: ScanStatusDialog - real_time_scanned_data 내용: {self.real_time_scanned_data}")
+        
+        # 데이터가 없으면 메인 윈도우에서만 확인 (임시 파일 로드 안함)
+        if not hasattr(self, 'real_time_scanned_data') or not self.real_time_scanned_data:
+            print(f"DEBUG: ScanStatusDialog - 데이터가 없어서 메인 윈도우에서만 확인")
+            
+            # 메인 윈도우의 temp_scan_data만 확인
+            if hasattr(self, 'main_window') and self.main_window and hasattr(self.main_window, 'temp_scan_data'):
+                if self.main_window.temp_scan_data:
+                    self.real_time_scanned_data = self.main_window.temp_scan_data.copy()
+                    print(f"DEBUG: ScanStatusDialog - 메인 윈도우에서 데이터 로드: {len(self.real_time_scanned_data)}개 항목")
+                    # 스캔 테이블도 업데이트
+                    self.update_scan_table_data()
+                    self.update_statistics()
+                else:
+                    print(f"DEBUG: ScanStatusDialog - 메인 윈도우에도 데이터 없음 - 빈 상태로 시작")
+            else:
+                print(f"DEBUG: ScanStatusDialog - 메인 윈도우 없음 - 빈 상태로 시작")
         
         if hasattr(self, 'real_time_scanned_data') and self.real_time_scanned_data:
             print(f"DEBUG: ScanStatusDialog - 저장된 스캔 데이터로 복원: {len(self.real_time_scanned_data)}개 항목")
@@ -861,6 +911,42 @@ class ScanStatusDialog(QDialog):
         print(f"DEBUG: ScanStatusDialog - 다이얼로그 강제 새로고침 완료")
         
         print(f"DEBUG: ScanStatusDialog - 하위부품 스캔 상태 복원 완료")
+    
+    def load_scan_data_from_temp_file(self):
+        """임시 파일에서 스캔 데이터 로드"""
+        try:
+            import json
+            import os
+            
+            # 절대 경로로 파일 찾기
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.dirname(os.path.dirname(script_dir))
+            temp_scan_file = os.path.join(project_root, "temp_scan_data.json")
+            
+            print(f"DEBUG: ScanStatusDialog - 임시 파일 로드 시도: {temp_scan_file}")
+            print(f"DEBUG: ScanStatusDialog - 파일 존재 여부: {os.path.exists(temp_scan_file)}")
+            
+            if os.path.exists(temp_scan_file):
+                with open(temp_scan_file, 'r', encoding='utf-8') as f:
+                    temp_data = json.load(f)
+                    if temp_data and len(temp_data) > 0:
+                        self.real_time_scanned_data = temp_data.copy()
+                        print(f"DEBUG: ScanStatusDialog - 임시 파일에서 로드된 데이터: {len(self.real_time_scanned_data)}개 항목")
+                        for i, data in enumerate(self.real_time_scanned_data):
+                            print(f"DEBUG: ScanStatusDialog - 로드된 데이터 {i}: {data}")
+                        
+                        # 스캔 테이블도 업데이트
+                        self.update_scan_table_data()
+                        self.update_statistics()
+                        return True
+                    else:
+                        print(f"DEBUG: ScanStatusDialog - 임시 파일에 데이터 없음")
+            else:
+                print(f"DEBUG: ScanStatusDialog - 임시 파일이 존재하지 않음")
+        except Exception as e:
+            print(f"DEBUG: ScanStatusDialog - 임시 파일 로드 오류: {e}")
+        
+        return False
     
     def update_scan_completion_labels(self):
         """스캔데이터 완료 시 레이블 색상 변경 (1-6까지 적색에서 변경)"""
