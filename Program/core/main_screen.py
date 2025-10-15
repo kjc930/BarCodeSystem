@@ -38,7 +38,7 @@ class BarcodeMainScreen(QMainWindow):
             self.scanned_parts = []
             
             # ===== 프로그램 시작 시 기본 데이터 초기화 =====
-            print(f"DEBUG: 프로그램 시작 - 기본 데이터 초기화")
+            # print(f"DEBUG: 프로그램 시작 - 기본 데이터 초기화")
             
             # 프로그램 시작 시에는 기본 초기화만 (과도한 파일 삭제 방지)
             self.scanned_parts = []  # 스캔된 부품 목록
@@ -58,7 +58,7 @@ class BarcodeMainScreen(QMainWindow):
             # 프로그램 시작 시 temp_scan_data.json 파일 초기화 (안전을 위해)
             self.clear_temp_file_on_startup()
             
-            print(f"DEBUG: 프로그램 시작 - 기본 데이터 초기화 완료")
+            # print(f"DEBUG: 프로그램 시작 - 기본 데이터 초기화 완료")
             
             # 설정 파일 로드 (먼저 로드)
             try:
@@ -92,7 +92,7 @@ class BarcodeMainScreen(QMainWindow):
             # 패널 타이틀 로드
             try:
                 self.panel_titles = self.load_panel_titles()
-                print(f"DEBUG: 로드된 패널 타이틀: {self.panel_titles}")
+                # print(f"DEBUG: 로드된 패널 타이틀: {self.panel_titles}")
             except Exception as e:
                 print(f"패널 타이틀 로드 실패: {e}")
                 self.panel_titles = {
@@ -220,18 +220,18 @@ class BarcodeMainScreen(QMainWindow):
             project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             config_file = os.path.join(project_root, "admin_panel_config.json")
             
-            print(f"DEBUG: 설정 파일 경로: {config_file}")
-            print(f"DEBUG: 파일 존재 여부: {os.path.exists(config_file)}")
+            # print(f"DEBUG: 설정 파일 경로: {config_file}")
+            # print(f"DEBUG: 파일 존재 여부: {os.path.exists(config_file)}")
             
             with open(config_file, 'r', encoding='utf-8') as f:
                 config = json.load(f)
                 print(f"설정 파일 로드 성공 - {config_file}")
-                print(f"DEBUG: 로드된 설정 키: {list(config.keys())}")
+                # print(f"DEBUG: 로드된 설정 키: {list(config.keys())}")
                 return config
         except Exception as e:
             print(f"설정 파일 로드 실패: {e}")
-            print(f"DEBUG: 현재 작업 디렉토리: {os.getcwd()}")
-            print(f"DEBUG: 프로젝트 루트: {os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}")
+            # print(f"DEBUG: 현재 작업 디렉토리: {os.getcwd()}")
+            # print(f"DEBUG: 프로젝트 루트: {os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}")
             return {}
     
     def load_master_data(self):
@@ -241,12 +241,12 @@ class BarcodeMainScreen(QMainWindow):
             project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             master_data_file = os.path.join(project_root, "config", "master_data.json")
             
-            print(f"DEBUG: 마스터 데이터 파일 경로: {master_data_file}")
-            print(f"DEBUG: 마스터 데이터 파일 존재 여부: {os.path.exists(master_data_file)}")
+            # print(f"DEBUG: 마스터 데이터 파일 경로: {master_data_file}")
+            # print(f"DEBUG: 마스터 데이터 파일 존재 여부: {os.path.exists(master_data_file)}")
             
             with open(master_data_file, 'r', encoding='utf-8') as f:
                 master_data = json.load(f)
-                print(f"DEBUG: 마스터 데이터 로드 성공 - {len(master_data)}개 항목")
+                # print(f"DEBUG: 마스터 데이터 로드 성공 - {len(master_data)}개 항목")
                 return master_data
         except Exception as e:
             print(f"기준정보 로드 오류: {e}")
@@ -260,8 +260,8 @@ class BarcodeMainScreen(QMainWindow):
                 with open(titles_file, 'r', encoding='utf-8') as f:
                     content = f.read().strip()
                     lines = content.split('\n')
-                    print(f"DEBUG: 파일 내용: {repr(content)}")
-                    print(f"DEBUG: 라인 수: {len(lines)}")
+                    # print(f"DEBUG: 파일 내용: {repr(content)}")
+                    # print(f"DEBUG: 라인 수: {len(lines)}")
                     
                     # 최소 2개 라인이 있어야 함
                     if len(lines) >= 2:
@@ -269,7 +269,7 @@ class BarcodeMainScreen(QMainWindow):
                             "front_lh": lines[0].strip(),
                             "rear_rh": lines[1].strip()
                         }
-                        print(f"DEBUG: 파일에서 로드된 패널 타이틀: {result}")
+                        # print(f"DEBUG: 파일에서 로드된 패널 타이틀: {result}")
                         return result
             
             # 기본값 반환
@@ -299,34 +299,36 @@ class BarcodeMainScreen(QMainWindow):
             self.serial_connections = self.serial_connector.serial_connections
             
             # 스캐너 데이터 수신 연결 (스캐너가 연결된 경우)
-            print(f"DEBUG: serial_connections 키: {list(self.serial_connections.keys())}")
-            print(f"DEBUG: 스캐너 연결 상태: {'스캐너' in self.serial_connections}")
+            # print(f"DEBUG: serial_connections 키: {list(self.serial_connections.keys())}")
+            # print(f"DEBUG: 스캐너 연결 상태: {'스캐너' in self.serial_connections}")
             
             if "스캐너" in self.serial_connections and self.serial_connections["스캐너"]:
                 scanner_connection = self.serial_connections["스캐너"]
-                print(f"DEBUG: 스캐너 연결 객체: {scanner_connection}")
-                print(f"DEBUG: 스캐너 연결 객체 타입: {type(scanner_connection)}")
-                print(f"DEBUG: 스캐너 연결 객체 속성: {dir(scanner_connection)}")
-                print(f"DEBUG: data_received 속성 존재: {hasattr(scanner_connection, 'data_received')}")
+                # print(f"DEBUG: 스캐너 연결 객체: {scanner_connection}")
+                # print(f"DEBUG: 스캐너 연결 객체 타입: {type(scanner_connection)}")
+                # print(f"DEBUG: 스캐너 연결 객체 속성: {dir(scanner_connection)}")
+                # print(f"DEBUG: data_received 속성 존재: {hasattr(scanner_connection, 'data_received')}")
                 
                 if hasattr(scanner_connection, 'data_received'):
                     scanner_connection.data_received.connect(self.on_scanner_data_received)
-                    print("DEBUG: 스캐너 데이터 수신 연결 완료")
+                    # print("DEBUG: 스캐너 데이터 수신 연결 완료")
                 else:
-                    print("DEBUG: 스캐너 연결 객체에 data_received 속성이 없음")
+                    # print("DEBUG: 스캐너 연결 객체에 data_received 속성이 없음")
                     # 폴링 방식으로 스캐너 데이터 수신 시도
                     if hasattr(scanner_connection, 'read'):
-                        print("DEBUG: 스캐너 연결 객체에 read 메서드가 있음 - 폴링 방식으로 데이터 수신 시도")
+                        # print("DEBUG: 스캐너 연결 객체에 read 메서드가 있음 - 폴링 방식으로 데이터 수신 시도")
                         # 폴링 방식으로 스캐너 데이터 수신 (100ms마다 체크)
                         from PyQt5.QtCore import QTimer
                         self.scanner_timer = QTimer()
                         self.scanner_timer.timeout.connect(self.check_scanner_data)
                         self.scanner_timer.start(100)  # 100ms마다 체크
-                        print("DEBUG: 스캐너 폴링 타이머 시작")
+                        # print("DEBUG: 스캐너 폴링 타이머 시작")
                     else:
-                        print("DEBUG: 스캐너 연결 객체에 read 메서드도 없음")
+                        # print("DEBUG: 스캐너 연결 객체에 read 메서드도 없음")
+                        pass
             else:
-                print("DEBUG: 스캐너가 연결되지 않았거나 연결 객체가 없음")
+                # print("DEBUG: 스캐너가 연결되지 않았거나 연결 객체가 없음")
+                pass
             
             # UI에 연결 상태 업데이트
             self.update_all_device_status_ui(connection_results)

@@ -21,17 +21,17 @@ class ScanStatusDialog(QDialog):
         self.real_time_scanned_data = scanned_parts.copy() if scanned_parts else []  # 전달받은 데이터로 초기화
         self.main_window = parent  # 메인 윈도우 참조 저장
         
-        print(f"DEBUG: ScanStatusDialog - 생성자에서 데이터 초기화: {len(self.real_time_scanned_data)}개 항목")
-        for i, data in enumerate(self.real_time_scanned_data):
-            print(f"DEBUG: ScanStatusDialog - 초기화된 데이터 {i}: {data}")
+        # print(f"DEBUG: ScanStatusDialog - 생성자에서 데이터 초기화: {len(self.real_time_scanned_data)}개 항목")
+        # for i, data in enumerate(self.real_time_scanned_data):
+        #     print(f"DEBUG: ScanStatusDialog - 초기화된 데이터 {i}: {data}")
         
         # 데이터가 있으면 즉시 복원 시도
         if self.real_time_scanned_data:
-            print(f"DEBUG: ScanStatusDialog - 생성자에서 데이터 복원 시도")
+            # print(f"DEBUG: ScanStatusDialog - 생성자에서 데이터 복원 시도")
             from PyQt5.QtCore import QTimer
             QTimer.singleShot(100, self.restore_child_parts_status)
         else:
-            print(f"DEBUG: ScanStatusDialog - 생성자에서 데이터 없음 - 빈 상태로 시작")
+            # print(f"DEBUG: ScanStatusDialog - 생성자에서 데이터 없음 - 빈 상태로 시작")
             # 데이터가 없으면 빈 상태로 시작하도록 강제 설정
             self.real_time_scanned_data = []
         
@@ -121,11 +121,11 @@ class ScanStatusDialog(QDialog):
         
         # UI 초기화 완료 후 데이터 복원 시도
         if self.real_time_scanned_data:
-            print(f"DEBUG: ScanStatusDialog - init_ui 완료 후 데이터 복원 시도")
+            # print(f"DEBUG: ScanStatusDialog - init_ui 완료 후 데이터 복원 시도")
             from PyQt5.QtCore import QTimer
             QTimer.singleShot(200, self.restore_child_parts_status)
         else:
-            print(f"DEBUG: ScanStatusDialog - init_ui 완료 후 데이터 없음 - 임시 파일에서 로드 시도")
+            # print(f"DEBUG: ScanStatusDialog - init_ui 완료 후 데이터 없음 - 임시 파일에서 로드 시도")
             from PyQt5.QtCore import QTimer
             QTimer.singleShot(200, self.load_scan_data_from_temp_file)
             QTimer.singleShot(300, self.restore_child_parts_status)
@@ -140,11 +140,11 @@ class ScanStatusDialog(QDialog):
         if is_visible:
             # 스캔 데이터 숨기기 - 컴팩트 크기로
             self.resize(900, 400)
-            print("DEBUG: 스캔 데이터 숨김 - 컴팩트 크기로 조정")
+            # print("DEBUG: 스캔 데이터 숨김 - 컴팩트 크기로 조정")
         else:
             # 스캔 데이터 보기 - 확장 크기로
             self.resize(900, 700)
-            print("DEBUG: 스캔 데이터 표시 - 확장 크기로 조정")
+            # print("DEBUG: 스캔 데이터 표시 - 확장 크기로 조정")
         
         # 레이아웃 안정화
         self.update()
@@ -157,8 +157,8 @@ class ScanStatusDialog(QDialog):
     
     def create_child_parts_section(self, layout):
         """하위부품 정보 섹션 생성 - 시인성 개선"""
-        print(f"DEBUG: ScanStatusDialog - 하위부품 정보 섹션 생성, 하위부품 수: {len(self.child_parts_info)}")
-        print(f"DEBUG: ScanStatusDialog - 하위부품 정보 내용: {self.child_parts_info}")
+        # print(f"DEBUG: ScanStatusDialog - 하위부품 정보 섹션 생성, 하위부품 수: {len(self.child_parts_info)}")
+        # print(f"DEBUG: ScanStatusDialog - 하위부품 정보 내용: {self.child_parts_info}")
         
         child_parts_group = QGroupBox("하위부품 정보")
         child_parts_group.setFont(FontManager.get_dialog_title_font())  # 폰트 크기 증가
@@ -193,7 +193,7 @@ class ScanStatusDialog(QDialog):
         # 상태 라벨 제거됨 (테이블만 사용)
         
         for i, child_part in enumerate(self.child_parts_info):
-            print(f"DEBUG: 하위부품 {i+1} - {child_part}")
+            # print(f"DEBUG: 하위부품 {i+1} - {child_part}")
             # 하위부품 Part_No
             part_number_item = QTableWidgetItem(child_part.get("part_number", ""))
             part_number_item.setTextAlignment(Qt.AlignCenter)
@@ -208,7 +208,7 @@ class ScanStatusDialog(QDialog):
             
             # 스캔상태 - 신규 작업이므로 항상 대기 상태로 시작
             initial_status = "대기"  # 신규 작업은 항상 대기 상태
-            print(f"DEBUG: ScanStatusDialog - 신규 작업 시작 - 초기 상태를 대기로 설정")
+            # print(f"DEBUG: ScanStatusDialog - 신규 작업 시작 - 초기 상태를 대기로 설정")
             
             # 파일에서 과거 데이터를 로드하지 않음 (신규 작업이므로)
             # real_time_scanned_data는 빈 상태로 유지
