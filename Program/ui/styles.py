@@ -1,7 +1,53 @@
 """
 UI 스타일시트 정의
-AdminPanel.py에서 사용하는 모든 스타일을 관리
+AdminPanel.py와 main_screen.py에서 사용하는 모든 스타일을 관리
 """
+
+def get_scanned_icon_style():
+    """스캔된 아이콘 스타일 (녹색)"""
+    return """
+        QLabel {
+            background-color: #28a745;
+            color: white;
+            border: 2px solid #1e7e34;
+            border-radius: 5px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_unscanned_icon_style():
+    """스캔되지 않은 아이콘 스타일 (적색)"""
+    return """
+        QLabel {
+            background-color: #dc3545;
+            color: white;
+            border: 2px solid #c82333;
+            border-radius: 5px;
+            padding: 5px;
+            font-weight: bold;
+        }
+    """
+
+def get_simulation_button_style():
+    """PLC 시뮬레이션 버튼 스타일"""
+    return """
+        QPushButton {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background-color: #2980b9;
+        }
+    """
+
+def get_separator_style():
+    """구분선 스타일"""
+    return "color: #95A5A6;"
 
 def get_main_stylesheet():
     """메인 애플리케이션 스타일시트"""

@@ -13,7 +13,10 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal
 from PyQt5.QtGui import QFont, QPalette, QColor, QPixmap, QPainter
 
-from AdminPanel import AdminPanel
+# Program 디렉토리를 Python 경로에 추가
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.AdminPanel import AdminPanel
 from hardware.print_module import PrintManager
 from utils.modules.serial_connection_manager import AutoSerialConnector
 from hardware.barcode_scan_workflow import BarcodeScanWorkflow, LabelColorManager
@@ -21,11 +24,9 @@ from hardware.child_part_barcode_validator import ChildPartBarcodeValidator
 from hardware.plc_data_manager import PLCDataManager
 from ui.styles import *
 from utils.font_manager import FontManager
-from production_panel import ProductionPanel
+from core.production_panel import ProductionPanel
 from ui.scan_status_dialog import ScanStatusDialog
 from ui.plc_simulation_dialog import PLCSimulationDialog
-# Program 디렉토리를 Python 경로에 추가
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 class BarcodeMainScreen(QMainWindow):
@@ -123,13 +124,11 @@ class BarcodeMainScreen(QMainWindow):
                 print(f" 로그 디렉토리 생성 실패: {e}")
                 self.log_dir = "."
             
-            # 프린트 매니저 초기화 (새로운 HKMC 출력 매니저)
+            # 프린트 매니저 초기화
             try:
-                from hardware.print_manager import PrintManager
                 self.print_manager = PrintManager(self)
-                print("DEBUG: PrintManager 초기화 완료")
             except Exception as e:
-                print(f"DEBUG: 프린트 매니저 초기화 실패: {e}")
+                print(f" 프린트 매니저 초기화 실패: {e}")
                 self.print_manager = None
             
             # PLC 데이터 매니저 초기화 (시뮬레이션 모드 옵션)
@@ -158,9 +157,6 @@ class BarcodeMainScreen(QMainWindow):
             
             # 생산카운터 초기화 플래그
             self._initialization_complete = False
-            
-            # 스캔 데이터 준비 상태 플래그 (타이밍 이슈 해결용)
-            self._scan_data_ready = False
             
             # PLC 시뮬레이션 다이얼로그 초기화
             self.plc_simulation_dialog = None
@@ -521,11 +517,29 @@ class BarcodeMainScreen(QMainWindow):
                     if icon:
                         if i < scanned_count:
                             # 스캔된 개수만큼 녹색으로 변경
-                            icon.setStyleSheet(get_scanned_icon_style())
+                            icon.setStyleSheet("""
+                                QLabel {
+                                    background-color: #28a745;
+                                    color: white;
+                                    border: 2px solid #1e7e34;
+                                    border-radius: 5px;
+                                    padding: 5px;
+                                    font-weight: bold;
+                                }
+                            """)
                             print(f"DEBUG: Front/LH 아이콘 {i+1} 색상 변경: 적색 → 녹색 (스캔됨)")
                         else:
                             # 스캔되지 않은 개수는 적색 유지
-                            icon.setStyleSheet(get_unscanned_icon_style())
+                            icon.setStyleSheet("""
+                                QLabel {
+                                    background-color: #dc3545;
+                                    color: white;
+                                    border: 2px solid #c82333;
+                                    border-radius: 5px;
+                                    padding: 5px;
+                                    font-weight: bold;
+                                }
+                            """)
                             print(f"DEBUG: Front/LH 아이콘 {i+1} 색상 유지: 적색 (미스캔)")
                             
         elif panel_name == "Rear/RH" and hasattr(self, 'rear_panel') and self.rear_panel:
@@ -536,11 +550,29 @@ class BarcodeMainScreen(QMainWindow):
                     if icon:
                         if i < scanned_count:
                             # 스캔된 개수만큼 녹색으로 변경
-                            icon.setStyleSheet(get_scanned_icon_style())
+                            icon.setStyleSheet("""
+                                QLabel {
+                                    background-color: #28a745;
+                                    color: white;
+                                    border: 2px solid #1e7e34;
+                                    border-radius: 5px;
+                                    padding: 5px;
+                                    font-weight: bold;
+                                }
+                            """)
                             print(f"DEBUG: Rear/RH 아이콘 {i+1} 색상 변경: 적색 → 녹색 (스캔됨)")
                         else:
                             # 스캔되지 않은 개수는 적색 유지
-                            icon.setStyleSheet(get_unscanned_icon_style())
+                            icon.setStyleSheet("""
+                                QLabel {
+                                    background-color: #dc3545;
+                                    color: white;
+                                    border: 2px solid #c82333;
+                                    border-radius: 5px;
+                                    padding: 5px;
+                                    font-weight: bold;
+                                }
+                            """)
                             print(f"DEBUG: Rear/RH 아이콘 {i+1} 색상 유지: 적색 (미스캔)")
         
         print(f"DEBUG: 구분값 변경 시 패널 아이콘 색상 업데이트 완료 - {panel_name}")
@@ -735,7 +767,19 @@ class BarcodeMainScreen(QMainWindow):
         sim_layout.setSpacing(5)
         
         self.sim_dialog_btn = QPushButton("PLC 시뮬레이션")
-        self.sim_dialog_btn.setStyleSheet(get_simulation_button_style())
+        self.sim_dialog_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+        """)
         self.sim_dialog_btn.clicked.connect(self.open_plc_simulation_dialog)
         sim_layout.addWidget(self.sim_dialog_btn)
         
@@ -758,7 +802,7 @@ class BarcodeMainScreen(QMainWindow):
         # 구분선
         separator = QLabel("|")
         separator.setFont(FontManager.get_main_date_time_font())
-        separator.setStyleSheet(get_separator_style())
+        separator.setStyleSheet("color: #95A5A6;")
         separator.setAlignment(Qt.AlignCenter)
         datetime_layout.addWidget(separator)
         
@@ -863,9 +907,6 @@ class BarcodeMainScreen(QMainWindow):
             
             # UI 업데이트
             self.plc_data_manager._update_plc_ui()
-            
-            # 출력 확인 및 실행
-            self.check_and_execute_print()
             
             print("PLC 시뮬레이션 신호가 메인 화면에 적용되었습니다.")
         else:
@@ -1571,7 +1612,6 @@ class BarcodeMainScreen(QMainWindow):
     def restore_scan_data(self):
         """스캔 데이터 복원 실행"""
         print(f"DEBUG: 메인화면 - restore_scan_data 시작")
-        
         if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
             print(f"DEBUG: 스캔 데이터 복원 실행 - 복원할 데이터: {len(self.scan_status_dialog.real_time_scanned_data)}개 항목")
             
@@ -2565,68 +2605,6 @@ class BarcodeMainScreen(QMainWindow):
             else:
                 return self.panel_titles["front_lh"]  # 기본값
     
-    def check_and_execute_print(self):
-        """PLC 완료신호 확인 및 출력 실행"""
-        try:
-            if not self.plc_data_manager:
-                return
-            
-            completion_signal = self.plc_data_manager.get_plc_data().get("completion_signal", 0)
-            print(f"DEBUG: PLC 완료신호 확인: {completion_signal}")
-            
-            if completion_signal == 1:
-                # FRONT/LH 완료 - 출력 실행
-                print(f"DEBUG: FRONT/LH 완료 - 출력 실행 시작")
-                self.execute_print_for_panel("front_lh")
-            elif completion_signal == 2:
-                # REAR/RH 완료 - 출력 실행
-                print(f"DEBUG: REAR/RH 완료 - 출력 실행 시작")
-                self.execute_print_for_panel("rear_rh")
-                
-        except Exception as e:
-            print(f"DEBUG: 출력 실행 확인 오류: {e}")
-    
-    def execute_print_for_panel(self, panel_type):
-        """특정 패널에 대한 출력 실행"""
-        try:
-            print(f"DEBUG: {panel_type} 패널 출력 실행")
-            
-            # 패널 정보 가져오기
-            if panel_type == "front_lh":
-                panel = self.front_panel
-            elif panel_type == "rear_rh":
-                panel = self.rear_panel
-            else:
-                print(f"DEBUG: 알 수 없는 패널 타입: {panel_type}")
-                return
-            
-            # 메인 부품 정보 가져오기
-            main_part_info = self.get_main_part_info(self.panel_titles[panel_type])
-            if not main_part_info:
-                print(f"DEBUG: 메인 부품 정보를 찾을 수 없음")
-                return
-            
-            # 스캔된 하위부품 데이터 가져오기
-            scanned_child_parts = []
-            if hasattr(panel, 'real_time_scanned_data') and panel.real_time_scanned_data:
-                scanned_child_parts = panel.real_time_scanned_data
-                print(f"DEBUG: 스캔된 하위부품: {len(scanned_child_parts)}개")
-            else:
-                print(f"DEBUG: 스캔된 하위부품 데이터 없음")
-            
-            # 출력 매니저로 출력 실행
-            if hasattr(self, 'print_manager') and self.print_manager:
-                success = self.print_manager.execute_print(main_part_info, scanned_child_parts)
-                if success:
-                    print(f"DEBUG: {panel_type} 패널 출력 완료")
-                else:
-                    print(f"DEBUG: {panel_type} 패널 출력 실패")
-            else:
-                print(f"DEBUG: 출력 매니저가 없음")
-                
-        except Exception as e:
-            print(f"DEBUG: {panel_type} 패널 출력 실행 오류: {e}")
-
     def get_main_part_info(self, panel_name):
         """메인 부품 정보 가져오기"""
         try:
@@ -2925,4 +2903,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    

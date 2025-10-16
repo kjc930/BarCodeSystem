@@ -21,19 +21,44 @@ class ScanStatusDialog(QDialog):
         self.real_time_scanned_data = scanned_parts.copy() if scanned_parts else []  # 전달받은 데이터로 초기화
         self.main_window = parent  # 메인 윈도우 참조 저장
         
+        # 데이터 준비 상태 플래그 초기화 (타이밍 이슈 해결)
+        if self.main_window:
+            self.main_window._scan_data_ready = False
+        
         # print(f"DEBUG: ScanStatusDialog - 생성자에서 데이터 초기화: {len(self.real_time_scanned_data)}개 항목")
         # for i, data in enumerate(self.real_time_scanned_data):
         #     print(f"DEBUG: ScanStatusDialog - 초기화된 데이터 {i}: {data}")
         
-        # 데이터가 있으면 즉시 복원 시도
-        if self.real_time_scanned_data:
-            # print(f"DEBUG: ScanStatusDialog - 생성자에서 데이터 복원 시도")
-            from PyQt5.QtCore import QTimer
-            QTimer.singleShot(100, self.restore_child_parts_status)
+        # 간단한 데이터 로드 로직 (즉시 복원)
+        print(f"DEBUG: ScanStatusDialog - 간단한 데이터 로드 시작")
+        
+        # 1. 먼저 메인 윈도우의 메모리 데이터 확인 (가장 빠름)
+        if hasattr(self, 'main_window') and self.main_window and hasattr(self.main_window, 'temp_scan_data'):
+            if self.main_window.temp_scan_data:
+                print(f"DEBUG: ScanStatusDialog - 메인 윈도우 메모리 데이터 사용: {len(self.main_window.temp_scan_data)}개 항목")
+                self.real_time_scanned_data = self.main_window.temp_scan_data.copy()
+                # 데이터가 로드되었으면 즉시 복원 시도
+                print(f"DEBUG: ScanStatusDialog - 메모리 데이터로 즉시 복원 시도")
+                self.restore_child_parts_status()
+                return
+        
+        # 2. 메인 윈도우에 데이터가 없으면 임시 파일에서 로드 시도
+        print(f"DEBUG: ScanStatusDialog - 임시 파일 즉시 로드 시도")
+        if self.load_temp_scan_data():
+            print(f"DEBUG: ScanStatusDialog - 임시 파일 로드 성공")
+            # 데이터가 로드되었으면 즉시 복원 시도
+            print(f"DEBUG: ScanStatusDialog - 임시 파일 데이터로 즉시 복원 시도")
+            self.restore_child_parts_status()
         else:
-            # print(f"DEBUG: ScanStatusDialog - 생성자에서 데이터 없음 - 빈 상태로 시작")
-            # 데이터가 없으면 빈 상태로 시작하도록 강제 설정
-            self.real_time_scanned_data = []
+            print(f"DEBUG: ScanStatusDialog - 임시 파일 로드 실패 - 빈 상태로 시작")
+            # 파일이 없으면 200ms 후 재시도
+            from PyQt5.QtCore import QTimer
+            QTimer.singleShot(200, self.try_load_and_restore)
+        
+        # 3. UI 초기화 후 즉시 데이터 로드 시도
+        print(f"DEBUG: ScanStatusDialog - UI 초기화 후 데이터 로드 시도")
+        from PyQt5.QtCore import QTimer
+        QTimer.singleShot(100, self.force_load_data)
         
         # 자동 닫기 관련 변수
         self.auto_close_timer = None
@@ -551,6 +576,9 @@ class ScanStatusDialog(QDialog):
         
         print(f"DEBUG: ScanStatusDialog - 하위부품 스캔 상태 업데이트 완료")
         
+        # 실시간 임시 파일 저장 (스캔 데이터가 업데이트될 때마다)
+        self.save_temp_scan_data_realtime()
+        
         # 스캔 완료 시 레이블 색상 변경 (패널 구분)
         self.update_scan_completion_labels()
         
@@ -659,9 +687,11 @@ class ScanStatusDialog(QDialog):
                     os.remove(temp_scan_file)
                     print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 기존 임시 파일 삭제 완료")
                 
-                # 임시 파일에 데이터 저장
+                # 임시 파일에 데이터 저장 (즉시 동기화)
                 with open(temp_scan_file, 'w', encoding='utf-8') as f:
                     json.dump(self.real_time_scanned_data, f, ensure_ascii=False, indent=2)
+                    f.flush()  # 즉시 디스크에 쓰기
+                    os.fsync(f.fileno())  # 파일 시스템 동기화
                 
                 print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 임시 파일 저장 완료: {len(self.real_time_scanned_data)}개 항목")
                 print(f"DEBUG: ScanStatusDialog - 자동 닫기 시 임시 파일 절대 경로: {os.path.abspath(temp_scan_file)}")
@@ -697,7 +727,7 @@ class ScanStatusDialog(QDialog):
             self.countdown_timer.stop()
             self.countdown_timer = None
         
-        # 메인 화면에 스캔 데이터 저장
+        # 메인 화면에 스캔 데이터 저장 (동기적으로 완료 보장)
         print(f"DEBUG: ScanStatusDialog - closeEvent 시작 - main_window 존재: {hasattr(self, 'main_window')}")
         if hasattr(self, 'main_window') and self.main_window:
             print(f"DEBUG: ScanStatusDialog - 저장할 데이터: {len(self.real_time_scanned_data)}개 항목")
@@ -727,15 +757,25 @@ class ScanStatusDialog(QDialog):
                 'child_parts_info': self.child_parts_info.copy(),
                 'current_panel_title': self.windowTitle()
             }
+            
+            # 3. 데이터 저장 완료 플래그 설정 (복원 시 확인용)
+            self.main_window._scan_data_ready = True
+            print(f"DEBUG: ScanStatusDialog - 데이터 저장 완료 플래그 설정")
             print(f"DEBUG: ScanStatusDialog - 스캔 데이터 저장 완료: {len(self.real_time_scanned_data)}개 항목")
             print(f"DEBUG: ScanStatusDialog - 저장된 데이터 확인: {len(self.main_window.scan_status_data['real_time_scanned_data'])}개 항목")
+            
+            # 4. 워크플로우 리셋 (다이얼로그 닫기 시)
+            if hasattr(self.main_window, 'workflow_manager') and self.main_window.workflow_manager:
+                print(f"DEBUG: ScanStatusDialog - 다이얼로그 닫기 시 워크플로우 리셋")
+                self.main_window.workflow_manager.reset_workflow()
+                print(f"DEBUG: ScanStatusDialog - 워크플로우 리셋 완료")
             
             # 저장된 데이터 상세 확인
             for i, data in enumerate(self.main_window.scan_status_data['real_time_scanned_data']):
                 print(f"DEBUG: ScanStatusDialog - 저장된 데이터 {i}: {data}")
             
-            # 3. 임시 TEXT 파일에 데이터 저장
-            print(f"DEBUG: ScanStatusDialog - 임시 TEXT 파일에 데이터 저장 시도")
+            # 5. 강화된 임시 파일 저장 (다시 클릭 시 데이터 로딩 보장)
+            print(f"DEBUG: ScanStatusDialog - 강화된 임시 파일 저장 시도")
             try:
                 import json
                 import os
@@ -746,17 +786,20 @@ class ScanStatusDialog(QDialog):
                 
                 # 절대 경로로 파일 생성
                 temp_scan_file = os.path.join(current_dir, "temp_scan_data.json")
-                print(f"DEBUG: ScanStatusDialog - 임시 파일 경로: {temp_scan_file}")
+                print(f"DEBUG: ScanStatusDialog - 강화된 임시 파일 경로: {temp_scan_file}")
                 
-                # 기존 파일이 있으면 먼저 삭제
+                # 기존 파일이 있으면 먼저 삭제 (확실한 저장)
                 if os.path.exists(temp_scan_file):
                     print(f"DEBUG: ScanStatusDialog - 기존 임시 파일 삭제: {temp_scan_file}")
                     os.remove(temp_scan_file)
                     print(f"DEBUG: ScanStatusDialog - 기존 임시 파일 삭제 완료")
+                    print(f"DEBUG: ScanStatusDialog - 기존 임시 파일 삭제 완료")
                 
-                # 임시 파일에 데이터 저장
+                # 임시 파일에 데이터 저장 (즉시 동기화)
                 with open(temp_scan_file, 'w', encoding='utf-8') as f:
                     json.dump(self.real_time_scanned_data, f, ensure_ascii=False, indent=2)
+                    f.flush()  # 즉시 디스크에 쓰기
+                    os.fsync(f.fileno())  # 파일 시스템 동기화
                 
                 print(f"DEBUG: ScanStatusDialog - 임시 파일 저장 완료: {len(self.real_time_scanned_data)}개 항목")
                 print(f"DEBUG: ScanStatusDialog - 임시 파일 절대 경로: {os.path.abspath(temp_scan_file)}")
@@ -782,6 +825,100 @@ class ScanStatusDialog(QDialog):
             
         super().closeEvent(event)
     
+    def load_temp_scan_data(self):
+        """임시 파일에서 스캔 데이터 로드"""
+        try:
+            import json
+            import os
+            
+            # 임시 파일 경로 설정
+            temp_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'temp_scan_data.json')
+            print(f"DEBUG: ScanStatusDialog - 임시 파일 로드 시도: {temp_file_path}")
+            
+            if os.path.exists(temp_file_path):
+                print(f"DEBUG: ScanStatusDialog - 파일 존재 여부: True")
+                print(f"DEBUG: ScanStatusDialog - 파일 크기: {os.path.getsize(temp_file_path)} bytes")
+                with open(temp_file_path, 'r', encoding='utf-8') as f:
+                    temp_data = json.load(f)
+                    if temp_data:
+                        self.real_time_scanned_data = temp_data.copy()
+                        print(f"DEBUG: ScanStatusDialog - 임시 파일에서 로드된 데이터: {len(self.real_time_scanned_data)}개 항목")
+                        for i, data in enumerate(self.real_time_scanned_data):
+                            print(f"DEBUG: ScanStatusDialog - 로드된 데이터 {i}: {data}")
+                        
+                        # 스캔 테이블도 업데이트
+                        self.update_scan_table_data()
+                        self.update_statistics()
+                        print(f"DEBUG: ScanStatusDialog - ✅ 임시 파일 로드 성공!")
+                        return True
+                    else:
+                        print(f"DEBUG: ScanStatusDialog - 임시 파일이 비어있음")
+            else:
+                print(f"DEBUG: ScanStatusDialog - 파일 존재 여부: False")
+                print(f"DEBUG: ScanStatusDialog - 임시 파일이 존재하지 않음")
+                
+        except Exception as e:
+            print(f"DEBUG: ScanStatusDialog - 임시 파일 로드 오류: {e}")
+            import traceback
+            print(f"DEBUG: ScanStatusDialog - 상세 오류: {traceback.format_exc()}")
+            
+        return False
+    
+    def try_load_and_restore(self):
+        """임시 파일에서 데이터 로드 후 복원 시도"""
+        print(f"DEBUG: ScanStatusDialog - try_load_and_restore 시작")
+        
+        # 임시 파일에서 데이터 로드 시도
+        if self.load_temp_scan_data():
+            print(f"DEBUG: ScanStatusDialog - 임시 파일에서 데이터 로드 성공")
+            # 데이터가 로드되었으면 즉시 복원 시도
+            print(f"DEBUG: ScanStatusDialog - try_load_and_restore에서 즉시 복원 시도")
+            self.restore_child_parts_status()
+        else:
+            print(f"DEBUG: ScanStatusDialog - 임시 파일에서 데이터 로드 실패 - 빈 상태로 시작")
+    
+    def force_load_data(self):
+        """강제 데이터 로드 시도 (다시 클릭 시 데이터 로딩 보장)"""
+        print(f"DEBUG: ScanStatusDialog - force_load_data 시작 (다시 클릭 시 데이터 로딩 보장)")
+        
+        # 1. 메인 윈도우 메모리 데이터 강제 확인
+        if hasattr(self, 'main_window') and self.main_window and hasattr(self.main_window, 'temp_scan_data'):
+            if self.main_window.temp_scan_data:
+                print(f"DEBUG: ScanStatusDialog - 강제 메모리 데이터 사용: {len(self.main_window.temp_scan_data)}개 항목")
+                self.real_time_scanned_data = self.main_window.temp_scan_data.copy()
+                self.restore_child_parts_status()
+                return
+        
+        # 2. 임시 파일 강제 로드 (다시 클릭 시 보장)
+        print(f"DEBUG: ScanStatusDialog - 강제 임시 파일 로드 시도 (다시 클릭 시 보장)")
+        if self.load_temp_scan_data():
+            print(f"DEBUG: ScanStatusDialog - 강제 임시 파일 로드 성공")
+            self.restore_child_parts_status()
+        else:
+            print(f"DEBUG: ScanStatusDialog - 강제 임시 파일 로드 실패 - 추가 시도")
+            # 3. 추가 시도 (200ms 후)
+            from PyQt5.QtCore import QTimer
+            QTimer.singleShot(200, self.retry_load_data)
+    
+    def retry_load_data(self):
+        """데이터 로드 재시도 (다시 클릭 시 보장)"""
+        print(f"DEBUG: ScanStatusDialog - retry_load_data 시작 (다시 클릭 시 보장)")
+        
+        # 메모리 데이터 재확인
+        if hasattr(self, 'main_window') and self.main_window and hasattr(self.main_window, 'temp_scan_data'):
+            if self.main_window.temp_scan_data:
+                print(f"DEBUG: ScanStatusDialog - 재시도 메모리 데이터 사용: {len(self.main_window.temp_scan_data)}개 항목")
+                self.real_time_scanned_data = self.main_window.temp_scan_data.copy()
+                self.restore_child_parts_status()
+                return
+        
+        # 임시 파일 재시도
+        if self.load_temp_scan_data():
+            print(f"DEBUG: ScanStatusDialog - 재시도 임시 파일 로드 성공")
+            self.restore_child_parts_status()
+        else:
+            print(f"DEBUG: ScanStatusDialog - 재시도 임시 파일 로드 실패 - 빈 상태로 시작")
+    
     def restore_child_parts_status(self):
         """하위부품 스캔 상태 복원 - 저장된 스캔 데이터 기반으로 복원"""
         print(f"DEBUG: ScanStatusDialog - 하위부품 스캔 상태 복원 시작")
@@ -796,11 +933,11 @@ class ScanStatusDialog(QDialog):
             print(f"DEBUG: ScanStatusDialog - real_time_scanned_data 길이: {len(self.real_time_scanned_data)}")
             print(f"DEBUG: ScanStatusDialog - real_time_scanned_data 내용: {self.real_time_scanned_data}")
         
-        # 데이터가 없으면 메인 윈도우에서만 확인 (임시 파일 로드 안함)
+        # 데이터가 없으면 메인 윈도우와 임시 파일에서 확인
         if not hasattr(self, 'real_time_scanned_data') or not self.real_time_scanned_data:
-            print(f"DEBUG: ScanStatusDialog - 데이터가 없어서 메인 윈도우에서만 확인")
+            print(f"DEBUG: ScanStatusDialog - 데이터가 없어서 메인 윈도우와 임시 파일에서 확인")
             
-            # 메인 윈도우의 temp_scan_data만 확인
+            # 1. 메인 윈도우의 temp_scan_data 확인
             if hasattr(self, 'main_window') and self.main_window and hasattr(self.main_window, 'temp_scan_data'):
                 if self.main_window.temp_scan_data:
                     self.real_time_scanned_data = self.main_window.temp_scan_data.copy()
@@ -809,9 +946,14 @@ class ScanStatusDialog(QDialog):
                     self.update_scan_table_data()
                     self.update_statistics()
                 else:
-                    print(f"DEBUG: ScanStatusDialog - 메인 윈도우에도 데이터 없음 - 빈 상태로 시작")
+                    print(f"DEBUG: ScanStatusDialog - 메인 윈도우에도 데이터 없음")
             else:
-                print(f"DEBUG: ScanStatusDialog - 메인 윈도우 없음 - 빈 상태로 시작")
+                print(f"DEBUG: ScanStatusDialog - 메인 윈도우 없음")
+            
+            # 2. 메인 윈도우에서도 데이터가 없으면 임시 파일에서 로드 시도
+            if not self.real_time_scanned_data:
+                print(f"DEBUG: ScanStatusDialog - 임시 파일에서 데이터 로드 시도")
+                self.load_temp_scan_data()
         
         if hasattr(self, 'real_time_scanned_data') and self.real_time_scanned_data:
             print(f"DEBUG: ScanStatusDialog - 저장된 스캔 데이터로 복원: {len(self.real_time_scanned_data)}개 항목")
@@ -911,6 +1053,9 @@ class ScanStatusDialog(QDialog):
         print(f"DEBUG: ScanStatusDialog - 다이얼로그 강제 새로고침 완료")
         
         print(f"DEBUG: ScanStatusDialog - 하위부품 스캔 상태 복원 완료")
+        
+        # 하위부품 복원 완료 후 바코드 출력 실행 (프린트는 나중에)
+        # self.execute_barcode_print_after_restore()
     
     def load_scan_data_from_temp_file(self):
         """임시 파일에서 스캔 데이터 로드"""
@@ -947,6 +1092,79 @@ class ScanStatusDialog(QDialog):
             print(f"DEBUG: ScanStatusDialog - 임시 파일 로드 오류: {e}")
         
         return False
+    
+    def execute_barcode_print_after_restore(self):
+        """하위부품 복원 완료 후 바코드 출력 실행"""
+        try:
+            print(f"DEBUG: ScanStatusDialog - 하위부품 복원 완료 후 바코드 출력 실행 시작")
+            
+            # 메인 윈도우의 프린트 매니저를 통해 바코드 출력
+            if hasattr(self, 'main_window') and self.main_window:
+                print(f"DEBUG: ScanStatusDialog - 메인 윈도우 존재: {self.main_window}")
+                print(f"DEBUG: ScanStatusDialog - print_manager 속성 존재: {hasattr(self.main_window, 'print_manager')}")
+                if hasattr(self.main_window, 'print_manager'):
+                    print(f"DEBUG: ScanStatusDialog - print_manager 객체: {self.main_window.print_manager}")
+                    if self.main_window.print_manager:
+                        print(f"DEBUG: ScanStatusDialog - 프린트 매니저를 통한 바코드 출력 실행")
+                    
+                        # 현재 패널 정보 가져오기
+                        current_panel = None
+                        if hasattr(self.main_window, 'front_panel') and hasattr(self.main_window, 'rear_panel'):
+                            # 패널 제목으로 현재 패널 결정
+                            panel_title = self.windowTitle()
+                            if "FRONT" in panel_title or "LH" in panel_title:
+                                current_panel = self.main_window.front_panel
+                                panel_name = "FRONT/LH"
+                            elif "REAR" in panel_title or "RH" in panel_title:
+                                current_panel = self.main_window.rear_panel
+                                panel_name = "REAR/RH"
+                            else:
+                                print(f"DEBUG: ScanStatusDialog - 패널 제목을 인식할 수 없음: {panel_title}")
+                                return
+                        
+                        if current_panel and hasattr(current_panel, 'part_number'):
+                            part_number = current_panel.part_number
+                            part_name = getattr(current_panel, 'part_name', '')
+                            
+                            print(f"DEBUG: ScanStatusDialog - 바코드 출력 실행 - 패널: {panel_name}, 부품번호: {part_number}")
+                            
+                            # 하위부품 정보 수집
+                            child_parts_list = []
+                            if hasattr(current_panel, 'child_parts_icons'):
+                                for i, icon in enumerate(current_panel.child_parts_icons):
+                                    if icon.isVisible():
+                                        child_part = f"{part_number}_{i+1}"
+                                        child_parts_list.append(child_part)
+                            
+                            # 바코드 출력 실행
+                            if child_parts_list:
+                                print(f"DEBUG: ScanStatusDialog - 하위부품 {len(child_parts_list)}개로 바코드 출력 실행")
+                                success = self.main_window.print_manager.print_auto(
+                                    panel_name=panel_name,
+                                    part_number=part_number,
+                                    part_name=part_name,
+                                    child_parts_list=child_parts_list
+                                )
+                                
+                                if success:
+                                    print(f"DEBUG: ScanStatusDialog - ✅ 바코드 출력 완료!")
+                                else:
+                                    print(f"DEBUG: ScanStatusDialog - ❌ 바코드 출력 실패")
+                            else:
+                                print(f"DEBUG: ScanStatusDialog - 하위부품이 없어 바코드 출력 건너뜀")
+                        else:
+                            print(f"DEBUG: ScanStatusDialog - 현재 패널 정보를 가져올 수 없음")
+                    else:
+                        print(f"DEBUG: ScanStatusDialog - 프린트 매니저가 None")
+                else:
+                    print(f"DEBUG: ScanStatusDialog - 프린트 매니저 속성이 없음")
+            else:
+                print(f"DEBUG: ScanStatusDialog - 메인 윈도우가 없음")
+                
+        except Exception as e:
+            print(f"DEBUG: ScanStatusDialog - 바코드 출력 실행 오류: {e}")
+            import traceback
+            print(f"DEBUG: ScanStatusDialog - 상세 오류: {traceback.format_exc()}")
     
     def update_scan_completion_labels(self):
         """스캔데이터 완료 시 레이블 색상 변경 (1-6까지 적색에서 변경)"""
@@ -1311,6 +1529,42 @@ class ScanStatusDialog(QDialog):
         self.scan_table.update()
         self.scan_table.repaint()
         print(f"DEBUG: ScanStatusDialog - 스캔 테이블 업데이트 완료")
+        
+        # 실시간 임시 파일 저장 (다이얼로그가 열려있는 동안에도)
+        self.save_temp_scan_data_realtime()
+    
+    def save_temp_scan_data_realtime(self):
+        """다이얼로그가 열려있는 동안 실시간으로 임시 파일 저장"""
+        try:
+            import json
+            import os
+            
+            # 현재 작업 디렉토리 확인
+            current_dir = os.getcwd()
+            temp_scan_file = os.path.join(current_dir, "temp_scan_data.json")
+            
+            print(f"DEBUG: ScanStatusDialog - 실시간 임시 파일 저장 시도: {temp_scan_file}")
+            
+            # 임시 파일에 데이터 저장 (즉시 동기화)
+            with open(temp_scan_file, 'w', encoding='utf-8') as f:
+                json.dump(self.real_time_scanned_data, f, ensure_ascii=False, indent=2)
+                f.flush()  # 즉시 디스크에 쓰기
+                os.fsync(f.fileno())  # 파일 시스템 동기화
+            
+            print(f"DEBUG: ScanStatusDialog - 실시간 임시 파일 저장 완료: {len(self.real_time_scanned_data)}개 항목")
+            
+            # 파일 존재 확인
+            if os.path.exists(temp_scan_file):
+                print(f"DEBUG: ScanStatusDialog - ✅ 실시간 임시 파일 생성 확인됨")
+                file_size = os.path.getsize(temp_scan_file)
+                print(f"DEBUG: ScanStatusDialog - 실시간 임시 파일 크기: {file_size} bytes")
+            else:
+                print(f"DEBUG: ScanStatusDialog - ❌ 실시간 임시 파일 생성 실패")
+                
+        except Exception as e:
+            print(f"DEBUG: ScanStatusDialog - 실시간 임시 파일 저장 오류: {e}")
+            import traceback
+            print(f"DEBUG: ScanStatusDialog - 상세 오류: {traceback.format_exc()}")
     
     def update_statistics(self):
         """스캔 통계 업데이트"""

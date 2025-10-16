@@ -14,7 +14,7 @@
     "auto_scan": true
   },
   "printer": {
-    "port": "COM1",
+    "port": "COM5 - AX99100 PCIe to High Speed Serial Port(COM5)",
     "baudrate": 9600,
     "quality": "표준 (4 DPS)"
   },

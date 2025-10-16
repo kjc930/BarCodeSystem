@@ -130,6 +130,9 @@ class ProductionPanel(QWidget):
         scan_btn.clicked.connect(self.show_scan_status)
         status_layout.addWidget(scan_btn)
         
+        print(f"DEBUG: {self.title} 스캔현황 버튼 생성 완료")
+        print(f"DEBUG: {self.title} 스캔현황 버튼 연결: {scan_btn.clicked}")
+        
         # 하위부품 수 아이콘들 (1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣) - 스캔현황 버튼과 동일한 높이
         self.child_parts_icons = []
         for i in range(6):
@@ -485,12 +488,47 @@ class ProductionPanel(QWidget):
             print(f"⚠️ WARNING: {self.title} 하위부품 정보가 비어있습니다!")
             print(f"⚠️ WARNING: 부품번호 {self.part_number}에 대한 하위부품을 찾을 수 없습니다.")
         else:
-            print(f"✅ SUCCESS: {self.title} 하위부품 {len(child_parts_info)}개 발견!")
+            print(f"SUCCESS: {self.title} 하위부품 {len(child_parts_info)}개 발견!")
         
-        from ui.scan_status_dialog import ScanStatusDialog
-        dialog = ScanStatusDialog([], self, child_parts_info)
-        dialog.setWindowTitle(f"{self.title} - 스캔 현황")
-        dialog.exec_()
+        from ui.scan_status_dialog_simple import SimpleScanStatusDialog
+        
+        print(f"DEBUG: {self.title} SimpleScanStatusDialog 생성 시작")
+        print(f"DEBUG: {self.title} main_window: {self.main_window}")
+        print(f"DEBUG: {self.title} child_parts_info: {len(child_parts_info) if child_parts_info else 0}개")
+        print(f"DEBUG: {self.title} title: {self.title}")
+        
+        # 첨부이미지의 다이얼로그 함수 사용
+        try:
+            print(f"DEBUG: {self.title} SimpleScanStatusDialog 생성 시도")
+            dialog = SimpleScanStatusDialog(self.main_window, child_parts_info, self.title)
+            print(f"DEBUG: {self.title} SimpleScanStatusDialog 생성 완료")
+            print(f"DEBUG: {self.title} dialog.exec_() 시작")
+            dialog.exec_()
+            print(f"DEBUG: {self.title} dialog.exec_() 완료")
+        except Exception as e:
+            print(f"DEBUG: {self.title} SimpleScanStatusDialog 생성 오류: {e}")
+            import traceback
+            print(f"DEBUG: {self.title} 상세 오류: {traceback.format_exc()}")
+    
+    def increment_production_counter(self):
+        """생산카운터 증가"""
+        try:
+            print(f"DEBUG: {self.title} 생산카운터 증가 시작")
+            
+            # 현재 패널의 생산카운터 증가
+            if hasattr(self, 'production_counter'):
+                self.production_counter += 1
+                print(f"DEBUG: {self.title} 생산카운터 증가: {self.production_counter}")
+                
+                # 메인 윈도우의 일누적수량도 증가
+                if hasattr(self.main_window, 'increment_daily_total'):
+                    self.main_window.increment_daily_total(self.title)
+                    print(f"DEBUG: {self.title} 일누적수량 증가 완료")
+            else:
+                print(f"DEBUG: {self.title} 생산카운터 속성이 없음")
+                
+        except Exception as e:
+            print(f"DEBUG: {self.title} 생산카운터 증가 오류: {e}")
     
     def get_child_parts_info(self):
         """현재 패널의 하위부품 정보 가져오기"""
