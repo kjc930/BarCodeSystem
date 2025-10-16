@@ -6992,3 +6992,277 @@
 2025-10-16 16:25:03,074 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
 2025-10-16 16:25:03,075 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
 2025-10-16 16:25:03,075 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:21:35,341 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-10-17 07:21:35,357 - utils.modules.serial_connection_manager - INFO - 스캐너 COM4 연결 시도 중... (시도 1/3)
+2025-10-17 07:21:35,373 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM4
+2025-10-17 07:21:35,376 - utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-10-17 07:21:35,378 - utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-10-17 07:21:35,379 - utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-10-17 07:22:21,459 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 07:22:21,461 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 07:22:21,542 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 07:22:21,542 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 07:22:21,543 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 07:22:21,619 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 07:22:21,619 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 07:22:21,619 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 07:22:21,697 - utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-17 07:22:21,698 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 07:22:21,698 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 07:22:21,699 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:22:21,699 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:22:21,700 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 07:22:21,700 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 07:22:21,701 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 07:22:21,701 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 07:25:21,087 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 07:25:21,087 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 07:25:21,163 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 07:25:21,164 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 07:25:21,164 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 07:25:21,240 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 07:25:21,240 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 07:25:21,241 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 07:25:21,320 - utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-17 07:25:21,320 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 07:25:21,321 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 07:25:21,323 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:25:21,323 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:25:21,324 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 07:25:21,324 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 07:25:21,325 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 07:25:21,325 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 07:30:52,821 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 07:30:52,822 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 07:30:52,907 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 07:30:52,908 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 07:30:52,908 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 07:30:52,984 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 07:30:52,984 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 07:30:52,984 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 07:30:53,063 - utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-17 07:30:53,063 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 07:30:53,063 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 07:30:53,064 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:30:53,064 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:30:53,064 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 07:30:53,065 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 07:30:53,065 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 07:30:53,065 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 07:37:47,005 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 07:37:47,006 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 07:37:47,085 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 07:37:47,085 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 07:37:47,086 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 07:37:47,164 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 07:37:47,165 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 07:37:47,165 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 07:37:47,242 - utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-17 07:37:47,244 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 07:37:47,244 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 07:37:47,246 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:37:47,247 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:37:47,248 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 07:37:47,248 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 07:37:47,249 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 07:37:47,249 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 07:49:38,746 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 07:49:38,747 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 07:49:38,831 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 07:49:38,831 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 07:49:38,831 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 07:49:38,909 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 07:49:38,909 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 07:49:38,909 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 07:49:38,910 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:49:38,910 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:49:38,911 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 07:49:38,911 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 07:49:38,911 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:49:38,911 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:49:38,912 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 07:49:38,912 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 07:49:38,913 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 07:49:38,913 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 07:52:11,333 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 07:52:11,333 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 07:52:11,406 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 07:52:11,406 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 07:52:11,406 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 07:52:11,482 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 07:52:11,482 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 07:52:11,482 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 07:52:11,483 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:52:11,483 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:52:11,484 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 07:52:11,484 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 07:52:11,484 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:52:11,484 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 07:52:11,485 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 07:52:11,485 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 07:52:11,485 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 07:52:11,485 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:07:35,641 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 08:07:35,642 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 08:07:35,714 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 08:07:35,715 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 08:07:35,715 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:07:35,792 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 08:07:35,792 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 08:07:35,792 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 08:07:35,793 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:07:35,793 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:07:35,794 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 08:07:35,795 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:07:35,795 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:07:35,795 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:07:35,795 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 08:07:35,796 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 08:07:35,796 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:07:35,796 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:10:10,324 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 08:10:10,325 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 08:10:10,397 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 08:10:10,399 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 08:10:10,399 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:10:10,475 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 08:10:10,475 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 08:10:10,476 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 08:10:10,478 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:10:10,478 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:10:10,479 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 08:10:10,480 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:10:10,480 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:10:10,481 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:10:10,482 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 08:10:10,482 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 08:10:10,482 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:10:10,482 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:11:14,823 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 08:11:14,824 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 08:11:14,906 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 08:11:14,906 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 08:11:14,907 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:11:14,983 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 08:11:14,985 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 08:11:14,985 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 08:11:14,987 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:11:14,987 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:11:14,989 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 08:11:14,989 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:11:14,989 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:11:14,990 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:11:14,990 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 08:11:14,991 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 08:11:14,991 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:11:14,991 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:35:31,390 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 08:35:31,390 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 08:35:31,461 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 08:35:31,461 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 08:35:31,461 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:35:31,537 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 08:35:31,537 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 08:35:31,537 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 08:35:31,539 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:35:31,539 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:35:31,540 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 08:35:31,540 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:35:31,540 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:35:31,541 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:35:31,541 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 08:35:31,541 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 08:35:31,542 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:35:31,542 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:38:44,154 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 08:38:44,155 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 08:38:44,240 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 08:38:44,240 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 08:38:44,240 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:38:44,316 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 08:38:44,316 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 08:38:44,317 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 08:38:44,318 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:38:44,318 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:38:44,320 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 08:38:44,320 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:38:44,320 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:38:44,320 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:38:44,321 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 08:38:44,321 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 08:38:44,322 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:38:44,322 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:42:49,789 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 08:42:49,789 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 08:42:49,873 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 08:42:49,873 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 08:42:49,875 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:42:49,876 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:42:49,877 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:42:49,878 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 08:42:49,878 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 08:42:49,878 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:42:49,878 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:42:49,879 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 08:42:49,879 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:42:49,880 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:42:49,880 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:42:49,880 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 08:42:49,881 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 08:42:49,881 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:42:49,881 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:43:04,714 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 08:43:04,716 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 08:43:04,798 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 08:43:04,798 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 08:43:04,799 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:43:04,876 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 08:43:04,877 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 08:43:04,877 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 08:43:04,879 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:43:04,880 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:43:04,881 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 08:43:04,881 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:43:04,882 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:43:04,882 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:43:04,883 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 08:43:04,883 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 08:43:04,883 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:43:04,884 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:47:11,787 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 08:47:11,787 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 08:47:11,868 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 08:47:11,868 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 08:47:11,868 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:47:11,870 - utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:47:11,870 - utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:47:11,870 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 08:47:11,871 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 08:47:11,871 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:47:11,871 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:47:11,872 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 08:47:11,872 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:47:11,872 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:47:11,872 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:47:11,873 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 08:47:11,873 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 08:47:11,873 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:47:11,873 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:47:32,538 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - USB-Enhanced-SERIAL CH343(COM6)
+2025-10-17 08:47:32,538 - utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-17 08:47:32,611 - utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM6 (9600bps)
+2025-10-17 08:47:32,611 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-17 08:47:32,611 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:47:32,689 - utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-17 08:47:32,690 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-17 08:47:32,690 - utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-17 08:47:32,693 - utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:47:32,693 - utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:47:32,695 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM4
+2025-10-17 08:47:32,695 - utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-17 08:47:32,696 - utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:47:32,697 - utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-17 08:47:32,698 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM5
+2025-10-17 08:47:32,699 - utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-10-17 08:47:32,699 - utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-17 08:47:32,699 - utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM5: could not open port 'COM5': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)

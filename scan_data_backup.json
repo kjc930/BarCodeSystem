@@ -1,10 +1,18 @@
 [
   {
-    "time": "16:00:30",
-    "part_number": "89131CU217",
-    "is_ok": false,
-    "status": "NG",
-    "raw_data": "89131CU217",
+    "time": "08:47:39",
+    "part_number": "89231CU1000",
+    "is_ok": true,
+    "status": "OK",
+    "raw_data": "[)>\u001e06\u001dV2812\u001dP89231CU1000\u001dS\u001dE\u001dT2510022000A0000001\u001dM\u001d\u001e\u0004",
+    "panel": "Front/LH"
+  },
+  {
+    "time": "08:47:38",
+    "part_number": "89231CU1001",
+    "is_ok": true,
+    "status": "OK",
+    "raw_data": "[)>\u001e06\u001dV2812\u001dP89231CU1001\u001dS\u001dE\u001dT251002S1B2A0000001\u001dM\u001d\u001e\u0004",
     "panel": "Front/LH"
   }
 ]

@@ -15,6 +15,7 @@ from PyQt5.QtGui import QFont, QPalette, QColor, QPixmap, QPainter
 
 from AdminPanel import AdminPanel
 from hardware.print_module import PrintManager
+from hardware.auto_print_manager import AutoPrintManager
 from utils.modules.serial_connection_manager import AutoSerialConnector
 from hardware.barcode_scan_workflow import BarcodeScanWorkflow, LabelColorManager
 from hardware.child_part_barcode_validator import ChildPartBarcodeValidator
@@ -131,6 +132,17 @@ class BarcodeMainScreen(QMainWindow):
             except Exception as e:
                 print(f"DEBUG: 프린트 매니저 초기화 실패: {e}")
                 self.print_manager = None
+            
+            # 자동 출력 매니저 초기화
+            try:
+                self.auto_print_manager = AutoPrintManager(self)
+                self.auto_print_manager.print_started.connect(self.on_print_started)
+                self.auto_print_manager.print_completed.connect(self.on_print_completed)
+                self.auto_print_manager.print_failed.connect(self.on_print_failed)
+                print("DEBUG: AutoPrintManager 초기화 완료")
+            except Exception as e:
+                print(f"DEBUG: 자동 출력 매니저 초기화 실패: {e}")
+                self.auto_print_manager = None
             
             # PLC 데이터 매니저 초기화 (시뮬레이션 모드 옵션)
             try:
@@ -2166,6 +2178,11 @@ class BarcodeMainScreen(QMainWindow):
                 # 하위부품 검증기 초기화
                 print(f"DEBUG: 공정 부품코드 스캔 - 하위부품 검증기 초기화")
             
+            # 출력 상태 초기화 (중복 출력 방지)
+            if hasattr(self, 'auto_print_manager') and self.auto_print_manager:
+                self.auto_print_manager.reset_print_status()
+                print(f"DEBUG: 공정 부품코드 스캔 - 출력 상태 초기화")
+            
             # 패널별 하위부품 데이터 초기화
             if hasattr(self, 'front_panel') and self.front_panel:
                 if hasattr(self.front_panel, 'scanned_child_parts'):
@@ -2606,46 +2623,104 @@ class BarcodeMainScreen(QMainWindow):
                 print(f"DEBUG: 메인 부품 정보를 찾을 수 없음")
                 return
             
-            # 스캔된 하위부품 데이터 가져오기
+            # 스캔된 하위부품 데이터 가져오기 - 전역 데이터에서 패널별 필터링
             scanned_child_parts = []
+            
+            # 1. 패널 객체에 real_time_scanned_data가 있는지 확인
             if hasattr(panel, 'real_time_scanned_data') and panel.real_time_scanned_data:
                 scanned_child_parts = panel.real_time_scanned_data
-                print(f"DEBUG: 스캔된 하위부품: {len(scanned_child_parts)}개")
+                print(f"DEBUG: 패널 객체에서 스캔된 하위부품: {len(scanned_child_parts)}개")
             else:
-                print(f"DEBUG: 스캔된 하위부품 데이터 없음")
+                # 2. 전역 스캔 데이터에서 해당 패널의 데이터 필터링
+                panel_name = self.panel_titles[panel_type]
+                print(f"DEBUG: 전역 데이터에서 {panel_name} 패널 데이터 필터링")
+                print(f"DEBUG: 전역 스캔 데이터: {len(self.global_scan_data)}개")
+                
+                # 전역 스캔 데이터 상세 확인
+                for i, scan_data in enumerate(self.global_scan_data):
+                    print(f"DEBUG: 전역 스캔 데이터 {i}: {scan_data}")
+                
+                # 패널별 매칭 시도
+                for scan_data in self.global_scan_data:
+                    scan_panel = scan_data.get('panel', '')
+                    print(f"DEBUG: 스캔 데이터 패널: '{scan_panel}' vs 찾는 패널: '{panel_name}'")
+                    if scan_panel == panel_name:
+                        scanned_child_parts.append(scan_data)
+                        print(f"DEBUG: ✅ 정확한 패널 매칭: {scan_data}")
+                    else:
+                        print(f"DEBUG: ❌ 패널 매칭 실패: '{scan_panel}' != '{panel_name}'")
+                
+                # 정확한 패널 매칭이 실패한 경우, 스캔된 데이터가 있는 모든 데이터 사용
+                if not scanned_child_parts:
+                    print(f"DEBUG: 정확한 패널 매칭 실패 - 스캔된 모든 데이터 사용")
+                    for scan_data in self.global_scan_data:
+                        if scan_data.get('is_ok', False):  # OK 상태인 스캔 데이터만
+                            scanned_child_parts.append(scan_data)
+                            print(f"DEBUG: ✅ 전체 스캔 데이터 사용: {scan_data}")
+                
+                print(f"DEBUG: 필터링된 스캔된 하위부품: {len(scanned_child_parts)}개")
+                
+                if not scanned_child_parts:
+                    print(f"DEBUG: 스캔된 하위부품 데이터 없음")
             
-            # 출력 매니저로 출력 실행
-            if hasattr(self, 'print_manager') and self.print_manager:
-                success = self.print_manager.execute_print(main_part_info, scanned_child_parts)
+            # 자동 출력 매니저로 출력 실행
+            if hasattr(self, 'auto_print_manager') and self.auto_print_manager:
+                success = self.auto_print_manager.execute_auto_print(panel_type, main_part_info, scanned_child_parts)
                 if success:
-                    print(f"DEBUG: {panel_type} 패널 출력 완료")
+                    print(f"DEBUG: {panel_type} 패널 자동 출력 완료")
                 else:
-                    print(f"DEBUG: {panel_type} 패널 출력 실패")
+                    print(f"DEBUG: {panel_type} 패널 자동 출력 실패")
             else:
-                print(f"DEBUG: 출력 매니저가 없음")
+                print(f"DEBUG: 자동 출력 매니저가 없음")
                 
         except Exception as e:
             print(f"DEBUG: {panel_type} 패널 출력 실행 오류: {e}")
 
     def get_main_part_info(self, panel_name):
-        """메인 부품 정보 가져오기"""
+        """메인 부품 정보 가져오기 - 작업완료된 패널의 정보"""
         try:
+            print(f"DEBUG: 메인 부품 정보 가져오기 - 패널: {panel_name}")
+            
             if panel_name == self.panel_titles["front_lh"]:
                 panel = self.front_panel
             elif panel_name == self.panel_titles["rear_rh"]:
                 panel = self.rear_panel
             else:
+                print(f"DEBUG: 알 수 없는 패널: {panel_name}")
                 return {}
             
-            return {
+            part_info = {
                 "part_number": getattr(panel, 'part_number', ''),
                 "part_name": getattr(panel, 'part_name', ''),
                 "division": getattr(panel, 'division', ''),
                 "work_status": getattr(panel, 'work_status', 0)
             }
+            
+            print(f"DEBUG: 패널 {panel_name}의 부품 정보: {part_info}")
+            return part_info
+            
         except Exception as e:
             print(f"DEBUG: 메인 부품 정보 가져오기 오류: {e}")
             return {}
+    
+    def on_print_started(self, panel_type):
+        """출력 시작 시그널 핸들러"""
+        print(f"DEBUG: {panel_type} 패널 출력 시작됨")
+        # UI 업데이트 (예: 출력 상태 표시)
+    
+    def on_print_completed(self, panel_type, success):
+        """출력 완료 시그널 핸들러"""
+        if success:
+            print(f"DEBUG: {panel_type} 패널 출력 성공")
+            # 성공 시 UI 업데이트
+        else:
+            print(f"DEBUG: {panel_type} 패널 출력 실패")
+            # 실패 시 UI 업데이트
+    
+    def on_print_failed(self, panel_type, error_message):
+        """출력 실패 시그널 핸들러"""
+        print(f"DEBUG: {panel_type} 패널 출력 실패: {error_message}")
+        # 오류 메시지 표시
     
     def get_child_parts_info_for_panel(self, panel_name):
         """특정 패널의 하위부품 정보 가져오기"""
