@@ -74,6 +74,12 @@ class SimpleScanStatusDialog(QDialog):
         self.parts_table.horizontalHeader().setStretchLastSection(True)
         self.parts_table.setAlternatingRowColors(True)
         
+        # 열 너비 조정
+        self.parts_table.setColumnWidth(0, 150)  # 부품번호
+        self.parts_table.setColumnWidth(1, 200)  # 부품명
+        self.parts_table.setColumnWidth(2, 80)   # 상태
+        self.parts_table.setColumnWidth(3, 120)  # 스캔시간
+        
         # 테이블 스타일 (ScanStatusDialog와 동일)
         self.parts_table.setStyleSheet(get_main_child_parts_table_style())
         
@@ -116,6 +122,15 @@ class SimpleScanStatusDialog(QDialog):
         self.history_table.setHorizontalHeaderLabels(["시간", "부품번호", "상태", "생산일자", "부품4M", "구분", "시리얼"])  # 컬럼명 변경
         self.history_table.horizontalHeader().setStretchLastSection(True)
         self.history_table.setMaximumHeight(200)  # 컬럼이 늘어났으므로 높이 증가
+        
+        # 히스토리 테이블 열 너비 조정
+        self.history_table.setColumnWidth(0, 80)   # 시간
+        self.history_table.setColumnWidth(1, 120)  # 부품번호
+        self.history_table.setColumnWidth(2, 60)   # 상태
+        self.history_table.setColumnWidth(3, 80)   # 생산일자
+        self.history_table.setColumnWidth(4, 80)   # 부품4M
+        self.history_table.setColumnWidth(5, 50)   # 구분
+        self.history_table.setColumnWidth(6, 100)  # 시리얼
         
         # 히스토리 테이블 스타일 (기존 스타일과 동일)
         self.history_table.setStyleSheet("""

@@ -1063,3 +1063,8 @@
 [2025-10-17 13:24:38] 프린터 연결 실패 - 포트: COM1, 오류: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
 [2025-10-17 13:24:38] 너트1 연결 실패 - 포트: COM7, 오류: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
 [2025-10-17 13:24:38] 너트2 연결 실패 - 포트: COM8, 오류: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+[2025-10-17 16:13:14] PLC 연결 실패 - 포트: COM6, 오류: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+[2025-10-17 16:13:14] 스캐너 연결 실패 - 포트: COM4, 오류: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+[2025-10-17 16:13:14] 프린터 연결 실패 - 포트: COM1, 오류: Cannot configure port, something went wrong. Original message: OSError(22, '잘못된 기능입니다.', None, 1)
+[2025-10-17 16:13:14] 너트1 연결 실패 - 포트: COM7, 오류: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+[2025-10-17 16:13:14] 너트2 연결 실패 - 포트: COM8, 오류: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
