@@ -1,6 +1,6 @@
 {
   "plc": {
-    "port": "COM6 - USB-Enhanced-SERIAL CH343(COM6)",
+    "port": "COM6",
     "baudrate": 9600,
     "parity": "None",
     "station_id": 1,
@@ -8,20 +8,20 @@
     "test_value": 100
   },
   "scanner": {
-    "port": "COM5",
+    "port": "COM4",
     "baudrate": 9600,
     "terminator": "\\r\\n (CRLF)",
     "auto_scan": true
   },
   "printer": {
-    "port": "COM4 - AX99100 PCIe to High Speed Serial Port(COM4)",
+    "port": "COM1",
     "baudrate": 9600,
     "quality": "표준 (4 DPS)"
   },
   "nutrunner": {
-    "nutrunner1_port": "COM7",
+    "nutrunner1_port": "COM4",
     "nutrunner1_baudrate": 9600,
-    "nutrunner2_port": "COM8",
+    "nutrunner2_port": "COM5",
     "nutrunner2_baudrate": 9600
   },
   "master_data": {
@@ -30,9 +30,9 @@
     "4m_info": []
   },
   "admin_panel": {
-    "x": 2461,
+    "x": 478,
     "y": 46,
     "width": 1200,
-    "height": 960
+    "height": 947
   }
 }
