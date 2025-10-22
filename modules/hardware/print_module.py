@@ -35,7 +35,7 @@ class PrintModule(QObject):
         """설정 초기화"""
         # 시리얼 설정
         self.serial_config = {
-            'port': 'COM1',
+            'port': 'COM3',
             'baudrate': 9600,
             'bytesize': serial.EIGHTBITS,
             'parity': serial.PARITY_NONE,
@@ -50,17 +50,17 @@ class PrintModule(QObject):
                 'default': {
                     'name': '기본 양식',
                     'zpl': '''^XA
-^PW324
-^LL243
-^LH0,0
-^FO15,15^BQN,3,3^FH_^FDLA,{formatted_data}^FS
-^FO120,10^A0N,26,26^FD{part_number}^FS 
-^FO120,50^A0N,16,16^FD{display_name}^FS 
-^FO120,70^A0N,16,16^FD{date}^FS 
-^FO120,90^A0N,16,16^FD{tracking_number}^FS 
-^FO120,110^A0N,16,16^FD{initial_mark}^FS
-^XZ
-'''
+                                ^PW324
+                                ^LL243
+                                ^LH0,0
+                                ^FO15,15^BQN,3,3^FH_^FDLA,{formatted_data}^FS
+                                ^FO120,10^A0N,26,26^FD{part_number}^FS 
+                                ^FO120,50^A0N,16,16^FD{display_name}^FS 
+                                ^FO120,70^A0N,16,16^FD{date}^FS 
+                                ^FO120,90^A0N,16,16^FD{tracking_number}^FS 
+                                ^FO120,110^A0N,16,16^FD{initial_mark}^FS
+                                ^XZ
+                                '''
                 }
             }
         }

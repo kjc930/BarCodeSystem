@@ -2591,6 +2591,7 @@ class BarcodeMainScreen(QMainWindow):
             completion_signal = self.plc_data_manager.get_plc_data().get("completion_signal", 0)
             print(f"DEBUG: PLC 완료신호 확인: {completion_signal}")
             
+            # 완료신호별 출력 실행
             if completion_signal == 1:
                 # FRONT/LH 완료 - 출력 실행
                 print(f"DEBUG: FRONT/LH 완료 - 출력 실행 시작")
@@ -2599,9 +2600,39 @@ class BarcodeMainScreen(QMainWindow):
                 # REAR/RH 완료 - 출력 실행
                 print(f"DEBUG: REAR/RH 완료 - 출력 실행 시작")
                 self.execute_print_for_panel("rear_rh")
+            elif completion_signal == 0:
+                # 작업중 상태 - 출력 상태 초기화 (새로운 사이클 준비)
+                print(f"DEBUG: 완료신호 0 - 새로운 작업 사이클 시작")
+                if hasattr(self, 'auto_print_manager') and self.auto_print_manager:
+                    self.auto_print_manager.reset_print_status()
+                
+                # 하위바코드 스캔 상태 확인
+                self.check_scan_status_for_new_cycle()
+            else:
+                # 기타 완료신호 - 출력하지 않음
+                print(f"DEBUG: 완료신호 {completion_signal} - 출력하지 않음")
                 
         except Exception as e:
             print(f"DEBUG: 출력 실행 확인 오류: {e}")
+    
+    def check_scan_status_for_new_cycle(self):
+        """새로운 작업 사이클에서 하위바코드 스캔 상태 확인"""
+        try:
+            print(f"DEBUG: 새로운 사이클 - 하위바코드 스캔 상태 확인")
+            
+            # 전역 스캔 데이터 확인
+            if hasattr(self, 'global_scan_data') and self.global_scan_data:
+                print(f"DEBUG: 현재 스캔된 하위바코드: {len(self.global_scan_data)}개")
+                for i, scan_data in enumerate(self.global_scan_data):
+                    part_number = scan_data.get('part_number', '')
+                    is_ok = scan_data.get('is_ok', False)
+                    panel = scan_data.get('panel', '')
+                    print(f"DEBUG: 스캔 데이터 {i}: {part_number} (OK: {is_ok}, 패널: {panel})")
+            else:
+                print(f"DEBUG: 스캔된 하위바코드 없음")
+                
+        except Exception as e:
+            print(f"DEBUG: 스캔 상태 확인 오류: {e}")
     
     def execute_print_for_panel(self, panel_type):
         """특정 패널에 대한 출력 실행"""

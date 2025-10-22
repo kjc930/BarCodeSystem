@@ -35,37 +35,62 @@ class AutoPrintManager(QObject):
         print("DEBUG: AutoPrintManager 초기화 완료")
     
     def load_print_config(self):
-        """출력 설정 로드"""
+        """출력 설정 로드 - admin_panel_config.json 사용"""
         try:
-            config_file = 'print_config.json'
+            # admin_panel_config.json에서 프린터 설정 로드
+            config_file = os.path.join('config', 'admin_panel_config.json')
             if os.path.exists(config_file):
                 with open(config_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
-            else:
-                # 기본 설정 생성
-                default_config = {
+                    admin_config = json.load(f)
+                    
+                # 프린터 설정 추출
+                printer_config = admin_config.get('printer', {})
+                serial_config = admin_config.get('serial', {})
+                
+                # 통합된 설정 반환
+                return {
                     "serial": {
-                        "port": "COM3",
-                        "baudrate": 9600,
-                        "bytesize": 8,
-                        "parity": "N",
-                        "stopbits": 1,
-                        "timeout": 1
+                        "port": printer_config.get('port', serial_config.get('port', 'COM3')),
+                        "baudrate": printer_config.get('baudrate', serial_config.get('baudrate', 9600)),
+                        "bytesize": serial_config.get('bytesize', 8),
+                        "parity": serial_config.get('parity', 'N'),
+                        "stopbits": serial_config.get('stopbits', 1),
+                        "timeout": serial_config.get('timeout', 1)
                     },
-                    "zpl_template": "default",
-                    "auto_print_enabled": True
+                    "zpl_template": admin_config.get('zpl_template', 'default'),
+                    "auto_print_enabled": admin_config.get('auto_print_enabled', True)
                 }
-                self.save_print_config(default_config)
-                return default_config
+            else:
+                print(f"DEBUG: admin_panel_config.json 파일을 찾을 수 없습니다: {config_file}")
+                return {}
         except Exception as e:
             print(f"DEBUG: 출력 설정 로드 오류: {e}")
             return {}
     
     def save_print_config(self, config):
-        """출력 설정 저장"""
+        """출력 설정 저장 - admin_panel_config.json 사용"""
         try:
-            with open('print_config.json', 'w', encoding='utf-8') as f:
-                json.dump(config, f, ensure_ascii=False, indent=2)
+            # admin_panel_config.json 파일 로드
+            config_file = os.path.join('config', 'admin_panel_config.json')
+            if os.path.exists(config_file):
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    admin_config = json.load(f)
+            else:
+                admin_config = {}
+            
+            # 프린터 설정 업데이트
+            if 'serial' in config:
+                admin_config['serial'] = config['serial']
+            if 'zpl_template' in config:
+                admin_config['zpl_template'] = config['zpl_template']
+            if 'auto_print_enabled' in config:
+                admin_config['auto_print_enabled'] = config['auto_print_enabled']
+            
+            # admin_panel_config.json에 저장
+            with open(config_file, 'w', encoding='utf-8') as f:
+                json.dump(admin_config, f, ensure_ascii=False, indent=2)
+                
+            print(f"DEBUG: 프린터 설정이 admin_panel_config.json에 저장되었습니다")
         except Exception as e:
             print(f"DEBUG: 출력 설정 저장 오류: {e}")
     
@@ -163,24 +188,44 @@ class AutoPrintManager(QObject):
                 print(f"DEBUG: 하위부품이 있지만 스캔되지 않음 - 출력 거부")
                 return False
             
-            # 4. 모든 하위부품이 스캔되었는지 확인
+            # 4. 사용유무 Y이고 출력포함여부 Y인 하위부품만 필터링
+            print_include_parts = []
+            for child in expected_child_parts:
+                use_status = child.get('use_status', 'Y')  # 기본값 Y
+                print_include = child.get('print_include', 'Y')  # 기본값 Y
+                
+                # 사용유무가 Y이고 출력포함여부가 Y인 하위부품만 포함
+                if use_status == 'Y' and print_include == 'Y':
+                    print_include_parts.append(child)
+                    print(f"DEBUG: - {child.get('part_number', '')} (사용유무: {use_status}, 출력포함: {print_include})")
+                else:
+                    print(f"DEBUG: - {child.get('part_number', '')} 제외 (사용유무: {use_status}, 출력포함: {print_include})")
+            
+            print(f"DEBUG: 사용유무 Y이고 출력포함여부 Y인 하위부품: {len(print_include_parts)}개")
+            
+            # 사용유무 Y이고 출력포함여부 Y인 하위부품이 없으면 출력 허용
+            if not print_include_parts:
+                print(f"DEBUG: 사용유무 Y이고 출력포함여부 Y인 하위부품이 없음 - 출력 허용")
+                return True
+            
+            # 5. 사용유무 Y이고 출력포함여부 Y인 하위부품이 모두 스캔되었는지 확인
             scanned_part_numbers = [child.get('part_number', '') for child in child_parts_scanned]
-            expected_part_numbers = [child.get('part_number', '') for child in expected_child_parts]
+            expected_print_parts = [child.get('part_number', '') for child in print_include_parts]
             
             print(f"DEBUG: 스캔된 부품번호: {scanned_part_numbers}")
-            print(f"DEBUG: 예상 부품번호: {expected_part_numbers}")
+            print(f"DEBUG: 사용유무 Y이고 출력포함 예상 부품번호: {expected_print_parts}")
             
-            # 모든 예상 하위부품이 스캔되었는지 확인
+            # 모든 사용유무 Y이고 출력포함 하위부품이 스캔되었는지 확인
             missing_parts = []
-            for expected_part in expected_part_numbers:
+            for expected_part in expected_print_parts:
                 if expected_part not in scanned_part_numbers:
                     missing_parts.append(expected_part)
             
             if missing_parts:
-                print(f"DEBUG: 미스캔 하위부품: {missing_parts} - 출력 거부")
+                print(f"DEBUG: 미스캔 사용유무 Y이고 출력포함 하위부품: {missing_parts} - 출력 거부")
                 return False
             
-            print(f"DEBUG: 모든 하위부품 스캔 완료 - 출력 허용")
+            print(f"DEBUG: 모든 사용유무 Y이고 출력포함 하위부품 스캔 완료 - 출력 허용")
             return True
             
         except Exception as e:
@@ -225,10 +270,46 @@ class AutoPrintManager(QObject):
             
             print(f"DEBUG: 공정부품 HKMC: {process_hkmc}")
             
-            # 2. 하위부품 HKMC 바코드들 생성 (ASCII 코드 포함)
+            # 2. 하위부품 HKMC 바코드들 생성 (출력포함여부 Y인 것만)
             child_hkmc_list = []
+            
+            # 공정부품의 하위부품 정보에서 출력포함여부 확인
+            expected_child_parts = []
+            if hasattr(self.main_window, 'master_data') and self.main_window.master_data:
+                for part_data in self.main_window.master_data:
+                    if part_data.get('part_number') == part_number:
+                        expected_child_parts = part_data.get('child_parts', [])
+                        break
+            
+            # 사용유무 Y이고 출력포함여부 Y인 하위부품만 필터링
+            print_include_parts = []
+            for child in expected_child_parts:
+                use_status = child.get('use_status', 'Y')  # 기본값 Y
+                print_include = child.get('print_include', 'Y')  # 기본값 Y
+                
+                # 사용유무가 Y이고 출력포함여부가 Y인 하위부품만 포함
+                if use_status == 'Y' and print_include == 'Y':
+                    print_include_parts.append(child)
+                    print(f"DEBUG: - {child.get('part_number', '')} (사용유무: {use_status}, 출력포함: {print_include})")
+                else:
+                    print(f"DEBUG: - {child.get('part_number', '')} 제외 (사용유무: {use_status}, 출력포함: {print_include})")
+            
+            print(f"DEBUG: 사용유무 Y이고 출력포함여부 Y인 하위부품: {len(print_include_parts)}개")
+            
             for child_data in child_parts_scanned:
                 child_part_number = child_data.get('part_number', '')
+                
+                # 사용유무 Y이고 출력포함여부 Y인 하위부품인지 확인
+                is_print_include = False
+                for print_part in print_include_parts:
+                    if print_part.get('part_number') == child_part_number:
+                        is_print_include = True
+                        break
+                
+                if not is_print_include:
+                    print(f"DEBUG: 하위부품 {child_part_number} 사용유무 N 또는 출력포함여부 N - 바코드에서 제외")
+                    continue
+                
                 child_serial_type = child_data.get('serial_type', 'A')  # 하위부품별 serial_type 사용
                 child_serial_number = child_data.get('serial_number', '0000001')  # 하위부품별 serial_number 사용
                 
@@ -409,23 +490,18 @@ class AutoPrintManager(QObject):
             return False
     
     def is_already_printed(self, panel_type, process_part):
-        """이미 출력되었는지 확인"""
+        """이미 출력되었는지 확인 - 작업 사이클 기반"""
         try:
             current_part = process_part.get('part_number', '')
-            current_time = datetime.now()
             
             # 패널별 출력 상태 확인
             status = self.print_status.get(panel_type, {})
             last_part = status.get('last_part')
-            last_time = status.get('last_time')
             printed = status.get('printed', False)
             
-            # 같은 부품이고 최근 30초 이내에 출력되었다면 중복으로 판단
-            if (printed and 
-                last_part == current_part and 
-                last_time and 
-                (current_time - last_time).total_seconds() < 30):
-                print(f"DEBUG: 중복 출력 방지 - {panel_type}: {current_part} (최근 출력: {last_time})")
+            # 같은 부품이고 이미 출력되었다면 중복으로 판단
+            if printed and last_part == current_part:
+                print(f"DEBUG: 중복 출력 방지 - {panel_type}: {current_part} (이미 출력됨)")
                 return True
             
             return False

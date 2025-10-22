@@ -218,6 +218,13 @@ class MasterDataTab(QWidget):
         child_input_layout.addWidget(QLabel("사용유무:"), 1, 0)
         child_input_layout.addWidget(self.child_use_status_combo, 1, 1)
         
+        # 출력포함여부 (새로 추가)
+        self.child_print_include_combo = QComboBox()
+        self.child_print_include_combo.addItems(["Y", "N"])
+        self.child_print_include_combo.setCurrentText("Y")
+        child_input_layout.addWidget(QLabel("출력포함여부:"), 1, 2)
+        child_input_layout.addWidget(self.child_print_include_combo, 1, 3)
+        
         add_child_btn = QPushButton("➕ 하위 부품 추가")
         add_child_btn.clicked.connect(self.add_child_part)
         add_child_btn.setStyleSheet("""
@@ -232,7 +239,7 @@ class MasterDataTab(QWidget):
                 background-color: #138496;
             }
         """)
-        child_input_layout.addWidget(add_child_btn, 1, 2, 1, 2)
+        child_input_layout.addWidget(add_child_btn, 2, 0, 1, 4)
         
         child_part_layout.addLayout(child_input_layout)
         
@@ -588,6 +595,8 @@ class MasterDataTab(QWidget):
             self.child_part_name_edit.setEnabled(enabled)
         if hasattr(self, 'child_use_status_combo'):
             self.child_use_status_combo.setEnabled(enabled)
+        if hasattr(self, 'child_print_include_combo'):
+            self.child_print_include_combo.setEnabled(enabled)
     
     def enter_edit_mode(self):
         """수정 모드 진입"""
@@ -615,6 +624,7 @@ class MasterDataTab(QWidget):
         child_part_number = self.child_part_number_edit.text().strip()
         child_part_name = self.child_part_name_edit.text().strip()
         use_status = self.child_use_status_combo.currentText()
+        print_include = self.child_print_include_combo.currentText()
         
         if not child_part_number:
             QMessageBox.warning(self, "경고", "하위 Part_No를 입력하세요.")
@@ -631,14 +641,15 @@ class MasterDataTab(QWidget):
                 QMessageBox.warning(self, "경고", "이미 등록된 하위 Part_No입니다.")
                 return
         
-        # 리스트에 추가
-        item_text = f"{child_part_number} - {child_part_name} [{use_status}]"
+        # 리스트에 추가 (출력포함여부 포함)
+        item_text = f"{child_part_number} - {child_part_name} [{use_status}] [출력:{print_include}]"
         self.child_part_list.addItem(item_text)
         
         # 입력 필드 초기화
         self.child_part_number_edit.clear()
         self.child_part_name_edit.clear()
         self.child_use_status_combo.setCurrentText("Y")
+        self.child_print_include_combo.setCurrentText("Y")
         
         # 현재 선택된 기준정보가 있으면 자동으로 저장
         current_row = self.master_table.currentRow()
@@ -690,16 +701,28 @@ class MasterDataTab(QWidget):
                 item = self.child_part_list.item(i)
                 if item:
                     text = item.text()
-                    # "부품번호 - 부품이름 [Y/N]" 형식에서 파싱
+                    # "부품번호 - 부품이름 [Y/N] [출력:Y/N]" 형식에서 파싱
                     if ' - ' in text and ' [' in text and ']' in text:
                         part_number = text.split(' - ')[0]
                         remaining = text.split(' - ')[1]
                         part_name = remaining.split(' [')[0]
-                        use_status = remaining.split(' [')[1].rstrip(']')
+                        
+                        # 사용유무와 출력포함여부 파싱
+                        status_parts = remaining.split(' [')[1:]
+                        use_status = status_parts[0].rstrip(']') if status_parts else 'Y'
+                        print_include = 'Y'  # 기본값
+                        
+                        # 출력포함여부 파싱 (기존 형식과 새 형식 모두 지원)
+                        if len(status_parts) > 1 and '출력:' in status_parts[1]:
+                            print_include = status_parts[1].split('출력:')[1].rstrip(']')
+                        elif '출력:' in text:
+                            print_include = text.split('출력:')[1].split(']')[0]
+                        
                         child_parts.append({
                             'part_number': part_number,
                             'part_name': part_name,
-                            'use_status': use_status
+                            'use_status': use_status,
+                            'print_include': print_include
                         })
         except Exception as e:
             print(f"DEBUG: get_child_parts 오류: {e}")
@@ -712,7 +735,8 @@ class MasterDataTab(QWidget):
             part_number = child_part.get('part_number', '')
             part_name = child_part.get('part_name', '')
             use_status = child_part.get('use_status', 'Y')
-            item_text = f"{part_number} - {part_name} [{use_status}]"
+            print_include = child_part.get('print_include', 'Y')
+            item_text = f"{part_number} - {part_name} [{use_status}] [출력:{print_include}]"
             self.child_part_list.addItem(item_text)
     
     def auto_save_child_parts(self, row_index):
@@ -873,7 +897,8 @@ class MasterDataTab(QWidget):
                     part_number = child_part.get('part_number', 'N/A')
                     part_name = child_part.get('part_name', 'N/A')
                     use_status = child_part.get('use_status', 'N/A')
-                    info_text += f"{i:2d}. {part_number} - {part_name} [{use_status}]\n"
+                    print_include = child_part.get('print_include', 'N/A')
+                    info_text += f"{i:2d}. {part_number} - {part_name} [{use_status}] [출력:{print_include}]\n"
                 info_text += "=" * 40 + "\n"
             else:
                 info_text += "하위 Part_No: 없음\n"
