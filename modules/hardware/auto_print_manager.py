@@ -70,23 +70,14 @@ class AutoPrintManager(QObject):
             print(f"DEBUG: 출력 설정 저장 오류: {e}")
     
     def init_serial_connection(self):
-        """시리얼 연결 초기화"""
+        """시리얼 연결 초기화 - SerialConnectionManager 사용"""
         try:
-            if 'serial' in self.print_config:
-                ser_config = self.print_config['serial']
-                self.serial_port = serial.Serial(
-                    port=ser_config['port'],
-                    baudrate=ser_config['baudrate'],
-                    bytesize=ser_config['bytesize'],
-                    parity=ser_config['parity'],
-                    stopbits=ser_config['stopbits'],
-                    timeout=ser_config['timeout']
-                )
-                print(f"DEBUG: 프린터 연결 성공: {ser_config['port']}")
-            else:
-                print("DEBUG: 시리얼 설정이 없습니다.")
+            # AutoPrintManager는 자체 시리얼 연결을 하지 않고
+            # SerialConnectionManager의 연결을 사용
+            self.serial_port = None
+            print("DEBUG: AutoPrintManager - SerialConnectionManager 연결 사용")
         except Exception as e:
-            print(f"DEBUG: 프린터 연결 실패: {e}")
+            print(f"DEBUG: AutoPrintManager 초기화 실패: {e}")
             self.serial_port = None
     
     def execute_auto_print(self, panel_type, process_part, child_parts_scanned):
@@ -392,10 +383,12 @@ class AutoPrintManager(QObject):
             return None
     
     def send_to_printer(self, zpl_data):
-        """프린터로 ZPL 데이터 전송"""
+        """프린터로 ZPL 데이터 전송 - SerialConnectionManager 연결 사용"""
         try:
-            if not self.serial_port or not self.serial_port.is_open:
-                print(f"DEBUG: 프린터가 연결되지 않음")
+            # SerialConnectionManager의 프린터 연결 사용
+            printer_connection = self.main_window.get_serial_connection("프린터")
+            if not printer_connection or not printer_connection.is_open:
+                print(f"DEBUG: 프린터가 연결되지 않음 - SerialConnectionManager 연결 확인")
                 return False
             
             print(f"DEBUG: 프린터로 ZPL 데이터 전송 시작")
@@ -403,7 +396,7 @@ class AutoPrintManager(QObject):
             
             # ZPL 데이터를 바이트로 변환하여 전송
             zpl_bytes = zpl_data.encode('utf-8')
-            self.serial_port.write(zpl_bytes)
+            printer_connection.write(zpl_bytes)
             
             # 프린터 처리 시간 대기
             time.sleep(0.5)

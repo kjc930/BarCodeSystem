@@ -7631,3 +7631,298 @@
 2025-10-22 15:47:11,988 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
 2025-10-22 15:47:11,988 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
 2025-10-22 15:47:11,988 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:55:39,813 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-10-22 15:55:39,814 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-22 15:55:39,815 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:55:39,815 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:55:39,816 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-22 15:55:39,816 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-22 15:55:39,895 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-22 15:55:39,895 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:55:39,895 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:55:39,897 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:55:39,897 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:55:39,898 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-22 15:55:39,898 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-22 15:55:39,899 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:55:39,899 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:55:39,899 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-22 15:55:39,899 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-22 15:55:39,900 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:55:39,900 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:55:44,890 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:55:44,891 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:55:44,893 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:55:44,894 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:55:49,890 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:55:49,890 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:55:49,891 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:55:49,891 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:55:54,891 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:55:54,892 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:55:54,893 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:55:54,894 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:55:59,888 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:55:59,888 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:55:59,889 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:55:59,889 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:04,889 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:56:04,889 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:56:04,889 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:04,890 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:09,889 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:56:09,890 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:56:09,891 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:09,891 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:14,890 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:56:14,891 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:56:14,893 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:14,893 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:19,889 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:56:19,890 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:56:19,892 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:19,893 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:24,889 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:56:24,890 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:56:24,892 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:24,892 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:29,889 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:56:29,890 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:56:29,891 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:29,892 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:34,892 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:56:34,893 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:56:34,894 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:56:34,894 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:15,689 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-10-22 15:58:15,690 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-22 15:58:15,692 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:58:15,692 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:58:15,693 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-22 15:58:15,693 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-22 15:58:15,769 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-22 15:58:15,769 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:58:15,769 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:58:15,769 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:15,769 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:15,771 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-22 15:58:15,771 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-22 15:58:15,771 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:58:15,772 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:58:15,772 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-22 15:58:15,772 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-22 15:58:15,773 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:58:15,773 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 15:58:20,768 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:58:20,769 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:58:20,770 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:20,771 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:25,766 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:58:25,767 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:58:25,768 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:25,769 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:30,768 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:58:30,769 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:58:30,771 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:30,771 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:35,766 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:58:35,766 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:58:35,768 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:35,769 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:40,764 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:58:40,765 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:58:40,767 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:40,767 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:45,766 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:58:45,767 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:58:45,769 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:45,770 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:50,764 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:58:50,765 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:58:50,765 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:50,765 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:55,767 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:58:55,767 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:58:55,767 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:58:55,768 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:59:00,764 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 15:59:00,765 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 15:59:00,767 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 15:59:00,768 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:16:03,045 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-10-22 16:16:03,045 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-22 16:16:03,046 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:16:03,046 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:16:03,047 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-22 16:16:03,047 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-22 16:16:03,118 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-22 16:16:03,118 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:16:03,118 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:16:03,118 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:16:03,119 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:16:03,119 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-22 16:16:03,119 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-22 16:16:03,120 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:16:03,120 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:16:03,121 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-22 16:16:03,121 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-22 16:16:03,121 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:16:03,121 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:16:08,108 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:16:08,108 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:16:08,108 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:16:08,109 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:18:11,045 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-10-22 16:18:11,045 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-22 16:18:11,046 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:18:11,046 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:18:11,047 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-22 16:18:11,048 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-22 16:18:11,120 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-22 16:18:11,120 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:18:11,120 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:18:11,120 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:18:11,121 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:18:11,121 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-22 16:18:11,122 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-22 16:18:11,122 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:18:11,122 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:18:11,123 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-22 16:18:11,123 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-22 16:18:11,123 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:18:11,123 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:18:16,126 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:18:16,126 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:18:16,127 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:18:16,127 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:18:21,124 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:18:21,124 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:18:21,125 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:18:21,125 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:20:45,983 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-10-22 16:20:45,984 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-22 16:20:45,989 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:20:45,989 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:20:45,991 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-22 16:20:45,991 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-22 16:20:46,067 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-22 16:20:46,068 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:20:46,068 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:20:46,070 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:20:46,070 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:20:46,072 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-22 16:20:46,072 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-22 16:20:46,073 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:20:46,073 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:20:46,074 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-22 16:20:46,075 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-22 16:20:46,075 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:20:46,075 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:21:01,517 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-10-22 16:21:01,518 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-22 16:21:01,520 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:21:01,520 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:21:01,521 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-22 16:21:01,521 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-22 16:21:01,599 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-22 16:21:01,599 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:21:01,599 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:21:01,600 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:01,600 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:01,601 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-22 16:21:01,601 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-22 16:21:01,601 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:21:01,601 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:21:01,602 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-22 16:21:01,603 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-22 16:21:01,604 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:21:01,604 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:21:06,596 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:21:06,596 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:21:06,597 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:06,598 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:11,593 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:21:11,594 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:21:11,595 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:11,596 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:16,592 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:21:16,593 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:21:16,594 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:16,594 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:21,593 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:21:21,594 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:21:21,595 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:21,595 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:26,596 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:21:26,596 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:21:26,596 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:26,596 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:31,594 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:21:31,594 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:21:31,596 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:31,596 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:36,592 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:21:36,592 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:21:36,592 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:36,592 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:41,596 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:21:41,597 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:21:41,599 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:41,599 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:46,594 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:21:46,595 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:21:46,596 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:46,596 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:51,592 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:21:51,592 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:21:51,592 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:51,592 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:56,594 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:21:56,595 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:21:56,596 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:21:56,596 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:22:01,594 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:22:01,595 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:22:01,596 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:22:01,596 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:23:56,659 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-10-22 16:23:56,660 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-22 16:23:56,662 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:23:56,663 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:23:56,663 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-22 16:23:56,663 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-22 16:23:56,746 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-22 16:23:56,746 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:23:56,746 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:23:56,747 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:23:56,747 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:23:56,748 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-22 16:23:56,748 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-22 16:23:56,748 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:23:56,748 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:23:56,749 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-22 16:23:56,749 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-22 16:23:56,749 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:23:56,749 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:24:01,749 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:24:01,750 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:24:01,750 - modules.utils.modules.serial_connection_manager - WARNING - 프린터 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:24:01,750 - modules.utils.modules.serial_connection_manager - ERROR - 프린터 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-22 16:28:18,063 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6
+2025-10-22 16:28:18,064 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-22 16:28:18,066 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:28:18,067 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:28:18,068 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-22 16:28:18,069 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-22 16:28:18,140 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-22 16:28:18,141 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-22 16:28:18,141 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-22 16:28:18,218 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-22 16:28:18,218 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-22 16:28:18,218 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-22 16:28:18,219 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:28:18,219 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:28:18,220 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-22 16:28:18,220 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-22 16:28:18,221 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-22 16:28:18,221 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)

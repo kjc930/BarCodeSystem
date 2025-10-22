@@ -74,10 +74,14 @@ class BarcodeMainScreen(QMainWindow):
             self.device_connection_status = {
                 "PLC": False,
                 "스캐너": False,
-                "프린터": False,
-                "너트1": False,
-                "너트2": False
+                "프린터": False
+                # 너트1, 너트2는 아직 구현되지 않음 - 나중에 추가 예정
             }
+            
+            # 연결 상태 모니터링 타이머
+            self.connection_monitor_timer = QTimer()
+            self.connection_monitor_timer.timeout.connect(self.check_connection_status)
+            self.connection_monitor_interval = 5000  # 5초마다 체크
             
             # 시리얼 연결 객체 저장 (serial_connector에서 가져옴)
             self.serial_connections = {}
@@ -303,7 +307,7 @@ class BarcodeMainScreen(QMainWindow):
         try:
             print("🔌 시리얼 포트 자동 연결 시작...")
             
-            # 공용 시리얼 연결 관리자를 사용하여 모든 장비 연결
+            # 공용 시리얼 연결 관리자를 사용하여 모든 장비 연결 (실패해도 프로그램 계속 실행)
             connection_results = self.serial_connector.auto_connect_all_devices()
             
             # 연결 결과를 내부 상태에 반영
@@ -311,6 +315,12 @@ class BarcodeMainScreen(QMainWindow):
             
             # 시리얼 연결 객체를 serial_connector에서 가져옴
             self.serial_connections = self.serial_connector.serial_connections
+            
+            # 연결 상태 모니터링 시작
+            self.start_connection_monitoring()
+            
+            # 초기 연결 상태 동기화
+            self.sync_connection_status()
             
             # 스캐너 데이터 수신 연결 (스캐너가 연결된 경우)
             # print(f"DEBUG: serial_connections 키: {list(self.serial_connections.keys())}")
@@ -396,6 +406,9 @@ class BarcodeMainScreen(QMainWindow):
         """프로그램 종료 시 리소스 정리"""
         try:
             print("DEBUG: 프로그램 종료 - 리소스 정리 시작")
+            
+            # 연결 상태 모니터링 중지
+            self.stop_connection_monitoring()
             
             # 시리얼 연결 정리
             for device_name, connection in self.serial_connections.items():
@@ -2950,8 +2963,167 @@ class BarcodeMainScreen(QMainWindow):
         self.scan_status_dialog = ScanStatusDialog(self.scanned_parts, self, child_parts_info)
         self.scan_status_dialog.exec_()
         self.scan_status_dialog = None  # 다이얼로그 닫힌 후 참조 제거
-
-
+    
+    def start_connection_monitoring(self):
+        """연결 상태 모니터링 시작"""
+        try:
+            print("🔍 연결 상태 모니터링 시작...")
+            self.connection_monitor_timer.start(self.connection_monitor_interval)
+            print("✅ 연결 상태 모니터링 활성화")
+        except Exception as e:
+            print(f"❌ 연결 상태 모니터링 시작 실패: {e}")
+    
+    def stop_connection_monitoring(self):
+        """연결 상태 모니터링 중지"""
+        try:
+            if hasattr(self, 'connection_monitor_timer'):
+                self.connection_monitor_timer.stop()
+                print("⏹️ 연결 상태 모니터링 중지")
+        except Exception as e:
+            print(f"❌ 연결 상태 모니터링 중지 실패: {e}")
+    
+    def check_connection_status(self):
+        """연결 상태 체크 및 자동 재연결"""
+        try:
+            # 각 장비별 연결 상태 체크 (너트1, 너트2는 아직 구현되지 않음)
+            for device_name in ["PLC", "스캐너", "프린터"]:
+                self.check_device_connection(device_name)
+                
+        except Exception as e:
+            print(f"❌ 연결 상태 체크 오류: {e}")
+    
+    def check_device_connection(self, device_name):
+        """특정 장비의 연결 상태 체크 및 재연결"""
+        try:
+            # 실제 연결 상태 확인 (serial_connector에서 직접 확인)
+            actual_connection_status = self.serial_connector.device_connection_status.get(device_name, False)
+            
+            # 내부 상태와 실제 상태 동기화
+            if actual_connection_status != self.device_connection_status.get(device_name, False):
+                print(f"🔄 {device_name} 연결 상태 동기화: {self.device_connection_status.get(device_name, False)} → {actual_connection_status}")
+                self.device_connection_status[device_name] = actual_connection_status
+                self.update_connection_status_display()
+            
+            # 연결된 장비의 실제 상태 확인
+            if actual_connection_status and device_name in self.serial_connections:
+                connection = self.serial_connections[device_name]
+                if connection and hasattr(connection, 'is_open'):
+                    if not connection.is_open:
+                        print(f"⚠️ {device_name} 연결이 끊어짐 - 재연결 시도")
+                        self.attempt_reconnect_device(device_name)
+                elif connection is None:
+                    print(f"⚠️ {device_name} 연결 객체가 None - 재연결 시도")
+                    self.attempt_reconnect_device(device_name)
+            
+            # 연결되지 않은 장비 재연결 시도 (너무 자주 시도하지 않도록 제한)
+            elif not actual_connection_status:
+                # 재연결 시도 간격 제한 (30초마다)
+                current_time = time.time()
+                last_attempt_key = f"{device_name}_last_attempt"
+                
+                if not hasattr(self, last_attempt_key) or current_time - getattr(self, last_attempt_key, 0) > 30:
+                    print(f"🔄 {device_name} 재연결 시도")
+                    setattr(self, last_attempt_key, current_time)
+                    self.attempt_reconnect_device(device_name)
+                
+        except Exception as e:
+            print(f"❌ {device_name} 연결 상태 체크 오류: {e}")
+    
+    def attempt_reconnect_device(self, device_name):
+        """특정 장비 재연결 시도"""
+        try:
+            # 설정에서 포트 정보 가져오기
+            device_config = self.get_device_config(device_name)
+            if not device_config:
+                return False
+            
+            port = device_config.get('port')
+            if not port:
+                return False
+            
+            # 재연결 시도
+            success = self.serial_connector.connect_serial_port(device_name, port)
+            
+            # serial_connector의 실제 상태로 동기화
+            actual_status = self.serial_connector.device_connection_status.get(device_name, False)
+            self.device_connection_status[device_name] = actual_status
+            
+            if success:
+                print(f"✅ {device_name} 재연결 성공")
+            else:
+                print(f"❌ {device_name} 재연결 실패")
+            
+            # UI 상태 업데이트
+            self.update_connection_status_display()
+            
+            return success
+            
+        except Exception as e:
+            print(f"❌ {device_name} 재연결 시도 오류: {e}")
+            return False
+    
+    def get_device_config(self, device_name):
+        """장비별 설정 정보 가져오기"""
+        try:
+            device_mapping = {
+                "PLC": "plc",
+                "스캐너": "scanner", 
+                "프린터": "printer"
+                # 너트1, 너트2는 아직 구현되지 않음 - 나중에 추가 예정
+            }
+            
+            config_key = device_mapping.get(device_name)
+            if config_key and self.config:
+                return self.config.get(config_key, {})
+            return {}
+            
+        except Exception as e:
+            print(f"❌ {device_name} 설정 정보 가져오기 오류: {e}")
+            return {}
+    
+    def update_connection_status_display(self):
+        """연결 상태 표시 업데이트"""
+        try:
+            # 연결된 장비 수 계산
+            connected_count = sum(1 for status in self.device_connection_status.values() if status)
+            total_count = len(self.device_connection_status)
+            
+            # 상태 메시지 생성
+            if connected_count == total_count:
+                status_msg = f"🟢 모든 장비 연결됨 ({connected_count}/{total_count})"
+                status_color = "green"
+            elif connected_count > 0:
+                status_msg = f"🟡 일부 장비 연결됨 ({connected_count}/{total_count})"
+                status_color = "orange"
+            else:
+                status_msg = f"🔴 모든 장비 연결 안됨 ({connected_count}/{total_count})"
+                status_color = "red"
+            
+            # UI 업데이트 (상태 레이블이 있는 경우)
+            if hasattr(self, 'serial_status_label'):
+                self.serial_status_label.setText(status_msg)
+                self.serial_status_label.setStyleSheet(f"QLabel {{ color: {status_color}; font-weight: bold; }}")
+            
+            print(f"📊 연결 상태: {status_msg}")
+            
+        except Exception as e:
+            print(f"❌ 연결 상태 표시 업데이트 오류: {e}")
+    
+    def sync_connection_status(self):
+        """연결 상태 동기화"""
+        try:
+            # serial_connector의 실제 상태로 동기화
+            for device_name in self.device_connection_status.keys():
+                actual_status = self.serial_connector.device_connection_status.get(device_name, False)
+                if actual_status != self.device_connection_status.get(device_name, False):
+                    print(f"🔄 {device_name} 상태 동기화: {self.device_connection_status.get(device_name, False)} → {actual_status}")
+                    self.device_connection_status[device_name] = actual_status
+            
+            # UI 업데이트
+            self.update_connection_status_display()
+            
+        except Exception as e:
+            print(f"❌ 연결 상태 동기화 오류: {e}")
 
 
 def main():
