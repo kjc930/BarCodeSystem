@@ -1,0 +1,18 @@
+{
+  "migration_date": "2025-10-22 15:17:05",
+  "moved_files": [
+    "print_config.json",
+    "print_data.json",
+    "config/print_config.json",
+    "Program/print_config.json",
+    "data/print_data.json",
+    "modules/admin_panel_config.json",
+    "Program/admin_panel_config.json"
+  ],
+  "backup_directory": "backups/migration_20251022_151705",
+  "new_structure": {
+    "config_file": "config/unified_config.json",
+    "data_file": "data/unified_data.json",
+    "manager": "modules/utils/unified_config_manager.py"
+  }
+}

@@ -126,7 +126,7 @@ class BarcodeMainScreen(QMainWindow):
             
             # 프린트 매니저 초기화 (새로운 HKMC 출력 매니저)
             try:
-                from hardware.print_manager import PrintManager
+                from modules.hardware.print_manager import PrintManager
                 self.print_manager = PrintManager(self)
                 print("DEBUG: PrintManager 초기화 완료")
             except Exception as e:
@@ -1666,6 +1666,10 @@ class BarcodeMainScreen(QMainWindow):
     def immediate_restore_scan_data(self):
         """즉시 스캔 데이터 복원 (간단하고 직접적인 방법)"""
         try:
+            # 경로 변수 정의
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.dirname(script_dir)
+            
             print(f"DEBUG: 메인화면 - 즉시 스캔 데이터 복원 시작")
             if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
                 print(f"DEBUG: 메인화면 - 즉시 복원 시 다이얼로그 데이터: {len(self.scan_status_dialog.real_time_scanned_data)}개 항목")
@@ -1737,6 +1741,10 @@ class BarcodeMainScreen(QMainWindow):
     def ultimate_restore_scan_data(self):
         """최종 스캔 데이터 복원 (매우 강력한 복원)"""
         try:
+            # 경로 변수 정의
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.dirname(script_dir)
+            
             print(f"DEBUG: 메인화면 - 최종 스캔 데이터 복원 시작")
             if hasattr(self, 'scan_status_dialog') and self.scan_status_dialog:
                 print(f"DEBUG: 메인화면 - 최종 복원 시 다이얼로그 데이터: {len(self.scan_status_dialog.real_time_scanned_data)}개 항목")

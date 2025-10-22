@@ -1,0 +1,26 @@
+{
+  "serial": {
+    "port": "COM3",
+    "baudrate": 9600,
+    "bytesize": 8,
+    "parity": "N",
+    "stopbits": 1,
+    "timeout": 1
+  },
+  "zpl_template": "default",
+  "auto_print_enabled": true,
+  "templates": {
+    "default": {
+      "name": "기본 양식 (4cm x 2.5cm)",
+      "description": "표준 HKMC 바코드 출력 양식"
+    },
+    "compact": {
+      "name": "소형 양식 (2.5cm x 1.2cm)",
+      "description": "작은 크기의 바코드 출력 양식"
+    },
+    "daeil01": {
+      "name": "DAEIL01 양식",
+      "description": "DAEIL 전용 출력 양식"
+    }
+  }
+}
