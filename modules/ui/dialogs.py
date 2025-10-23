@@ -154,8 +154,12 @@ class BarcodeAnalysisDialog(QDialog):
         table_layout.addWidget(self.spec_label)
         
         # 사양 정보 행들
-        self.company_code_row = self.create_table_row("업체코드", "OK", self.barcode_data.supplier_code)
-        self.part_number_row = self.create_table_row("부품번호", "OK", self.barcode_data.part_number)
+        supplier_code = self.barcode_data.supplier_code or ""
+        part_number = self.barcode_data.part_number or ""
+        print(f"DEBUG: BarcodeAnalysisDialog - 업체코드: '{supplier_code}', 부품번호: '{part_number}'")
+        
+        self.company_code_row = self.create_table_row("업체코드", "OK", supplier_code)
+        self.part_number_row = self.create_table_row("부품번호", "OK", part_number)
         self.sequence_code_row = self.create_table_row("서열코드", "-", "해당시 필수")
         self.eo_number_row = self.create_table_row("EO번호", "-", "")
         
@@ -180,10 +184,28 @@ class BarcodeAnalysisDialog(QDialog):
         table_layout.addWidget(self.trace_label)
         
         # 추적 정보 행들
-        self.production_date_row = self.create_table_row("생산일자", "OK", self.barcode_data.manufacturing_date)
-        self.part_4m_row = self.create_table_row("부품4M", "OK", f"{self.barcode_data.factory_info or ''}{self.barcode_data.line_info or ''}{self.barcode_data.shift_info or ''}{self.barcode_data.equipment_info or ''}")
-        self.trace_type_row = self.create_table_row("A or @", "OK", self.barcode_data.traceability_type_char or self.barcode_data.traceability_type.value)
-        self.trace_number_row = self.create_table_row("추적번호(7~)", "OK", self.barcode_data.traceability_number)
+        manufacturing_date = self.barcode_data.manufacturing_date or ""
+        traceability_type_char = self.barcode_data.traceability_type_char or ""
+        traceability_number = self.barcode_data.traceability_number or ""
+        
+        # 4M 정보 조합
+        m4_info = ""
+        if self.barcode_data.factory_info:
+            m4_info += str(self.barcode_data.factory_info)
+        if self.barcode_data.line_info:
+            m4_info += str(self.barcode_data.line_info)
+        if self.barcode_data.shift_info:
+            m4_info += str(self.barcode_data.shift_info)
+        if self.barcode_data.equipment_info:
+            m4_info += str(self.barcode_data.equipment_info)
+        
+        print(f"DEBUG: BarcodeAnalysisDialog - 생산일자: '{manufacturing_date}', 4M: '{m4_info}'")
+        print(f"DEBUG: BarcodeAnalysisDialog - 추적타입: '{traceability_type_char}', 추적번호: '{traceability_number}'")
+        
+        self.production_date_row = self.create_table_row("생산일자", "OK", manufacturing_date)
+        self.part_4m_row = self.create_table_row("부품4M", "OK", m4_info)
+        self.trace_type_row = self.create_table_row("A or @", "OK", traceability_type_char)
+        self.trace_number_row = self.create_table_row("추적번호(7~)", "OK", traceability_number)
         
         table_layout.addWidget(self.production_date_row)
         table_layout.addWidget(self.part_4m_row)

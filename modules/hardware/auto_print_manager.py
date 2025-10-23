@@ -251,7 +251,8 @@ class AutoPrintManager(QObject):
             # HKMC 바코드 형식: [)>06V2812P89131CU217SE251016S1B1A0476217M04
             # 구성: [)> + 06 + V2812 + P + 부품번호 + S + E + T + 추적정보 + M + 04
             
-            supplier_code = 'V2812'  # 고정 업체코드
+            # 기준정보에서 업체코드 가져오기
+            supplier_code = self.get_supplier_code_from_master_data(part_number)
             sequence_code = 'S'  # 시퀀스 코드
             eo_number = 'E'  # EO 번호
             traceability_code = f'T{date_str}2000'  # 추적 코드 (날짜 + 4M)
@@ -265,8 +266,8 @@ class AutoPrintManager(QObject):
                 f"{serial_type}{tracking_number}{initial_mark}04"
             )
             
-            # ASCII 코드 추가 (HKMC 규격) - COM ANALYZER 형식
-            process_hkmc_ascii = f"[)>_1E06_1D{supplier_code}_1DP{part_number}_1D{sequence_code}_1D{eo_number}_1D{traceability_code}{serial_type}{tracking_number}_1D{initial_mark}_1D_1E_04"
+            # ASCII 코드 추가 (HKMC 규격) - 실제 바이너리 ASCII 코드
+            process_hkmc_ascii = f"[)>\x1e06\x1d{supplier_code}\x1dP{part_number}\x1d{sequence_code}\x1d{eo_number}\x1d{traceability_code}{serial_type}{tracking_number}\x1d{initial_mark}\x1d\x1e\x04"
             
             print(f"DEBUG: 공정부품 HKMC: {process_hkmc}")
             
@@ -319,16 +320,54 @@ class AutoPrintManager(QObject):
                         f"{sequence_code}{eo_number}{traceability_code}"
                         f"{child_serial_type}{child_serial_number}{initial_mark}04"
                     )
-                    # ASCII 코드 추가 (HKMC 규격) - COM ANALYZER 형식
-                    child_hkmc_ascii = f"[)>_1E06_1D{supplier_code}_1DP{child_part_number}_1D{sequence_code}_1D{eo_number}_1D{traceability_code}{child_serial_type}{child_serial_number}_1D{initial_mark}_1D_1E_04"
+                    # ASCII 코드 추가 (HKMC 규격) - 실제 바이너리 ASCII 코드
+                    child_hkmc_ascii = f"[)>\x1e06\x1d{supplier_code}\x1dP{child_part_number}\x1d{sequence_code}\x1d{eo_number}\x1d{traceability_code}{child_serial_type}{child_serial_number}\x1d{initial_mark}\x1d\x1e\x04"
                     child_hkmc_list.append(child_hkmc_ascii)
                     print(f"DEBUG: 하위부품 HKMC: {child_hkmc}")
                     print(f"DEBUG: 하위부품 HKMC ASCII: {child_hkmc_ascii}")
                     print(f"DEBUG: 하위부품 추적정보 - serial_type: {child_serial_type}, serial_number: {child_serial_number}")
             
-            # 3. 공정#하위부품#하위부품 형식으로 결합 (ASCII 코드 포함)
-            all_hkmc_parts = [process_hkmc_ascii] + child_hkmc_list
-            formatted_data = "#".join(all_hkmc_parts)
+            # 3. 첨부 파일 방식으로 formatted_data 구성 (프린터용)
+            # 공정바코드 (첨부 파일 방식 - ASCII 코드 없이)
+            process_barcode_for_printer = "".join([
+                "[)>_1E06",  # Header (RS, ASCII 30)
+                "_1DV" + supplier_code,  # Supplier Code (GS, ASCII 29)
+                "_1DP" + part_number,  # Part Number
+                "_1D" + sequence_code,  # Sequence Code (구분자만)
+                "_1D" + eo_number,  # Engineering Order Number (구분자만)
+                "_1DT" + date_str + traceability_code,  # Traceability Code
+                "" + serial_type + tracking_number,  # A/@ + 추적번호
+                "_1D" + initial_mark,  # 초도품 여부 추가 (구분자만)
+                "_1D_1E_04"  # Trailer (GS + RS + EOT)
+            ])
+            
+            # formatted_data 구성 (프린터용)
+            formatted_parts = [process_barcode_for_printer]  # 공정바코드부터 시작
+            
+            # 하위부품 정보 추가 (원시데이터 그대로 # 구분기호로 연결)
+            for child_data in child_parts_scanned:
+                child_part_number = child_data.get('part_number', '')
+                raw_barcode_data = child_data.get('raw_data', '')  # raw_data 필드 사용
+                if child_part_number and raw_barcode_data:
+                    # 하위부품 원시데이터 그대로 사용 (수정하지 않음)
+                    formatted_parts.append(raw_barcode_data)
+                    print(f"DEBUG: 하위부품 원시데이터 보존: {raw_barcode_data}")
+                elif child_part_number:
+                    # 원시데이터가 없는 경우에만 새로 생성
+                    child_barcode_for_printer = "".join([
+                        "[)>_1E06",  # Header (RS, ASCII 30)
+                        "_1DV" + supplier_code,  # Supplier Code (GS, ASCII 29)
+                        "_1DP" + child_part_number,  # Part Number
+                        "_1D" + sequence_code,  # Sequence Code (구분자만)
+                        "_1D" + eo_number,  # Engineering Order Number (구분자만)
+                        "_1DT" + date_str + traceability_code,  # Traceability Code
+                        "" + serial_type + tracking_number,  # A/@ + 추적번호
+                        "_1D" + initial_mark,  # 초도품 여부 추가 (구분자만)
+                        "_1D_1E_04"  # Trailer (GS + RS + EOT)
+                    ])
+                    formatted_parts.append(child_barcode_for_printer)
+            
+            formatted_data = "#".join(formatted_parts)
             
             print(f"DEBUG: 하위부품 HKMC 개수: {len(child_hkmc_list)}")
             print(f"DEBUG: 최종 조합 데이터: {formatted_data}")
@@ -387,11 +426,15 @@ class AutoPrintManager(QObject):
             
             # 현재 템플릿 가져오기
             template_name = self.print_config.get('zpl_template', 'default')
+            print(f"DEBUG: 사용할 템플릿 이름: {template_name}")
             zpl_template = self.get_zpl_template(template_name)
             
             if not zpl_template:
                 print(f"DEBUG: ZPL 템플릿을 찾을 수 없습니다: {template_name}")
                 return None
+            
+            print(f"DEBUG: 로드된 ZPL 템플릿 길이: {len(zpl_template)} 문자")
+            print(f"DEBUG: ZPL 템플릿 내용 (처음 200자): {zpl_template[:200]}")
             
             # 템플릿 변수 설정
             template_vars = {
@@ -416,77 +459,123 @@ class AutoPrintManager(QObject):
             return None
     
     def get_zpl_template(self, template_name):
-        """ZPL 템플릿 가져오기"""
+        """ZPL 템플릿 가져오기 (zpl_templates.json에서 로드)"""
         try:
-            # 기본 템플릿들
-            templates = {
-                'default': '''^XA
+            print(f"DEBUG: ===== ZPL 템플릿 로딩 시작 =====")
+            print(f"DEBUG: 요청된 템플릿: {template_name}")
+            
+            # zpl_templates.json에서 템플릿 로드
+            templates = self.load_zpl_templates()
+            print(f"DEBUG: 로드된 템플릿 개수: {len(templates) if templates else 0}")
+            
+            if templates and template_name in templates:
+                template_data = templates[template_name]
+                print(f"DEBUG: ✅ 템플릿 '{template_name}' 발견")
+                print(f"DEBUG: 템플릿 데이터 타입: {type(template_data)}")
+                
+                # 딕셔너리에서 'zpl' 키의 값(문자열) 반환
+                if isinstance(template_data, dict) and 'zpl' in template_data:
+                    zpl_content = template_data['zpl']
+                    print(f"DEBUG: ✅ ZPL 내용 길이: {len(zpl_content)}")
+                    print(f"DEBUG: ZPL 내용 미리보기: {zpl_content[:200]}...")
+                    return zpl_content
+                else:
+                    print(f"DEBUG: ❌ 템플릿 '{template_name}' 형식 오류")
+                    return self.get_default_template()
+            elif templates and 'default' in templates:
+                print(f"DEBUG: ⚠️ 템플릿 '{template_name}' 없음, 기본 템플릿 사용")
+                template_data = templates['default']
+                if isinstance(template_data, dict) and 'zpl' in template_data:
+                    zpl_content = template_data['zpl']
+                    print(f"DEBUG: ✅ 기본 ZPL 내용 길이: {len(zpl_content)}")
+                    return zpl_content
+                else:
+                    print(f"DEBUG: ❌ 기본 템플릿 형식 오류")
+                    return self.get_default_template()
+            else:
+                print(f"DEBUG: ❌ zpl_templates.json 로드 실패, 기본 템플릿 사용")
+                return self.get_default_template()
+            
+        except Exception as e:
+            print(f"DEBUG: ❌ ZPL 템플릿 가져오기 오류: {e}")
+            import traceback
+            print(f"DEBUG: 상세 오류: {traceback.format_exc()}")
+            return self.get_default_template()
+    
+    def load_zpl_templates(self):
+        """zpl_templates.json에서 템플릿 로드"""
+        try:
+            import json
+            import os
+            
+            config_path = 'config/zpl_templates.json'
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    templates = config.get('templates', {})
+                    print(f"DEBUG: zpl_templates.json 로드 성공, {len(templates)}개 템플릿")
+                    return templates
+            else:
+                print(f"DEBUG: zpl_templates.json 파일 없음: {config_path}")
+                return None
+                
+        except Exception as e:
+            print(f"DEBUG: zpl_templates.json 로드 오류: {e}")
+            return None
+    
+    def get_default_template(self):
+        """기본 템플릿 (zpl_templates.json 로드 실패 시)"""
+        return '''^XA
 ^PW324
 ^LL243
 ^LH0,0
-^FO15,15^BQN,3,3^FH_^FDLA,{formatted_data}^FS
+^FO15,15^BXN,3,3,200^FH_^FD{formatted_data}^FS
 ^FX 부품번호 주석처리 ^FS
 ^FX 부품명 주석처리 ^FS
 ^FX 날짜 주석처리 ^FS
 ^FX 추적번호 주석처리 ^FS
 ^FX 조합데이터 주석처리 ^FS
-^XZ''',
-                
-                'compact': '''^XA
-^PW324
-^LL243
-^LH0,0
-^FO15,15^BQN,3,3^FH_^FDLA,{formatted_data}^FS
-^FX 부품번호 주석처리 ^FS
-^FX 추적번호 주석처리 ^FS
-^FX 조합데이터 주석처리 ^FS
-^XZ''',
-                
-                'daeil01': '''^XA
-^PR0
-^MD3
-^PW324
-^LL243
-^LH0,0
-^FO20,30^BY3,3.0^BXN,5,200^FH_^FD{part_number}{tracking_number}^FS
-^FO120,30^A0N,28,28^FD{part_number}^FS 
-^FO120,70^A0N,16,16^FD{display_name}^FS 
-^FO120,90^A0N,16,16^FD{date}^FS 
-^FO120,110^A0N,28,28^FD{tracking_number}^FS 
-^FO120,130^A0N,16,16^FD{initial_mark}^FS
 ^XZ'''
-            }
-            
-            return templates.get(template_name, templates['default'])
-            
-        except Exception as e:
-            print(f"DEBUG: ZPL 템플릿 가져오기 오류: {e}")
-            return None
     
     def send_to_printer(self, zpl_data):
         """프린터로 ZPL 데이터 전송 - SerialConnectionManager 연결 사용"""
         try:
+            print(f"DEBUG: ===== 프린터 전송 시작 =====")
+            
             # SerialConnectionManager의 프린터 연결 사용
             printer_connection = self.main_window.get_serial_connection("프린터")
-            if not printer_connection or not printer_connection.is_open:
-                print(f"DEBUG: 프린터가 연결되지 않음 - SerialConnectionManager 연결 확인")
+            if not printer_connection:
+                print(f"DEBUG: ❌ 프린터 연결 객체가 없음")
+                return False
+                
+            if not printer_connection.is_open:
+                print(f"DEBUG: ❌ 프린터 연결이 열려있지 않음")
                 return False
             
-            print(f"DEBUG: 프린터로 ZPL 데이터 전송 시작")
-            print(f"DEBUG: ZPL 데이터: {zpl_data[:100]}...")  # 처음 100자만 출력
+            print(f"DEBUG: ✅ 프린터 연결 상태: {printer_connection.is_open}")
+            print(f"DEBUG: ✅ 프린터 포트: {getattr(printer_connection, 'port', 'Unknown')}")
+            
+            print(f"DEBUG: ZPL 데이터 길이: {len(zpl_data)}")
+            print(f"DEBUG: ZPL 데이터 미리보기: {zpl_data[:200]}...")
             
             # ZPL 데이터를 바이트로 변환하여 전송
             zpl_bytes = zpl_data.encode('utf-8')
-            printer_connection.write(zpl_bytes)
+            print(f"DEBUG: 전송할 바이트 길이: {len(zpl_bytes)}")
             
-            # 프린터 처리 시간 대기
-            time.sleep(0.5)
+            # 실제 전송
+            bytes_written = printer_connection.write(zpl_bytes)
+            print(f"DEBUG: 실제 전송된 바이트: {bytes_written}")
             
-            print(f"DEBUG: 프린터 전송 완료")
+            # 프린터 처리 시간 대기 (프린터가 데이터를 처리할 시간)
+            time.sleep(2.0)  # 프린터 처리 시간 증가
+            
+            print(f"DEBUG: ✅ 프린터 전송 완료")
             return True
             
         except Exception as e:
-            print(f"DEBUG: 프린터 전송 오류: {e}")
+            print(f"DEBUG: ❌ 프린터 전송 오류: {e}")
+            import traceback
+            print(f"DEBUG: 상세 오류: {traceback.format_exc()}")
             return False
     
     def is_already_printed(self, panel_type, process_part):
@@ -551,6 +640,23 @@ class AutoPrintManager(QObject):
                 
         except Exception as e:
             print(f"DEBUG: 출력 상태 초기화 오류: {e}")
+    
+    def get_supplier_code_from_master_data(self, part_number):
+        """기준정보에서 업체코드 가져오기"""
+        try:
+            if hasattr(self.main_window, 'master_data') and self.main_window.master_data:
+                for data in self.main_window.master_data:
+                    if data.get('part_number') == part_number:
+                        supplier_code = data.get('supplier_code', '2812')
+                        print(f"DEBUG: 기준정보에서 업체코드 가져옴: {supplier_code} (부품: {part_number})")
+                        return supplier_code
+            
+            print(f"DEBUG: 기준정보에서 부품을 찾을 수 없음, 기본값 사용: 2812 (부품: {part_number})")
+            return '2812'
+            
+        except Exception as e:
+            print(f"DEBUG: 업체코드 가져오기 오류: {e}")
+            return '2812'
     
     def close_connection(self):
         """시리얼 연결 종료"""

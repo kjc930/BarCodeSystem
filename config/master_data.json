@@ -1,6 +1,6 @@
 [
   {
-    "supplier_code": "V2812",
+    "supplier_code": "2812",
     "division": "1",
     "part_number": "89131CU210",
     "part_name": "TESTETST TEST 0",
@@ -13,7 +13,7 @@
     "modified_time": "2025-09-15 08:49:10"
   },
   {
-    "supplier_code": "V2812",
+    "supplier_code": "2812",
     "division": "3",
     "part_number": "89131CU211",
     "part_name": "TESTTESTTE333",
@@ -52,7 +52,7 @@
     "modified_time": "2025-09-12 09:56:33"
   },
   {
-    "supplier_code": "V2812",
+    "supplier_code": "2812",
     "division": "2",
     "part_number": "89131CU210",
     "part_name": "TEST1",
@@ -65,7 +65,7 @@
     "modified_time": "2025-09-12 10:33:50"
   },
   {
-    "supplier_code": "V2812",
+    "supplier_code": "2812",
     "division": "4",
     "part_number": "89131CU214",
     "part_name": "TEST4",
@@ -89,7 +89,7 @@
     "modified_time": "2025-09-12 15:43:21"
   },
   {
-    "supplier_code": "V2812",
+    "supplier_code": "2812",
     "division": "5",
     "part_number": "89131CU215",
     "part_name": "89131CU210",
@@ -102,7 +102,7 @@
     "modified_time": "2025-09-12 10:44:10"
   },
   {
-    "supplier_code": "V2812",
+    "supplier_code": "2812",
     "division": "6",
     "part_number": "89131CU216",
     "part_name": "89131CU216",
@@ -115,7 +115,7 @@
     "modified_time": "2025-09-12 10:44:38"
   },
   {
-    "supplier_code": "V2812",
+    "supplier_code": "2812",
     "division": "7",
     "part_number": "89131CU217",
     "part_name": "89131CU217",
@@ -148,7 +148,7 @@
     "modified_time": "2025-09-12 12:36:29"
   },
   {
-    "supplier_code": "V2812",
+    "supplier_code": "2812",
     "division": "8",
     "part_number": "89131CU218",
     "part_name": "89131CU218",
@@ -161,7 +161,7 @@
     "modified_time": "2025-09-12 10:45:31"
   },
   {
-    "supplier_code": "V2812",
+    "supplier_code": "2812",
     "division": "9",
     "part_number": "89131CU219",
     "part_name": "89131CU219",

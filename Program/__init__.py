@@ -1,3 +1,0 @@
-"""
-BarCode System - Main Package
-"""

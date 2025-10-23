@@ -342,8 +342,8 @@ class AutoSerialConnector:
             # 각 장비별 연결 시도 - 실제 설정 파일 구조에 맞춤
             devices = [
                 ("PLC", self.config.get("plc", {}).get("port", "COM6")),
-                ("스캐너", self.config.get("scanner", {}).get("port", "COM4")),
-                ("프린터", self.config.get("printer", {}).get("port", "COM1")),
+                ("스캐너", self.config.get("scanner", {}).get("port", "COM3")),
+                ("프린터", self.config.get("printer", {}).get("port", "COM4")),
                 ("너트1", self.config.get("nutrunner", {}).get("nutrunner1_port", "COM7")),
                 ("너트2", self.config.get("nutrunner", {}).get("nutrunner2_port", "COM8"))
             ]
@@ -397,13 +397,13 @@ class AutoSerialConnector:
                 logger.info(f"{device_name} 연결 시도 ({retry_count + 1}/{max_retries + 1}) - 포트: {port}, 보드레이트: {baudrate}")
                 print(f"DEBUG: {device_name} 연결 시도 ({retry_count + 1}/{max_retries + 1}) - 포트: {port}, 보드레이트: {baudrate}")
                 
-                # 시리얼 연결 시도 (1초 타임아웃)
+                # 시리얼 연결 시도 (타임아웃 증가)
                 ser = serial.Serial(
                     port, 
                     baudrate, 
-                    timeout=self._connection_timeout,  # 1초 타임아웃
-                    write_timeout=0.5,  # 쓰기 타임아웃 0.5초
-                    inter_byte_timeout=0.05  # 바이트 간 타임아웃 0.05초
+                    timeout=5,  # 읽기 타임아웃 5초
+                    write_timeout=10,  # 쓰기 타임아웃 10초 (프린터용)
+                    inter_byte_timeout=0.1  # 바이트 간 타임아웃 0.1초
                 )
                 
                 # 연결 테스트 (즉시 확인)

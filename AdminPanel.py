@@ -238,97 +238,46 @@ class AdminPanel(QMainWindow):
     def parse_barcode_data(self, barcode_data: str):
         """바코드 데이터를 파싱하여 BarcodeData 객체로 변환"""
         try:
-            from modules.hardware.hkmc_barcode_utils import BarcodeData, BarcodeType
+            from modules.hardware.hkmc_barcode_utils import HKMCBarcodeUtils, BarcodeData, BarcodeType
             
-            # 바코드 데이터 파싱 (간단한 예시)
-            # 실제로는 더 정교한 파싱이 필요할 수 있습니다
+            print(f"DEBUG: AdminPanel.parse_barcode_data 입력 바코드: {barcode_data}")
+            print(f"DEBUG: 바코드 데이터 파싱 시작: {barcode_data[:100]}...")
             
-            # 기본값 설정
-            supplier_code = "2812"  # 기본값
-            part_number = "UNKNOWN"
-            manufacturing_date = "251017"
-            factory_info = "2000"
-            traceability_type = "A"
-            traceability_number = "0000001"
+            # HKMC 바코드 유틸리티 사용
+            barcode_utils = HKMCBarcodeUtils()
             
-            # 바코드 데이터에서 정보 추출 시도
-            if "V2812" in barcode_data:
-                supplier_code = "2812"
+            # HKMC 바코드 파싱
+            parsed_data = barcode_utils.parse_barcode(barcode_data)
             
-            # 부품번호 추출 (P 뒤의 부분)
-            if "P" in barcode_data:
-                p_index = barcode_data.find("P")
-                if p_index != -1:
-                    # P 다음부터 S 또는 E까지의 부분을 부품번호로 추정
-                    remaining = barcode_data[p_index+1:]
-                    if "S" in remaining:
-                        part_number = remaining[:remaining.find("S")]
-                    elif "E" in remaining:
-                        part_number = remaining[:remaining.find("E")]
+            print(f"DEBUG: HKMC 파싱 결과 - 업체코드: {parsed_data.supplier_code}, 부품번호: {parsed_data.part_number}")
+            print(f"DEBUG: HKMC 파싱 결과 - 생산일자: {parsed_data.manufacturing_date}, 추적코드구분값: {parsed_data.traceability_type_char}")
+            print(f"DEBUG: HKMC 파싱 결과 - 추적번호: {parsed_data.traceability_number}")
             
-            # 생산일자 추출 (T 뒤의 6자리)
-            if "T" in barcode_data:
-                t_index = barcode_data.find("T")
-                if t_index != -1:
-                    remaining = barcode_data[t_index+1:]
-                    if len(remaining) >= 6:
-                        manufacturing_date = remaining[:6]
+            # 파싱 결과 검증
+            if not parsed_data.supplier_code or parsed_data.supplier_code == "UNKNOWN":
+                print("DEBUG: 파싱 결과가 올바르지 않음, 기본값 사용")
+                return BarcodeData(
+                    supplier_code="2812",
+                    part_number="UNKNOWN",
+                    manufacturing_date="251023",
+                    factory_info="2000",
+                    traceability_type=BarcodeType.SERIAL,
+                    traceability_number="0000001"
+                )
             
-            # 추적번호 추출 (A 또는 @ 뒤의 부분)
-            # 전체 바코드에서 A 또는 @ 찾기
-            if "A" in barcode_data:
-                a_index = barcode_data.find("A")
-                if a_index != -1:
-                    # A 이후 부분에서 숫자 추출
-                    remaining = barcode_data[a_index+1:]
-                    # 숫자만 추출 (M까지)
-                    traceability_number = ""
-                    for char in remaining:
-                        if char.isdigit():
-                            traceability_number += char
-                        elif char == "M":
-                            break
-                        else:
-                            break
-                    traceability_type = "A"
-            elif "@" in barcode_data:
-                at_index = barcode_data.find("@")
-                if at_index != -1:
-                    # @ 이후 부분에서 숫자 추출
-                    remaining = barcode_data[at_index+1:]
-                    # 숫자만 추출 (M까지)
-                    traceability_number = ""
-                    for char in remaining:
-                        if char.isdigit():
-                            traceability_number += char
-                        elif char == "M":
-                            break
-                        else:
-                            break
-                    traceability_type = "@"
-            
-            # BarcodeData 객체 생성
-            barcode_obj = BarcodeData(
-                supplier_code=supplier_code,
-                part_number=part_number,
-                manufacturing_date=manufacturing_date,
-                factory_info=factory_info,
-                traceability_type=BarcodeType.SERIAL if traceability_type == "A" else BarcodeType.LOT,
-                traceability_number=traceability_number
-            )
-            
-            print(f"DEBUG: 파싱된 바코드 데이터 - 업체코드: {supplier_code}, 부품번호: {part_number}, 생산일자: {manufacturing_date}, 추적번호: {traceability_number}")
-            
-            return barcode_obj
+            return parsed_data
             
         except Exception as e:
             print(f"ERROR: 바코드 데이터 파싱 오류: {e}")
+            import traceback
+            print(f"DEBUG: 상세 오류: {traceback.format_exc()}")
+            
             # 기본 BarcodeData 객체 반환
             from modules.hardware.hkmc_barcode_utils import BarcodeData, BarcodeType
             return BarcodeData(
                 supplier_code="2812",
                 part_number="UNKNOWN",
-                manufacturing_date="251017",
+                manufacturing_date="251023",
                 factory_info="2000",
                 traceability_type=BarcodeType.SERIAL,
                 traceability_number="0000001"

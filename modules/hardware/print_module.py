@@ -53,7 +53,7 @@ class PrintModule(QObject):
                                 ^PW324
                                 ^LL243
                                 ^LH0,0
-                                ^FO15,15^BQN,3,3^FH_^FDLA,{formatted_data}^FS
+                                ^FO15,15^BXN,3,3,200^FH_^FDLA,{formatted_data}^FS
                                 ^FO120,10^A0N,26,26^FD{part_number}^FS 
                                 ^FO120,50^A0N,16,16^FD{display_name}^FS 
                                 ^FO120,70^A0N,16,16^FD{date}^FS 
@@ -82,8 +82,8 @@ class PrintModule(QObject):
     def load_zpl_config(self):
         """ZPL 설정 로드"""
         try:
-            if os.path.exists('zpl_templates.json'):
-                with open('zpl_templates.json', 'r', encoding='utf-8') as f:
+            if os.path.exists('config/zpl_templates.json'):
+                with open('config/zpl_templates.json', 'r', encoding='utf-8') as f:
                     config = json.load(f)
                     self.zpl_template_config.update(config)
         except Exception as e:

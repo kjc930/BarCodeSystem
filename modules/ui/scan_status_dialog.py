@@ -1207,29 +1207,29 @@ class ScanStatusDialog(QDialog):
                 
                 # 패널 구분 (다이얼로그 제목 우선, 없으면 스캔 데이터에서 확인)
                 target_panel = None
-                if "Front/LH" in dialog_title or "FRONT/LH" in dialog_title:
-                    target_panel = "Front/LH"
-                elif "Rear/RH" in dialog_title or "REAR/RH" in dialog_title:
-                    target_panel = "Rear/RH"
+                if "FRONT/LH" in dialog_title or "FRONT/LH" in dialog_title:
+                    target_panel = "FRONT/LH"
+                elif "REAR/RH" in dialog_title or "REAR/RH" in dialog_title:
+                    target_panel = "REAR/RH"
                 elif current_panel:
                     target_panel = current_panel
                     print(f"DEBUG: ScanStatusDialog - 스캔 데이터에서 패널 정보 사용: {target_panel}")
                 
-                if target_panel == "Front/LH":
-                    # Front/LH 패널만 색상 변경
+                if target_panel == "FRONT/LH":
+                    # FRONT/LH 패널만 색상 변경
                     if hasattr(self.main_window, 'front_panel') and self.main_window.front_panel:
                         self.update_panel_icons(self.main_window.front_panel, scanned_count)
-                        print(f"DEBUG: ScanStatusDialog - Front/LH 패널 아이콘 색상 변경")
+                        print(f"DEBUG: ScanStatusDialog - FRONT/LH 패널 아이콘 색상 변경")
                     else:
-                        print(f"DEBUG: ScanStatusDialog - Front/LH 패널이 없음")
+                        print(f"DEBUG: ScanStatusDialog - FRONT/LH 패널이 없음")
                         
-                elif target_panel == "Rear/RH":
-                    # Rear/RH 패널만 색상 변경
+                elif target_panel == "REAR/RH":
+                    # REAR/RH 패널만 색상 변경
                     if hasattr(self.main_window, 'rear_panel') and self.main_window.rear_panel:
                         self.update_panel_icons(self.main_window.rear_panel, scanned_count)
-                        print(f"DEBUG: ScanStatusDialog - Rear/RH 패널 아이콘 색상 변경")
+                        print(f"DEBUG: ScanStatusDialog - REAR/RH 패널 아이콘 색상 변경")
                     else:
-                        print(f"DEBUG: ScanStatusDialog - Rear/RH 패널이 없음")
+                        print(f"DEBUG: ScanStatusDialog - REAR/RH 패널이 없음")
                 else:
                     print(f"DEBUG: ScanStatusDialog - 패널 구분 불가: {dialog_title}, 스캔 데이터: {current_panel}")
         else:
@@ -1295,10 +1295,10 @@ class ScanStatusDialog(QDialog):
         
         # 패널 구분 (다이얼로그 제목 우선, 없으면 스캔 데이터에서 확인)
         target_panel = None
-        if "Front/LH" in dialog_title or "FRONT/LH" in dialog_title:
-            target_panel = "Front/LH"
-        elif "Rear/RH" in dialog_title or "REAR/RH" in dialog_title:
-            target_panel = "Rear/RH"
+        if "FRONT/LH" in dialog_title or "FRONT/LH" in dialog_title:
+            target_panel = "FRONT/LH"
+        elif "REAR/RH" in dialog_title or "REAR/RH" in dialog_title:
+            target_panel = "REAR/RH"
         elif current_panel:
             target_panel = current_panel
             print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - 스캔 데이터에서 패널 정보 사용: {target_panel}")
@@ -1312,21 +1312,21 @@ class ScanStatusDialog(QDialog):
         
         print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - 스캔된 하위부품 개수: {scanned_count}")
         
-        if target_panel == "Front/LH":
-            # Front/LH 패널만 색상 변경
+        if target_panel == "FRONT/LH":
+            # FRONT/LH 패널만 색상 변경
             if hasattr(self.main_window, 'front_panel') and self.main_window.front_panel:
                 self.update_panel_icons(self.main_window.front_panel, scanned_count)
-                print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - Front/LH 패널 아이콘 색상 변경")
+                print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - FRONT/LH 패널 아이콘 색상 변경")
             else:
-                print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - Front/LH 패널이 없음")
+                print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - FRONT/LH 패널이 없음")
                 
-        elif target_panel == "Rear/RH":
-            # Rear/RH 패널만 색상 변경
+        elif target_panel == "REAR/RH":
+            # REAR/RH 패널만 색상 변경
             if hasattr(self.main_window, 'rear_panel') and self.main_window.rear_panel:
                 self.update_panel_icons(self.main_window.rear_panel, scanned_count)
-                print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - Rear/RH 패널 아이콘 색상 변경")
+                print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - REAR/RH 패널 아이콘 색상 변경")
             else:
-                print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - Rear/RH 패널이 없음")
+                print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - REAR/RH 패널이 없음")
         else:
             print(f"DEBUG: ScanStatusDialog - 강제 업데이트 - 패널 구분 불가: {dialog_title}, 스캔 데이터: {current_panel}")
     

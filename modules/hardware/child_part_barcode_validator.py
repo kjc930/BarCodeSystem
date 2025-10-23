@@ -215,12 +215,9 @@ class ChildPartBarcodeValidator:
             info['shift_info'] = "교대정보"
             info['equipment_info'] = "설비정보"
             
-            # 추적번호 검증
-            trace_match = re.search(r'[A-Z0-9]{7,30}', barcode)
-            if trace_match:
-                info['traceability_number'] = trace_match.group()
-            else:
-                errors.append("추적번호를 추출할 수 없습니다.")
+            # 추적번호 검증 - 원시데이터 그대로 유지
+            # 하위바코드는 원시데이터를 수정하지 않고 그대로 보존
+            info['traceability_number'] = "원시데이터보존"  # 하위바코드는 원시데이터 유지
             
             return errors, info
             
