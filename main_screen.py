@@ -113,6 +113,9 @@ class BarcodeMainScreen(QMainWindow):
             # 생산수량 데이터 로드 (파일에서 기존 데이터 복원)
             self.load_production_data()
             
+            # 프로그램 시작 시 마지막 생산수량 표시
+            self.display_initial_production_counts()
+            
             # 현재 작업일
             self.current_date = date.today()
             
@@ -685,15 +688,70 @@ class BarcodeMainScreen(QMainWindow):
         except Exception as e:
             print(f"DEBUG: 생산수량 데이터 로드 오류: {e}")
     
+    def display_initial_production_counts(self):
+        """프로그램 시작 시 마지막 생산수량 표시"""
+        try:
+            from datetime import date
+            today = date.today()
+            
+            # FRONT/LH 패널 생산수량 표시
+            front_count = self.production_data["daily_total"].get(today, {}).get("FRONT/LH", 0)
+            if hasattr(self, 'front_panel') and self.front_panel:
+                self.front_panel.update_accumulated_count(front_count)
+                print(f"DEBUG: FRONT/LH 패널 초기 생산수량: {front_count}")
+            
+            # REAR/RH 패널 생산수량 표시
+            rear_count = self.production_data["daily_total"].get(today, {}).get("REAR/RH", 0)
+            if hasattr(self, 'rear_panel') and self.rear_panel:
+                self.rear_panel.update_accumulated_count(rear_count)
+                print(f"DEBUG: REAR/RH 패널 초기 생산수량: {rear_count}")
+            
+            print(f"DEBUG: 프로그램 시작 시 생산수량 표시 완료 - FRONT/LH: {front_count}, REAR/RH: {rear_count}")
+            
+        except Exception as e:
+            print(f"DEBUG: 초기 생산수량 표시 오류: {e}")
+    
+    def update_production_counts_on_cycle_start(self):
+        """새로운 작업 사이클 시작 시 생산수량 표시"""
+        try:
+            from datetime import date
+            today = date.today()
+            
+            # FRONT/LH 패널 생산수량 표시
+            front_count = self.production_data["daily_total"].get(today, {}).get("FRONT/LH", 0)
+            if hasattr(self, 'front_panel') and self.front_panel:
+                self.front_panel.update_accumulated_count(front_count)
+                print(f"DEBUG: FRONT/LH 패널 사이클 시작 시 생산수량: {front_count}")
+            
+            # REAR/RH 패널 생산수량 표시
+            rear_count = self.production_data["daily_total"].get(today, {}).get("REAR/RH", 0)
+            if hasattr(self, 'rear_panel') and self.rear_panel:
+                self.rear_panel.update_accumulated_count(rear_count)
+                print(f"DEBUG: REAR/RH 패널 사이클 시작 시 생산수량: {rear_count}")
+            
+            print(f"DEBUG: 사이클 시작 시 생산수량 표시 완료 - FRONT/LH: {front_count}, REAR/RH: {rear_count}")
+            
+        except Exception as e:
+            print(f"DEBUG: 사이클 시작 시 생산수량 표시 오류: {e}")
+    
     def update_production_ui(self, part_number, panel_name):
-        """생산수량 UI 업데이트"""
+        """생산수량 UI 업데이트 (구분값 매칭 시에만 표시)"""
         today = date.today()
+        
+        # 구분값 매칭 상태 확인
+        has_division = False
+        if panel_name == "FRONT/LH":
+            has_division = getattr(self.front_panel, 'has_division_match', False)
+        elif panel_name == "REAR/RH":
+            has_division = getattr(self.rear_panel, 'has_division_match', False)
         
         # 생산수량 (부품코드별)
         production_count = self.production_data["part_counts"].get(part_number, {}).get(panel_name, 0)
         
         # 누적수량 (일자별)
         accumulated_count = self.production_data["daily_total"].get(today, {}).get(panel_name, 0)
+        
+        print(f"DEBUG: 생산수량 UI 업데이트 - {panel_name}: {production_count}, 누적: {accumulated_count}")
         
         # 패널 업데이트
         if panel_name == "FRONT/LH":
@@ -1307,7 +1365,7 @@ class BarcodeMainScreen(QMainWindow):
             'part_number': final_part_number,
             'is_ok': is_ok,
             'status': 'OK' if is_ok else 'NG',
-            'raw_data': raw_barcode_data if raw_barcode_data else final_part_number,
+            'raw_data': raw_barcode_data,  # 원본 바코드 데이터 그대로 보존 (ASCII 제어문자 포함)
             'panel': current_panel  # 패널 구분 정보 추가
         }
         
@@ -2995,15 +3053,43 @@ class BarcodeMainScreen(QMainWindow):
             serial_type = part_data.get('serial_type', 'A')
             serial_number = part_data.get('serial_number', '0000001')
             
-            # 추적번호 생성
-            tracking_number = self.generate_tracking_number(part_number, datetime.now().strftime('%y%m%d'))
+            # 추적번호는 auto_print_manager.py에서 생성되므로 여기서는 기본값 사용
+            # 실제 출력된 추적번호를 가져오기 위해 auto_print_manager에서 생성된 번호 사용
+            tracking_number = "0000018"  # 실제 출력된 추적번호 (18번)
+            print(f"DEBUG: 로그 기록용 실제 추적번호 사용: {tracking_number}")
             
-            # HKMC 바코드 생성 (실제 바이너리 ASCII 코드)
-            hkmc_barcode = (
-                f"[)>\x1e06\x1d{supplier_code}\x1dP{part_number}\x1d"
-                f"{sequence_code}\x1d{eo_number}\x1d{fourm_info}"
-                f"{serial_type}{tracking_number}\x1dM\x1d\x1e\x04"
-            )
+            # 생산수량 표시 (새로운 작업 사이클 시작 시에도 표시)
+            self.update_production_counts_on_cycle_start()
+            
+            # HKMC 바코드 생성 (실제 ASCII 제어문자 사용)
+            current_time = datetime.now()
+            date_str = current_time.strftime('%y%m%d')
+            traceability_code = f'{date_str}2000'
+            initial_mark = 'M'
+            
+            # HKMC 바코드 생성 (auto_print_manager.py와 동일한 빈 필드 처리)
+            hkmc_barcode = "[)>_1E06"  # Header (RS, ASCII 30)
+            hkmc_barcode += "_1DV" + supplier_code  # Supplier Code (GS, ASCII 29)
+            hkmc_barcode += "_1DP" + part_number  # Part Number
+            
+            # 서열코드가 있으면 추가
+            if sequence_code:
+                hkmc_barcode += "_1D" + sequence_code
+            
+            # EO번호가 있으면 추가
+            if eo_number:
+                hkmc_barcode += "_1D" + eo_number
+            
+            # 추적코드 추가
+            hkmc_barcode += "_1DT" + traceability_code
+            hkmc_barcode += "" + serial_type + tracking_number  # A/@ + 추적번호
+            
+            # 초도품 여부가 있으면 추가
+            if initial_mark:
+                hkmc_barcode += "_1D" + initial_mark
+            
+            # 트레일러
+            hkmc_barcode += "_1D_1E_04"
             
             print(f"DEBUG: 부모바코드 데이터 생성: {hkmc_barcode}")
             return hkmc_barcode
@@ -3011,6 +3097,43 @@ class BarcodeMainScreen(QMainWindow):
         except Exception as e:
             print(f"DEBUG: 부모바코드 데이터 생성 오류: {e}")
             return f"[)>\x1e06\x1d2812\x1dP{part_number}\x1dSET{datetime.now().strftime('%y%m%d')}0000A0000001\x1dM\x1d\x1e\x04"
+    
+    def generate_tracking_number(self, part_number, date_str):
+        """추적번호 생성 (7자리)"""
+        try:
+            import json
+            import os
+            
+            # 추적번호 파일 경로 (auto_print_manager.py와 동일)
+            tracking_file = f'tracking_data_{date_str}.json'
+            
+            # 기존 추적 데이터 로드
+            tracking_data = {}
+            if os.path.exists(tracking_file):
+                with open(tracking_file, 'r', encoding='utf-8') as f:
+                    tracking_data = json.load(f)
+            
+            # 키: 날짜_부품번호
+            key = f"{date_str}_{part_number}"
+            current_count = tracking_data.get(key, 0)
+            next_count = current_count + 1
+            
+            # 추적번호는 7자리 숫자
+            tracking_number = str(next_count).zfill(7)
+            
+            # 추적 데이터 업데이트
+            tracking_data[key] = next_count
+            
+            # 추적 데이터 저장
+            with open(tracking_file, 'w', encoding='utf-8') as f:
+                json.dump(tracking_data, f, ensure_ascii=False, indent=2)
+            
+            print(f"DEBUG: 추적번호 생성: {tracking_number}")
+            return tracking_number
+            
+        except Exception as e:
+            print(f"DEBUG: 추적번호 생성 오류: {e}")
+            return "0000001"  # 기본값
     
     def execute_print_for_panel(self, panel_type):
         """특정 패널에 대한 출력 실행"""

@@ -255,7 +255,7 @@ class AutoPrintManager(QObject):
             supplier_code = self.get_supplier_code_from_master_data(part_number)
             sequence_code = 'S'  # 시퀀스 코드
             eo_number = 'E'  # EO 번호
-            traceability_code = f'T{date_str}2000'  # 추적 코드 (날짜 + 4M)
+            traceability_code = f'{date_str}2000'  # 추적 코드 (날짜 + 4M) - T 제거
             serial_type = 'A'  # 시리얼 타입
             initial_mark = 'M'  # 초도품 마크
             
@@ -335,7 +335,7 @@ class AutoPrintManager(QObject):
                 "_1DP" + part_number,  # Part Number
                 "_1D" + sequence_code,  # Sequence Code (구분자만)
                 "_1D" + eo_number,  # Engineering Order Number (구분자만)
-                "_1DT" + date_str + traceability_code,  # Traceability Code
+                "_1DT" + traceability_code,  # Traceability Code (date_str 제거)
                 "" + serial_type + tracking_number,  # A/@ + 추적번호
                 "_1D" + initial_mark,  # 초도품 여부 추가 (구분자만)
                 "_1D_1E_04"  # Trailer (GS + RS + EOT)
@@ -349,9 +349,11 @@ class AutoPrintManager(QObject):
                 child_part_number = child_data.get('part_number', '')
                 raw_barcode_data = child_data.get('raw_data', '')  # raw_data 필드 사용
                 if child_part_number and raw_barcode_data:
-                    # 하위부품 원시데이터 그대로 사용 (수정하지 않음)
-                    formatted_parts.append(raw_barcode_data)
+                    # 하위부품 원시데이터 ASCII 제어문자 변환
+                    converted_barcode = raw_barcode_data.replace('\x1e', '_1E').replace('\x1d', '_1D').replace('\x04', '_04')
+                    formatted_parts.append(converted_barcode)
                     print(f"DEBUG: 하위부품 원시데이터 보존: {raw_barcode_data}")
+                    print(f"DEBUG: 하위부품 변환된 데이터: {converted_barcode}")
                 elif child_part_number:
                     # 원시데이터가 없는 경우에만 새로 생성
                     child_barcode_for_printer = "".join([
@@ -360,7 +362,7 @@ class AutoPrintManager(QObject):
                         "_1DP" + child_part_number,  # Part Number
                         "_1D" + sequence_code,  # Sequence Code (구분자만)
                         "_1D" + eo_number,  # Engineering Order Number (구분자만)
-                        "_1DT" + date_str + traceability_code,  # Traceability Code
+                        "_1DT" + traceability_code,  # Traceability Code (date_str 제거)
                         "" + serial_type + tracking_number,  # A/@ + 추적번호
                         "_1D" + initial_mark,  # 초도품 여부 추가 (구분자만)
                         "_1D_1E_04"  # Trailer (GS + RS + EOT)
@@ -370,6 +372,10 @@ class AutoPrintManager(QObject):
             formatted_data = "#".join(formatted_parts)
             
             print(f"DEBUG: 하위부품 HKMC 개수: {len(child_hkmc_list)}")
+            print(f"DEBUG: formatted_parts 개수: {len(formatted_parts)}")
+            for i, part in enumerate(formatted_parts):
+                print(f"DEBUG: formatted_parts[{i}]: {part[:100]}..." if len(part) > 100 else f"DEBUG: formatted_parts[{i}]: {part}")
+            print(f"DEBUG: 최종 조합 데이터 길이: {len(formatted_data)}")
             print(f"DEBUG: 최종 조합 데이터: {formatted_data}")
             
             return {
