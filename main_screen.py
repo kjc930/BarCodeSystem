@@ -19,7 +19,7 @@ from modules.hardware.print_module import PrintManager
 from modules.hardware.auto_print_manager import AutoPrintManager
 from modules.utils.modules.serial_connection_manager import AutoSerialConnector
 from modules.hardware.barcode_scan_workflow import BarcodeScanWorkflow, LabelColorManager
-from modules.hardware.child_part_barcode_validator import ChildPartBarcodeValidator
+from modules.hardware.hkmc_barcode_utils import HKMCBarcodeUtils
 from modules.hardware.plc_data_manager import PLCDataManager
 from modules.ui.styles import *
 from modules.utils.font_manager import FontManager
@@ -195,7 +195,7 @@ class BarcodeMainScreen(QMainWindow):
             
             # 하위부품 바코드 검증기 초기화
             try:
-                self.child_part_validator = ChildPartBarcodeValidator()
+                self.child_part_validator = HKMCBarcodeUtils()
             except Exception as e:
                 print(f" 바코드 검증기 초기화 실패: {e}")
                 self.child_part_validator = None
@@ -3173,29 +3173,29 @@ class BarcodeMainScreen(QMainWindow):
             traceability_code = f'{date_str}2000'
             initial_mark = 'M'
             
-            # HKMC 바코드 생성 (auto_print_manager.py와 동일한 빈 필드 처리)
-            hkmc_barcode = "[)>_1E06"  # Header (RS, ASCII 30)
-            hkmc_barcode += "_1DV" + supplier_code  # Supplier Code (GS, ASCII 29)
-            hkmc_barcode += "_1DP" + part_number  # Part Number
+            # HKMC 바코드 생성 (실제 ASCII 제어 문자 사용)
+            hkmc_barcode = "[)>\x1e06"  # Header (RS, ASCII 30)
+            hkmc_barcode += "\x1dV" + supplier_code  # Supplier Code (GS, ASCII 29)
+            hkmc_barcode += "\x1dP" + part_number  # Part Number
             
             # 서열코드가 있으면 추가
             if sequence_code:
-                hkmc_barcode += "_1D" + sequence_code
+                hkmc_barcode += "\x1d" + sequence_code
             
             # EO번호가 있으면 추가
             if eo_number:
-                hkmc_barcode += "_1D" + eo_number
+                hkmc_barcode += "\x1d" + eo_number
             
             # 추적코드 추가
-            hkmc_barcode += "_1DT" + traceability_code
+            hkmc_barcode += "\x1dT" + traceability_code
             hkmc_barcode += "" + serial_type + tracking_number  # A/@ + 추적번호
             
             # 초도품 여부가 있으면 추가
             if initial_mark:
-                hkmc_barcode += "_1D" + initial_mark
+                hkmc_barcode += "\x1d" + initial_mark
             
             # 트레일러
-            hkmc_barcode += "_1D_1E_04"
+            hkmc_barcode += "\x1d\x1e\x04"
             
             print(f"DEBUG: 부모바코드 데이터 생성: {hkmc_barcode}")
             return hkmc_barcode

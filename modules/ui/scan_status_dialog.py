@@ -489,8 +489,10 @@ class ScanStatusDialog(QDialog):
                     self.child_parts_table.viewport().update()
                     self.child_parts_table.viewport().repaint()
                     
-                    # 특정 셀 강제 새로고침
-                    self.child_parts_table.update(self.child_parts_table.visualItemRect(self.child_parts_table.item(i, 2)))
+                    # 특정 셀 강제 새로고침 - QRect 대신 인덱스 사용
+                    item = self.child_parts_table.item(i, 2)
+                    if item:
+                        self.child_parts_table.update(self.child_parts_table.indexFromItem(item))
                     
                     # 전체 다이얼로그 새로고침
                     self.update()

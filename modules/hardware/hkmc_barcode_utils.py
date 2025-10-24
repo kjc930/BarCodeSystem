@@ -83,7 +83,7 @@ class HKMCBarcodeUtils:
         }
     
     def parse_record_bytes(self, raw: bytes) -> dict:
-        """실제 바코드 형식에 맞게 수정된 파싱 로직"""
+        """정규식 기반 패턴 매칭으로 개선된 파싱 로직"""
         try:
             s = raw.decode('ascii', errors='ignore').strip('\r\n')
             print(f"DEBUG: 원본 바코드: {s}")
@@ -97,6 +97,17 @@ class HKMCBarcodeUtils:
             records = [r for r in s.split(RS) if r]
             print(f"DEBUG: 분리된 레코드 수: {len(records)}")
 
+            # 정규식 기반 필드 패턴 정의
+            FIELD_PATTERNS = {
+                r"^V(\w{3,6})$": "Supplier Code",
+                r"^P([A-Z0-9]{8,15})$": "Part Number",
+                r"^S([A-Z0-9]{1,8})$": "Sequence Code",      # 서열부품인 경우
+                r"^E([A-Z0-9]{6,9})$": "EO Number",
+                r"^T(?P<date>\d{6})(?P<m4>[0-9A-Z]{2,6})(?P<stype>[A@])(?P<snum>[0-9A-Z]{1,30})$": "Traceability",
+                r"^M$": "Misc",
+                r"^S$": "Initial Sample"                     # 초도품 구분 (KMM Only)
+            }
+
             parsed_records = []
             for rec in records:
                 print(f"DEBUG: 처리할 레코드: {rec}")
@@ -107,6 +118,10 @@ class HKMCBarcodeUtils:
                 out = {
                     'Supplier Code': None,
                     'Part Number': None,
+                    'Sequence Code': None,
+                    'EO Number': None,
+                    'Initial Sample': None,
+                    'Misc': None,
                     'Traceability': {
                         'Full': None,
                         '조립일자': None,
@@ -116,62 +131,38 @@ class HKMCBarcodeUtils:
                     }
                 }
                 
+                # 정규식 기반 패턴 매칭
                 for token in fields:
-                    if len(token) < 1:
-                        continue
-                    tag = token[0]
-                    value = token[1:]
-                    print(f"DEBUG: 태그: {tag}, 값: {value}")
-                    
-                    if tag not in TAG_MAP:
-                        continue
-
-                    name = TAG_MAP[tag]
-                    if tag == 'T':
-                        out['Traceability']['Full'] = token
-                        print(f"DEBUG: T 태그 처리: {token}")
-                        # 정규표현식으로 추적 정보 파싱
-                        m = re.fullmatch(r"T(?P<date>\d{6})(?P<m4>[0-9A-Z]{2,6})(?P<stype>[A@])(?P<snum>[0-9A-Z]{1,30})", token)
+                    matched = False
+                    for pattern, label in FIELD_PATTERNS.items():
+                        m = re.match(pattern, token)
                         if m:
-                            out['Traceability']['조립일자'] = m.group('date')
-                            out['Traceability']['부품4M'] = m.group('m4')
-                            out['Traceability']['시리얼구분'] = m.group('stype')
-                            out['Traceability']['시리얼번호'] = m.group('snum')
-                            print(f"DEBUG: 추적 정보 파싱 성공: {m.groupdict()}")
-                        else:
-                            print(f"DEBUG: 추적 정보 파싱 실패: {token}")
-                            # 파싱 실패 시 수동으로 추출
-                            if len(token) > 6:
-                                date_part = token[1:7]  # T 이후 6자리
-                                if date_part.isdigit():
-                                    out['Traceability']['조립일자'] = date_part
-                                    remaining = token[7:]
-                                    if len(remaining) >= 4:
-                                        out['Traceability']['부품4M'] = remaining[:4]
-                                        if len(remaining) > 4:
-                                            # A 또는 @ 찾기
-                                            for i, char in enumerate(remaining[4:]):
-                                                if char in ['A', '@']:
-                                                    out['Traceability']['시리얼구분'] = char
-                                                    out['Traceability']['시리얼번호'] = remaining[4+i+1:]
-                                                    break
-                    elif tag == 'V':
-                        out['Supplier Code'] = value
-                        print(f"DEBUG: 업체코드: {value}")
-                    elif tag == 'P':
-                        out['Part Number'] = value
-                        print(f"DEBUG: 부품번호: {value}")
-                    elif tag == 'S':
-                        out['Sequence Code'] = value
-                        print(f"DEBUG: 서열코드: {value}")
-                    elif tag == 'E':
-                        out['EO Number'] = value
-                        print(f"DEBUG: EO번호: {value}")
-                    else:
-                        out[name] = value
-
-                # 'E' 태그 필드 추가
-                out['EO Number'] = None
+                            matched = True
+                            print(f"DEBUG: 패턴 매칭 성공 - {label}: {token}")
+                            
+                            if label == "Traceability":
+                                out['Traceability']['Full'] = token
+                                out['Traceability']['조립일자'] = m.group('date')
+                                out['Traceability']['부품4M'] = m.group('m4')
+                                out['Traceability']['시리얼구분'] = m.group('stype')
+                                out['Traceability']['시리얼번호'] = m.group('snum')
+                                print(f"DEBUG: 추적 정보 파싱 성공: {m.groupdict()}")
+                            elif label == "Supplier Code":
+                                out['Supplier Code'] = m.group(1)
+                            elif label == "Part Number":
+                                out['Part Number'] = m.group(1)
+                            elif label == "Sequence Code":
+                                out['Sequence Code'] = m.group(1)
+                            elif label == "EO Number":
+                                out['EO Number'] = m.group(1)
+                            elif label == "Initial Sample":
+                                out['Initial Sample'] = "S"
+                            elif label == "Misc":
+                                out['Misc'] = "M"
+                            break
+                    
+                    if not matched:
+                        print(f"DEBUG: 인식되지 않은 필드 → {token}")
                 
                 parsed_records.append(out)
                 print(f"DEBUG: 파싱 결과: {out}")
@@ -215,6 +206,9 @@ class HKMCBarcodeUtils:
             # BarcodeData 객체 생성
             supplier_code = record.get('Supplier Code', '')
             part_number = record.get('Part Number', '')
+            sequence_code = record.get('Sequence Code', '')
+            eo_number = record.get('EO Number', '')
+            initial_sample = record.get('Initial Sample', '')
             
             # 추적 정보 추출
             traceability = record.get('Traceability', {})
@@ -238,6 +232,7 @@ class HKMCBarcodeUtils:
                 equipment_info = m4_info[3] if len(m4_info) > 3 else None
             
             print(f"DEBUG: 최종 파싱 결과 - 업체코드: {supplier_code}, 부품번호: {part_number}")
+            print(f"DEBUG: 최종 파싱 결과 - 서열코드: {sequence_code}, EO번호: {eo_number}")
             print(f"DEBUG: 최종 파싱 결과 - 생산일자: {manufacturing_date}, 4M: {m4_info}")
             print(f"DEBUG: 최종 파싱 결과 - 추적타입: {trace_type_char}, 추적번호: {traceability_number}")
             
@@ -251,7 +246,10 @@ class HKMCBarcodeUtils:
                 factory_info=factory_info,
                 line_info=line_info,
                 shift_info=shift_info,
-                equipment_info=equipment_info
+                equipment_info=equipment_info,
+                sequence_code=sequence_code,
+                eo_number=eo_number,
+                initial_sample=initial_sample
             )
             
         except Exception as e:
@@ -265,7 +263,10 @@ class HKMCBarcodeUtils:
             part_number="UNKNOWN",
             manufacturing_date="251023",
             traceability_type=BarcodeType.SERIAL,
-            traceability_number="0000001"
+            traceability_number="0000001",
+            sequence_code=None,
+            eo_number=None,
+            initial_sample=None
         )
     
     def generate_barcode(self, data: BarcodeData) -> str:
@@ -378,3 +379,50 @@ class HKMCBarcodeUtils:
             additional_info += data.initial_sample
         
         return additional_info
+    
+    def validate_child_part_barcode(self, barcode: str) -> Tuple[bool, List[str], Dict]:
+        """
+        하위부품 바코드 검증 - 기존 child_part_barcode_validator와 호환
+        
+        Args:
+            barcode: 검증할 바코드 문자열
+            
+        Returns:
+            Tuple[bool, List[str], Dict]: (검증성공여부, 오류목록, 바코드정보)
+        """
+        try:
+            print(f"DEBUG: hkmc_barcode_utils - 하위부품 바코드 검증 시작: {barcode}")
+            
+            # 기존 validate_barcode 메서드 사용
+            is_valid, errors = self.validate_barcode(barcode)
+            
+            if not is_valid:
+                print(f"DEBUG: hkmc_barcode_utils - 바코드 검증 실패: {errors}")
+                return False, errors, {}
+            
+            # 바코드 파싱하여 정보 추출
+            barcode_data = self.parse_barcode(barcode)
+            
+            # 기존 child_part_barcode_validator와 동일한 형식으로 정보 구성
+            barcode_info = {
+                'supplier_code': barcode_data.supplier_code,
+                'part_number': barcode_data.part_number,
+                'manufacturing_date': barcode_data.manufacturing_date,
+                'traceability_type': barcode_data.traceability_type_char,
+                'traceability_number': barcode_data.traceability_number,
+                'sequence_code': barcode_data.sequence_code,
+                'eo_number': barcode_data.eo_number,
+                'initial_sample': barcode_data.initial_sample,
+                'factory_info': barcode_data.factory_info,
+                'line_info': barcode_data.line_info,
+                'shift_info': barcode_data.shift_info,
+                'equipment_info': barcode_data.equipment_info
+            }
+            
+            print(f"DEBUG: hkmc_barcode_utils - 바코드 검증 성공: {barcode_info}")
+            return True, [], barcode_info
+            
+        except Exception as e:
+            error_msg = f"하위부품 바코드 검증 오류: {str(e)}"
+            print(f"DEBUG: hkmc_barcode_utils - {error_msg}")
+            return False, [error_msg], {}
