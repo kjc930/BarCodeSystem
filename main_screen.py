@@ -734,6 +734,86 @@ class BarcodeMainScreen(QMainWindow):
         except Exception as e:
             print(f"DEBUG: 사이클 시작 시 생산수량 표시 오류: {e}")
     
+    def display_production_counts_on_work_start(self):
+        """작업 시작 시 생산수량 표시 (완료신호 0일 때) - 구분값이 있는 패널만"""
+        try:
+            from datetime import date
+            today = date.today()
+            
+            # 구분값이 있는 패널만 확인
+            front_division = None
+            rear_division = None
+            
+            if hasattr(self, 'plc_data_manager') and self.plc_data_manager:
+                plc_data = self.plc_data_manager.get_plc_data()
+                front_division = plc_data.get("front_lh_division")
+                rear_division = plc_data.get("rear_rh_division")
+            
+            print(f"DEBUG: 구분값 확인 - FRONT/LH: {front_division}, REAR/RH: {rear_division}")
+            
+            # FRONT/LH 패널에 구분값이 있으면 표시
+            if front_division and front_division != "0":
+                front_serial = self.get_current_serial_number("FRONT/LH")
+                if hasattr(self, 'front_panel') and self.front_panel:
+                    self.front_panel.update_production_count(front_serial)
+                    self.front_panel.update_accumulated_count(front_serial)
+                    self.front_panel.update()
+                    print(f"DEBUG: FRONT/LH 패널 작업 시작 시 생산수량: {front_serial}")
+            
+            # REAR/RH 패널에 구분값이 있으면 표시
+            if rear_division and rear_division != "0":
+                rear_serial = self.get_current_serial_number("REAR/RH")
+                if hasattr(self, 'rear_panel') and self.rear_panel:
+                    self.rear_panel.update_production_count(rear_serial)
+                    self.rear_panel.update_accumulated_count(rear_serial)
+                    self.rear_panel.update()
+                    print(f"DEBUG: REAR/RH 패널 작업 시작 시 생산수량: {rear_serial}")
+            
+            # 메인 윈도우 UI 강제 업데이트
+            if hasattr(self, 'update'):
+                self.update()
+                
+        except Exception as e:
+            print(f"DEBUG: 작업 시작 시 생산수량 표시 오류: {e}")
+    
+    def get_current_serial_number(self, panel_name):
+        """현재 시리얼번호 가져오기 (tracking_data 파일에서)"""
+        try:
+            from datetime import date
+            today = date.today()
+            date_str = today.strftime("%y%m%d")
+            tracking_file = f'tracking_data_{date_str}.json'
+            
+            if os.path.exists(tracking_file):
+                with open(tracking_file, 'r', encoding='utf-8') as f:
+                    tracking_data = json.load(f)
+                
+                # 패널별 시리얼번호 가져오기
+                if panel_name == "FRONT/LH":
+                    # FRONT/LH 패널의 부품번호로 추적번호 찾기
+                    for key, value in tracking_data.items():
+                        if "FRONT" in key.upper() or "front" in key.lower():
+                            serial = value
+                            print(f"DEBUG: FRONT/LH 시리얼번호: {serial}")
+                            return serial
+                elif panel_name == "REAR/RH":
+                    # REAR/RH 패널의 부품번호로 추적번호 찾기
+                    for key, value in tracking_data.items():
+                        if "REAR" in key.upper() or "rear" in key.lower() or "89131CU217" in key:
+                            serial = value
+                            print(f"DEBUG: REAR/RH 시리얼번호: {serial}")
+                            return serial
+                
+                # 패널별 시리얼번호가 없으면 0 반환 (작업하지 않은 패널)
+                print(f"DEBUG: {panel_name} 패널 작업하지 않음 - 시리얼번호 0 반환")
+                return 0
+            
+            print(f"DEBUG: {panel_name} 시리얼번호 파일 없음 또는 오류")
+            return 0
+        except Exception as e:
+            print(f"DEBUG: 시리얼번호 가져오기 오류: {e}")
+            return 0
+    
     def update_production_ui(self, part_number, panel_name):
         """생산수량 UI 업데이트 (구분값 매칭 시에만 표시)"""
         today = date.today()
@@ -745,21 +825,23 @@ class BarcodeMainScreen(QMainWindow):
         elif panel_name == "REAR/RH":
             has_division = getattr(self.rear_panel, 'has_division_match', False)
         
-        # 생산수량 (부품코드별)
-        production_count = self.production_data["part_counts"].get(part_number, {}).get(panel_name, 0)
+        # 공정별 누적수량 (해당 패널의 총 누적)
+        panel_accumulated_count = self.production_data["daily_total"].get(today, {}).get(panel_name, 0)
         
-        # 누적수량 (일자별)
-        accumulated_count = self.production_data["daily_total"].get(today, {}).get(panel_name, 0)
+        # 총 누적수량 (오늘 하루종일 생산한 총 누적)
+        total_accumulated_count = 0
+        for panel in ["FRONT/LH", "REAR/RH"]:
+            total_accumulated_count += self.production_data["daily_total"].get(today, {}).get(panel, 0)
         
-        print(f"DEBUG: 생산수량 UI 업데이트 - {panel_name}: {production_count}, 누적: {accumulated_count}")
+        print(f"DEBUG: 생산수량 UI 업데이트 - {panel_name}: 공정별 누적 {panel_accumulated_count}, 총 누적: {total_accumulated_count}")
         
         # 패널 업데이트
         if panel_name == "FRONT/LH":
-            self.front_panel.update_production_count(production_count)
-            self.front_panel.update_accumulated_count(accumulated_count)
+            self.front_panel.update_production_count(panel_accumulated_count)  # 공정별 누적수량
+            self.front_panel.update_accumulated_count(total_accumulated_count)  # 총 누적수량
         elif panel_name == "REAR/RH":
-            self.rear_panel.update_production_count(production_count)
-            self.rear_panel.update_accumulated_count(accumulated_count)
+            self.rear_panel.update_production_count(panel_accumulated_count)  # 공정별 누적수량
+            self.rear_panel.update_accumulated_count(total_accumulated_count)  # 총 누적수량
     
     def update_child_parts_from_master_data(self, part_number):
         """기준정보에서 하위부품 정보 업데이트"""
@@ -2873,6 +2955,9 @@ class BarcodeMainScreen(QMainWindow):
                 
                 # 하위바코드 스캔 상태 확인
                 self.check_scan_status_for_new_cycle()
+                
+                # 완료신호 0일 때 생산수량 표시 (시뮬레이션과 실제 모두)
+                self.display_production_counts_on_work_start()
             else:
                 # 기타 완료신호 - 출력하지 않음
                 print(f"DEBUG: 완료신호 {completion_signal} - 출력하지 않음")
@@ -3053,10 +3138,31 @@ class BarcodeMainScreen(QMainWindow):
             serial_type = part_data.get('serial_type', 'A')
             serial_number = part_data.get('serial_number', '0000001')
             
-            # 추적번호는 auto_print_manager.py에서 생성되므로 여기서는 기본값 사용
-            # 실제 출력된 추적번호를 가져오기 위해 auto_print_manager에서 생성된 번호 사용
-            tracking_number = "0000018"  # 실제 출력된 추적번호 (18번)
-            print(f"DEBUG: 로그 기록용 실제 추적번호 사용: {tracking_number}")
+            # 실제 출력된 추적번호를 tracking_data 파일에서 가져오기
+            import os
+            import json
+            from datetime import date
+            today = date.today()
+            date_str = today.strftime("%y%m%d")
+            tracking_file = f'tracking_data_{date_str}.json'
+            
+            tracking_number = "0000001"  # 기본값
+            if os.path.exists(tracking_file):
+                try:
+                    with open(tracking_file, 'r', encoding='utf-8') as f:
+                        tracking_data = json.load(f)
+                    
+                    # 해당 부품의 추적번호 찾기
+                    key = f"{date_str}_{part_number}"
+                    if key in tracking_data:
+                        tracking_number = str(tracking_data[key]).zfill(7)
+                        print(f"DEBUG: 로그 기록용 실제 추적번호 사용: {tracking_number}")
+                    else:
+                        print(f"DEBUG: 추적번호를 찾을 수 없음 - 기본값 사용: {tracking_number}")
+                except Exception as e:
+                    print(f"DEBUG: 추적번호 파일 읽기 오류: {e}")
+            else:
+                print(f"DEBUG: 추적번호 파일 없음 - 기본값 사용: {tracking_number}")
             
             # 생산수량 표시 (새로운 작업 사이클 시작 시에도 표시)
             self.update_production_counts_on_cycle_start()
@@ -3258,12 +3364,9 @@ class BarcodeMainScreen(QMainWindow):
             if main_part_info:
                 part_number = main_part_info.get('part_number', '')
                 if part_number:
-                    # 생산실적 증가
-                    self.update_production_counters(part_number, panel_name)
-                    print(f"DEBUG: 출력 완료로 인한 생산실적 증가 - {panel_name}: {part_number}")
-                    
-                    # 바코드 출력 완료 로그 저장
+                    # 바코드 출력 완료 로그 저장 (생산실적은 이미 handle_plc_completion_signal에서 증가됨)
                     self.save_print_log(panel_name, part_number, main_part_info, success=True)
+                    print(f"DEBUG: 출력 완료 로그 저장 - {panel_name}: {part_number}")
                 else:
                     print(f"DEBUG: 메인 부품 정보 없음 - 생산실적 증가 안됨")
             else:
@@ -3278,7 +3381,7 @@ class BarcodeMainScreen(QMainWindow):
         # 오류 메시지 표시
     
     def get_child_parts_info_for_panel(self, panel_name):
-        """특정 패널의 하위부품 정보 가져오기"""
+        """특정 패널의 하위부품 정보 가져오기 - 스캔된 원시 데이터 사용"""
         try:
             # 패널명 매칭 (대소문자 구분 없이)
             panel_name_upper = panel_name.upper()
@@ -3293,15 +3396,76 @@ class BarcodeMainScreen(QMainWindow):
             if not part_number:
                 return []
             
-            # 기준정보에서 해당 부품의 하위부품 정보 찾기
-            for part_data in self.master_data:
-                if part_data.get("part_number") == part_number:
-                    return part_data.get("child_parts", [])
+            # 스캔된 하위부품의 원시 데이터 사용
+            scanned_child_parts = []
+            if hasattr(self, 'temp_scan_data') and self.temp_scan_data:
+                for scan_data in self.temp_scan_data:
+                    if scan_data.get('panel', '').upper() == panel_name_upper:
+                        # 원시 바코드 데이터에서 추적 정보 추출
+                        raw_data = scan_data.get('raw_data', '')
+                        if raw_data:
+                            # 원시 데이터에서 추적 정보 파싱
+                            trace_info = self.parse_traceability_from_raw_data(raw_data)
+                            if trace_info:
+                                scanned_child_parts.append({
+                                    "part_number": scan_data.get('part_number', ''),
+                                    "part_name": scan_data.get('part_number', ''),
+                                    "use_status": "Y",
+                                    "identifier": trace_info.get('identifier', ''),
+                                    "serial_type": trace_info.get('serial_type', ''),
+                                    "serial_number": trace_info.get('serial_number', '')
+                                })
+                                print(f"DEBUG: 스캔된 하위부품 원시 데이터 사용: {scan_data.get('part_number', '')} - {trace_info}")
             
-            return []
+            # 스캔된 데이터가 없으면 기준정보에서 가져오기
+            if not scanned_child_parts:
+                for part_data in self.master_data:
+                    if part_data.get("part_number") == part_number:
+                        return part_data.get("child_parts", [])
+            
+            return scanned_child_parts
         except Exception as e:
             print(f"DEBUG: 하위부품 정보 가져오기 오류: {e}")
             return []
+    
+    def parse_traceability_from_raw_data(self, raw_data):
+        """원시 바코드 데이터에서 추적 정보 파싱"""
+        try:
+            # 원시 데이터 예시: [)>06V2812P89231CU1000SET2510022000A0000001M
+            # T 이후 부분에서 추적 정보 추출
+            if 'T' in raw_data:
+                t_index = raw_data.find('T')
+                trace_part = raw_data[t_index+1:]  # T 제거
+                
+                # ASCII 제어 문자 제거 (M, GS, RS, EOT 등)
+                trace_part = trace_part.replace('\x1d', '').replace('\x1e', '').replace('\x04', '')
+                trace_part = trace_part.replace('M', '').strip()
+                
+                print(f"DEBUG: 정리된 추적 부분: {trace_part}")
+                
+                # T2510022000A0000001 형태에서 파싱
+                if len(trace_part) >= 13:  # 최소 길이 확인
+                    identifier = trace_part[:6]  # 251002
+                    m4_info = trace_part[6:10]  # 2000
+                    serial_type = trace_part[10]  # A
+                    serial_number = trace_part[11:]  # 0000001
+                    
+                    # serial_number에서 추가 정리 (숫자만 남기기)
+                    serial_number = ''.join(filter(str.isdigit, serial_number))
+                    
+                    print(f"DEBUG: 파싱된 추적 정보 - identifier: {identifier}, serial_type: {serial_type}, serial_number: {serial_number}")
+                    
+                    return {
+                        'identifier': identifier,
+                        'm4_info': m4_info,
+                        'serial_type': serial_type,
+                        'serial_number': serial_number
+                    }
+            
+            return None
+        except Exception as e:
+            print(f"DEBUG: 추적 정보 파싱 오류: {e}")
+            return None
     
     def save_logs_to_file(self):
         """로그를 날짜별 파일로 저장"""

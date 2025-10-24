@@ -17,7 +17,8 @@ GS, RS, EOT = '\x1d', '\x1e', '\x04'
 TAG_MAP = {
     'V': 'Supplier Code',
     'P': 'Part Number',
-    'S': 'EO/Flag',      # 필요 시 의미 지정
+    'S': 'Sequence Code',  # 서열 코드
+    'E': 'EO Number',      # EO 번호
     'M': 'Misc',
     'T': 'Traceability'
 }
@@ -160,9 +161,18 @@ class HKMCBarcodeUtils:
                     elif tag == 'P':
                         out['Part Number'] = value
                         print(f"DEBUG: 부품번호: {value}")
+                    elif tag == 'S':
+                        out['Sequence Code'] = value
+                        print(f"DEBUG: 서열코드: {value}")
+                    elif tag == 'E':
+                        out['EO Number'] = value
+                        print(f"DEBUG: EO번호: {value}")
                     else:
                         out[name] = value
 
+                # 'E' 태그 필드 추가
+                out['EO Number'] = None
+                
                 parsed_records.append(out)
                 print(f"DEBUG: 파싱 결과: {out}")
             return parsed_records

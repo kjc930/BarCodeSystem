@@ -414,11 +414,18 @@ class AutoPrintManager(QObject):
             # 추적 데이터 업데이트
             tracking_data[key] = next_count
             
+            # 패널별 시리얼번호 저장 (main_screen.py에서 사용)
+            if "FRONT/LH" in part_number or "front" in part_number.lower():
+                tracking_data["front_lh_serial"] = next_count
+            elif "REAR/RH" in part_number or "rear" in part_number.lower():
+                tracking_data["rear_rh_serial"] = next_count
+            
             # 추적 데이터 저장
             with open(tracking_file, 'w', encoding='utf-8') as f:
                 json.dump(tracking_data, f, ensure_ascii=False, indent=2)
             
             print(f"DEBUG: 추적번호 생성: {tracking_number}")
+            print(f"DEBUG: 패널별 시리얼번호 저장: {tracking_data.get('front_lh_serial', 0)}, {tracking_data.get('rear_rh_serial', 0)}")
             return tracking_number
             
         except Exception as e:
