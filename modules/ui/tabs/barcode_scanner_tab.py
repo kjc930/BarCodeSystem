@@ -200,6 +200,7 @@ class BarcodeScannerTab(QWidget):
         self.port_combo.clear()
         ports = serial.tools.list_ports.comports()
         available_ports = []
+        unavailable_ports = []
         
         for port in ports:
             try:
@@ -207,16 +208,30 @@ class BarcodeScannerTab(QWidget):
                 test_ser = serial.Serial(port.device, timeout=0.1)
                 test_ser.close()
                 available_ports.append(port)
-            except (serial.SerialException, OSError):
+                print(f"DEBUG: 포트 사용 가능: {port.device}")
+            except (serial.SerialException, OSError) as e:
                 # 포트가 사용 중이거나 접근할 수 없음
+                unavailable_ports.append((port, str(e)))
+                print(f"DEBUG: 포트 사용 불가: {port.device} - {e}")
                 continue
         
-        if not available_ports:
-            self.port_combo.addItem("사용 가능한 포트 없음")
-        else:
+        # 사용 가능한 포트 먼저 추가
+        if available_ports:
             for port in available_ports:
                 port_info = f"{port.device} - {port.description}"
                 self.port_combo.addItem(port_info)
+                print(f"DEBUG: 포트 추가 (사용가능): {port_info}")
+        
+        # 사용 불가능한 포트도 표시 (참고용)
+        if unavailable_ports:
+            for port, error in unavailable_ports:
+                port_info = f"{port.device} - {port.description} (사용불가)"
+                self.port_combo.addItem(port_info)
+                print(f"DEBUG: 포트 추가 (사용불가): {port_info}")
+        
+        if not available_ports and not unavailable_ports:
+            self.port_combo.addItem("감지된 포트 없음")
+            print("DEBUG: 감지된 포트 없음")
         
         # 연결 상태에 따라 포트 표시 업데이트
         if hasattr(self, 'is_connected_from_main') and self.is_connected_from_main:

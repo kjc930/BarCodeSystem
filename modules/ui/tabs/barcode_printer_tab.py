@@ -202,6 +202,7 @@ class BarcodePrinterTab(QWidget):
                 time.sleep(0.5)
         
         available_ports = []
+        unavailable_ports = []
         
         # print(f"DEBUG: 발견된 포트 수: {len(ports)}")
         
@@ -212,29 +213,43 @@ class BarcodePrinterTab(QWidget):
                 test_ser = serial.Serial(port.device, timeout=0.01)
                 test_ser.close()
                 available_ports.append(port)
+                print(f"DEBUG: 프린터 포트 사용 가능: {port.device}")
                 # print(f"DEBUG: 포트 사용 가능: {port.device}")
             except (serial.SerialException, OSError) as e:
                 # 포트가 사용 중이거나 접근할 수 없음
+                unavailable_ports.append((port, str(e)))
+                print(f"DEBUG: 프린터 포트 사용 불가: {port.device} - {e}")
                 # print(f"DEBUG: 포트 사용 불가: {port.device} - {e}")
                 # 포트 테스트 후 잠시 대기
                 time.sleep(0.2)
                 continue
             except Exception as e:
                 # 기타 예외 처리
-                print(f"DEBUG: 포트 테스트 중 예외: {port.device} - {e}")
+                unavailable_ports.append((port, str(e)))
+                print(f"DEBUG: 프린터 포트 테스트 중 예외: {port.device} - {e}")
+                # print(f"DEBUG: 포트 테스트 중 예외: {port.device} - {e}")
                 time.sleep(0.2)
                 continue
         
-        print(f"DEBUG: 사용 가능한 포트 수: {len(available_ports)}")
+        print(f"DEBUG: 프린터 사용 가능한 포트 수: {len(available_ports)}")
         
-        if not available_ports:
-            self.port_combo.addItem("사용 가능한 포트 없음")
-            print("DEBUG: 사용 가능한 포트 없음")
-        else:
+        # 사용 가능한 포트 먼저 추가
+        if available_ports:
             for port in available_ports:
                 port_info = f"{port.device} - {port.description}"
                 self.port_combo.addItem(port_info)
-                print(f"DEBUG: 포트 추가: {port_info}")
+                print(f"DEBUG: 프린터 포트 추가 (사용가능): {port_info}")
+        
+        # 사용 불가능한 포트도 표시 (참고용)
+        if unavailable_ports:
+            for port, error in unavailable_ports:
+                port_info = f"{port.device} - {port.description} (사용불가)"
+                self.port_combo.addItem(port_info)
+                print(f"DEBUG: 프린터 포트 추가 (사용불가): {port_info}")
+        
+        if not available_ports and not unavailable_ports:
+            self.port_combo.addItem("감지된 포트 없음")
+            print("DEBUG: 프린터 감지된 포트 없음")
         
         # 연결 상태에 따라 포트 표시 업데이트
         if hasattr(self, 'is_connected_from_main') and self.is_connected_from_main:
