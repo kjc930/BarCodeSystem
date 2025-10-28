@@ -193,7 +193,7 @@ class AdminPanel(QMainWindow):
             event.accept()
     
     def on_barcode_scanned(self, barcode: str):
-        """바코드 스캔 이벤트 처리 - #로 구분하여 탭으로 표시"""
+        """바코드 스캔 이벤트 처리 - #로 구분하여 다이얼로그 탭으로 표시"""
         try:
             print(f"DEBUG: AdminPanel에서 바코드 스캔됨 - {barcode}")
             
@@ -201,14 +201,8 @@ class AdminPanel(QMainWindow):
             barcode_parts = barcode.split('#')
             print(f"DEBUG: 구분된 바코드 개수: {len(barcode_parts)}")
             
-            # 각 바코드 부분을 탭으로 표시
-            for i, part in enumerate(barcode_parts):
-                if part.strip():  # 빈 문자열이 아닌 경우만
-                    tab_name = f"Assy" if i == 0 else f"Sub{i:02d}"
-                    print(f"DEBUG: {tab_name} 바코드: {part}")
-                    
-                    # 바코드 분석 다이얼로그 표시
-                    self.show_barcode_analysis(part, tab_name)
+            # 바코드 분석 다이얼로그 표시 (탭 포함)
+            self.show_barcode_analysis_dialog(barcode_parts)
             
             # 메인 화면으로도 전달 (기존 기능 유지)
             if hasattr(self, 'main_screen') and self.main_screen:
@@ -220,70 +214,21 @@ class AdminPanel(QMainWindow):
         except Exception as e:
             print(f"ERROR: 바코드 스캔 이벤트 처리 오류: {e}")
     
-    def show_barcode_analysis(self, barcode_data: str, tab_name: str):
-        """바코드 분석을 다이얼로그창으로 표시"""
+    def show_barcode_analysis_dialog(self, barcode_parts: list):
+        """바코드 분석 다이얼로그를 탭으로 표시"""
         try:
-            # 바코드 데이터 파싱
-            parsed_data = self.parse_barcode_data(barcode_data)
+            from modules.ui.dialogs import BarcodeAnalysisDialogWithTabs
             
-            # 바코드 분석 다이얼로그를 별도 창으로 표시
-            dialog = BarcodeAnalysisDialog(parsed_data, tab_name, self)
+            # 바코드 분석 다이얼로그 생성 (탭 포함)
+            dialog = BarcodeAnalysisDialogWithTabs(barcode_parts, self)
             dialog.show()
             
-            print(f"DEBUG: {tab_name} 다이얼로그 표시됨")
+            print(f"DEBUG: 바코드 분석 다이얼로그 표시됨 - {len(barcode_parts)}개 탭")
             
         except Exception as e:
             print(f"ERROR: 바코드 분석 다이얼로그 표시 오류: {e}")
-    
-    def parse_barcode_data(self, barcode_data: str):
-        """바코드 데이터를 파싱하여 BarcodeData 객체로 변환"""
-        try:
-            from modules.hardware.hkmc_barcode_utils import HKMCBarcodeUtils, BarcodeData, BarcodeType
-            
-            print(f"DEBUG: AdminPanel.parse_barcode_data 입력 바코드: {barcode_data}")
-            print(f"DEBUG: 바코드 데이터 파싱 시작: {barcode_data[:100]}...")
-            
-            # HKMC 바코드 유틸리티 사용
-            barcode_utils = HKMCBarcodeUtils()
-            
-            # HKMC 바코드 파싱
-            parsed_data = barcode_utils.parse_barcode(barcode_data)
-            
-            print(f"DEBUG: HKMC 파싱 결과 - 업체코드: {parsed_data.supplier_code}, 부품번호: {parsed_data.part_number}")
-            print(f"DEBUG: HKMC 파싱 결과 - 생산일자: {parsed_data.manufacturing_date}, 추적코드구분값: {parsed_data.traceability_type_char}")
-            print(f"DEBUG: HKMC 파싱 결과 - 추적번호: {parsed_data.traceability_number}")
-            
-            # 파싱 결과 검증
-            if not parsed_data.supplier_code or parsed_data.supplier_code == "UNKNOWN":
-                print("DEBUG: 파싱 결과가 올바르지 않음, 기본값 사용")
-                return BarcodeData(
-                    supplier_code="2812",
-                    part_number="UNKNOWN",
-                    manufacturing_date="251023",
-                    factory_info="2000",
-                    traceability_type=BarcodeType.SERIAL,
-                    traceability_number="0000001"
-                )
-            
-            return parsed_data
-            
-        except Exception as e:
-            print(f"ERROR: 바코드 데이터 파싱 오류: {e}")
             import traceback
             print(f"DEBUG: 상세 오류: {traceback.format_exc()}")
-            
-            # 기본 BarcodeData 객체 반환
-            from modules.hardware.hkmc_barcode_utils import BarcodeData, BarcodeType
-            return BarcodeData(
-                supplier_code="2812",
-                part_number="UNKNOWN",
-                manufacturing_date="251023",
-                factory_info="2000",
-                traceability_type=BarcodeType.SERIAL,
-                traceability_number="0000001"
-            )
-    
-    # 메인화면 연동 제거 - AdminPanel은 독립적인 설정/테스트 도구
 
 
 def main():

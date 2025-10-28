@@ -5,6 +5,55 @@ import json
 import os
 from PyQt5.QtCore import QThread, pyqtSignal
 
+def parse_barcode_data(barcode_data: str):
+    """바코드 데이터를 파싱하여 BarcodeData 객체로 변환 (공통 함수)"""
+    try:
+        from modules.hardware.hkmc_barcode_utils import HKMCBarcodeUtils, BarcodeData, BarcodeType
+        
+        print(f"DEBUG: parse_barcode_data 입력 바코드: {barcode_data}")
+        print(f"DEBUG: 바코드 데이터 파싱 시작: {barcode_data[:100]}...")
+        
+        # HKMC 바코드 유틸리티 사용
+        barcode_utils = HKMCBarcodeUtils()
+        
+        # HKMC 바코드 파싱 (올바른 메서드 사용)
+        parsed_data = barcode_utils.parse_barcode(barcode_data)
+        
+        print(f"DEBUG: HKMC 파싱 결과 - 업체코드: {parsed_data.supplier_code}, 부품번호: {parsed_data.part_number}")
+        print(f"DEBUG: HKMC 파싱 결과 - 생산일자: {parsed_data.manufacturing_date}, 추적코드구분값: {parsed_data.traceability_type_char}")
+        print(f"DEBUG: HKMC 파싱 결과 - 추적번호: {parsed_data.traceability_number}")
+        
+        # 파싱 결과 검증
+        if not parsed_data.supplier_code or parsed_data.supplier_code == "UNKNOWN":
+            print("DEBUG: 파싱 결과가 올바르지 않음, 기본값 사용")
+            return BarcodeData(
+                supplier_code="2812",
+                part_number="UNKNOWN",
+                manufacturing_date="251023",
+                factory_info="2000",
+                traceability_type=BarcodeType.SERIAL,
+                traceability_number="0000001"
+            )
+        
+        return parsed_data
+        
+    except Exception as e:
+        print(f"ERROR: 바코드 데이터 파싱 오류: {e}")
+        import traceback
+        print(f"DEBUG: 상세 오류: {traceback.format_exc()}")
+        
+        # 기본 BarcodeData 객체 반환
+        from modules.hardware.hkmc_barcode_utils import BarcodeData, BarcodeType
+        return BarcodeData(
+            supplier_code="2812",
+            part_number="UNKNOWN",
+            manufacturing_date="251023",
+            factory_info="2000",
+            traceability_type=BarcodeType.SERIAL,
+            traceability_number="0000001"
+        )
+
+
 class SerialConnectionThread(QThread):
     """시리얼 연결을 위한 스레드"""
     data_received = pyqtSignal(str)

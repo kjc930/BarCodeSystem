@@ -33,7 +33,7 @@ class PrintModule(QObject):
         
     def init_config(self):
         """설정 초기화"""
-        # 시리얼 설정
+        # 시리얼 설정 (기본값)
         self.serial_config = {
             'port': 'COM3',
             'baudrate': 9600,
@@ -70,12 +70,70 @@ class PrintModule(QObject):
         self.load_zpl_config()
     
     def load_serial_config(self):
-        """시리얼 설정 로드"""
+        """시리얼 설정 로드 - admin_panel_config.json 사용"""
         try:
-            if os.path.exists('serial_config.txt'):
-                with open('serial_config.txt', 'r') as f:
-                    config = json.load(f)
-                    self.serial_config.update(config)
+            # admin_panel_config.json에서 프린터 설정 로드
+            config_file = os.path.join('config', 'admin_panel_config.json')
+            if os.path.exists(config_file):
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    admin_config = json.load(f)
+                    
+                # 프린터 설정 추출
+                printer_config = admin_config.get('printer', {})
+                serial_config = admin_config.get('serial', {})
+                
+                # 포트명에서 실제 포트 번호만 추출 (예: "COM4 - AX99100 PCIe to High Speed Serial Port(COM4)" -> "COM4")
+                port = printer_config.get('port', serial_config.get('port', 'COM3'))
+                if "COM" in port:
+                    port_num = port.split("COM")[1].split(" ")[0]
+                    port = f"COM{port_num}"
+                
+                # parity 문자열을 serial 상수로 변환
+                parity_str = serial_config.get('parity', 'N')
+                if parity_str == 'N':
+                    parity = serial.PARITY_NONE
+                elif parity_str == 'E':
+                    parity = serial.PARITY_EVEN
+                elif parity_str == 'O':
+                    parity = serial.PARITY_ODD
+                else:
+                    parity = serial.PARITY_NONE
+                
+                # bytesize를 serial 상수로 변환
+                bytesize_val = serial_config.get('bytesize', 8)
+                if bytesize_val == 8:
+                    bytesize = serial.EIGHTBITS
+                elif bytesize_val == 7:
+                    bytesize = serial.SEVENBITS
+                elif bytesize_val == 6:
+                    bytesize = serial.SIXBITS
+                elif bytesize_val == 5:
+                    bytesize = serial.FIVEBITS
+                else:
+                    bytesize = serial.EIGHTBITS
+                
+                # stopbits를 serial 상수로 변환
+                stopbits_val = serial_config.get('stopbits', 1)
+                if stopbits_val == 1:
+                    stopbits = serial.STOPBITS_ONE
+                elif stopbits_val == 2:
+                    stopbits = serial.STOPBITS_TWO
+                else:
+                    stopbits = serial.STOPBITS_ONE
+                
+                # 시리얼 설정 업데이트
+                self.serial_config.update({
+                    'port': port,
+                    'baudrate': printer_config.get('baudrate', serial_config.get('baudrate', 9600)),
+                    'bytesize': bytesize,
+                    'parity': parity,
+                    'stopbits': stopbits,
+                    'timeout': serial_config.get('timeout', 1)
+                })
+                
+                print(f"프린터 설정 로드 완료: {self.serial_config['port']}")
+            else:
+                print(f"설정 파일을 찾을 수 없습니다: {config_file}")
         except Exception as e:
             print(f"시리얼 설정 로드 오류: {e}")
     

@@ -5,7 +5,7 @@ import sys
 import os
 from datetime import datetime
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QPushButton, QScrollArea, QListWidget, QListWidgetItem, QWidget, QFileDialog, QMessageBox)
+                             QPushButton, QScrollArea, QListWidget, QListWidgetItem, QWidget, QFileDialog, QMessageBox, QTabWidget)
 from PyQt5.QtCore import Qt, QDateTime
 from PyQt5.QtGui import QFont
 
@@ -810,6 +810,729 @@ class BarcodeAnalysisDialog(QDialog):
             self.scan_history = self.scan_history[:50]
         
         print(f"DEBUG: 이력 추가됨 - 총 {len(self.scan_history)}개, 업체코드: {barcode_data.supplier_code}")
+
+
+class BarcodeAnalysisDialogWithTabs(QDialog):
+    """바코드 분석 결과를 탭으로 표시하는 다이얼로그"""
+    
+    def __init__(self, barcode_parts: list, parent=None):
+        super().__init__(parent)
+        self.barcode_parts = barcode_parts
+        self.parsed_data_list = []
+        self.init_ui()
+        
+    def init_ui(self):
+        """UI 초기화"""
+        self.setWindowTitle("H/KMC 부품 2D 바코드 분석 결과")
+        self.setFixedSize(800, 800)
+        self.setModal(True)
+        
+        # 메인 레이아웃
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(15, 15, 15, 15)
+        main_layout.setSpacing(10)
+        
+        # 제목
+        title_label = QLabel("🔍 바코드 분석 결과")
+        title_label.setStyleSheet("""
+            QLabel {
+                background-color: #2196F3;
+                color: white;
+                padding: 15px;
+                font-size: 18px;
+                font-weight: bold;
+                border-radius: 8px;
+                text-align: center;
+            }
+        """)
+        title_label.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(title_label)
+        
+        # 탭 위젯 생성
+        self.tab_widget = QTabWidget()
+        self.tab_widget.setStyleSheet("""
+            QTabWidget::pane {
+                border: 1px solid #DEE2E6;
+                border-radius: 8px;
+                background-color: white;
+            }
+            QTabBar::tab {
+                background-color: #F8F9FA;
+                color: #495057;
+                padding: 10px 20px;
+                margin-right: 2px;
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+                font-weight: bold;
+            }
+            QTabBar::tab:selected {
+                background-color: #2196F3;
+                color: white;
+            }
+            QTabBar::tab:hover {
+                background-color: #E3F2FD;
+            }
+        """)
+        
+        # 각 바코드 부분을 탭으로 생성
+        self.create_tabs()
+        
+        main_layout.addWidget(self.tab_widget)
+        
+        # 하단 버튼
+        button_layout = QHBoxLayout()
+        
+        # 닫기 버튼
+        close_btn = QPushButton("닫기")
+        close_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #F44336;
+                color: white;
+                border: none;
+                padding: 12px 30px;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 6px;
+            }
+            QPushButton:hover {
+                background-color: #D32F2F;
+            }
+        """)
+        close_btn.clicked.connect(self.accept)
+        button_layout.addWidget(close_btn)
+        
+        main_layout.addLayout(button_layout)
+        
+        # 스타일 적용
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #FFFFFF;
+                border: 1px solid #DEE2E6;
+                border-radius: 12px;
+            }
+        """)
+        
+    def create_tabs(self):
+        """탭들 생성"""
+        try:
+            for i, barcode_part in enumerate(self.barcode_parts):
+                if barcode_part.strip():  # 빈 문자열이 아닌 경우만
+                    tab_name = f"Assy" if i == 0 else f"Sub{i:02d}"
+                    
+                    # 바코드 데이터 파싱 (공통 함수 사용)
+                    from modules.utils.utils import parse_barcode_data
+                    parsed_data = parse_barcode_data(barcode_part)
+                    self.parsed_data_list.append(parsed_data)
+                    
+                    # 바코드 분석 탭 생성
+                    analysis_tab = BarcodeAnalysisTab(parsed_data, tab_name, self)
+                    
+                    # 탭 추가
+                    self.tab_widget.addTab(analysis_tab, tab_name)
+                    
+                    print(f"DEBUG: {tab_name} 탭 생성됨 - 바코드: {barcode_part[:50]}...")
+                    
+        except Exception as e:
+            print(f"ERROR: 탭 생성 오류: {e}")
+            import traceback
+            print(f"DEBUG: 상세 오류: {traceback.format_exc()}")
+
+
+class BarcodeAnalysisTab(QWidget):
+    """바코드 분석 결과를 탭으로 표시하는 위젯"""
+    
+    def __init__(self, barcode_data, tab_name="Assy", parent=None):
+        super().__init__(parent)
+        self.barcode_data = barcode_data
+        self.tab_name = tab_name
+        self.is_english = False  # 언어 상태 (False: 한국어, True: 영어)
+        self.scan_history = []  # 스캔 이력 저장
+        self.table_widget = None  # 테이블 위젯 참조 저장
+        self.init_ui()
+        
+    def init_ui(self):
+        """UI 초기화"""
+        # 메인 레이아웃
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(15, 15, 15, 15)
+        main_layout.setSpacing(10)
+        
+        # 바코드 내용 섹션
+        self.create_barcode_content_section(main_layout)
+        
+        # 분석 결과 테이블 섹션
+        self.create_analysis_table_section(main_layout)
+        
+        # 하단 버튼 섹션
+        self.create_bottom_buttons_section(main_layout)
+        
+        # 스타일 적용
+        self.setStyleSheet(self.get_tab_stylesheet())
+        
+    def create_barcode_content_section(self, parent_layout):
+        """바코드 내용 섹션 생성"""
+        # 바코드 내용 헤더
+        content_header = QLabel("바코드내용")
+        content_header.setStyleSheet("""
+            QLabel {
+                background-color: #2196F3;
+                color: white;
+                padding: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                border-radius: 5px;
+            }
+        """)
+        parent_layout.addWidget(content_header)
+        
+        # 바코드 내용 표시
+        barcode_content = QLabel(self.get_barcode_content_text())
+        barcode_content.setStyleSheet("""
+            QLabel {
+                background-color: #FFF9C4;
+                color: black;
+                padding: 10px;
+                font-size: 14px;
+                font-family: 'Courier New', monospace;
+                border: 1px solid #E0E0E0;
+                border-radius: 5px;
+                min-height: 35px;
+            }
+        """)
+        barcode_content.setWordWrap(True)
+        parent_layout.addWidget(barcode_content)
+        
+    def create_analysis_table_section(self, parent_layout):
+        """분석 결과 테이블 섹션 생성"""
+        # 테이블 헤더
+        table_header = QLabel("H/KMC부품 2D 바코드 표준")
+        table_header.setStyleSheet("""
+            QLabel {
+                background-color: #2196F3;
+                color: white;
+                padding: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                border-radius: 5px;
+            }
+        """)
+        parent_layout.addWidget(table_header)
+        
+        # 스크롤 영역 생성
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setMaximumHeight(400)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll_area.setStyleSheet("""
+            QScrollArea {
+                border: 1px solid #DEE2E6;
+                border-radius: 8px;
+                background-color: white;
+            }
+            QScrollBar:vertical {
+                background-color: #F8F9FA;
+                width: 12px;
+                border-radius: 6px;
+            }
+            QScrollBar::handle:vertical {
+                background-color: #DEE2E6;
+                border-radius: 6px;
+                min-height: 20px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background-color: #ADB5BD;
+            }
+        """)
+        
+        # 테이블 위젯 생성
+        self.table_widget = QWidget()
+        table_layout = QVBoxLayout(self.table_widget)
+        table_layout.setContentsMargins(0, 0, 0, 0)
+        table_layout.setSpacing(0)
+        
+        # 테이블 헤더 행
+        header_row = self.create_table_row("구분", "결과", "데이터", is_header=True)
+        table_layout.addWidget(header_row)
+        
+        # Header 행
+        header_data_row = self.create_table_row("Header", "OK", "[)>RS06")
+        table_layout.addWidget(header_data_row)
+        
+        # 사양 정보 섹션
+        self.spec_label = QLabel("사양 정보")
+        self.spec_label.setStyleSheet("""
+            QLabel {
+                background-color: #F8F9FA;
+                padding: 6px 12px;
+                font-weight: bold;
+                font-size: 14px;
+                color: #495057;
+                border: none;
+                border-bottom: 1px solid #DEE2E6;
+            }
+        """)
+        table_layout.addWidget(self.spec_label)
+        
+        # 사양 정보 행들
+        supplier_code = self.barcode_data.supplier_code or ""
+        part_number = self.barcode_data.part_number or ""
+        print(f"DEBUG: BarcodeAnalysisTab - 업체코드: '{supplier_code}', 부품번호: '{part_number}'")
+        
+        self.company_code_row = self.create_table_row("업체코드", "OK", supplier_code)
+        self.part_number_row = self.create_table_row("부품번호", "OK", part_number)
+        self.sequence_code_row = self.create_table_row("서열코드", "-", "해당시 필수")
+        self.eo_number_row = self.create_table_row("EO번호", "-", "")
+        
+        table_layout.addWidget(self.company_code_row)
+        table_layout.addWidget(self.part_number_row)
+        table_layout.addWidget(self.sequence_code_row)
+        table_layout.addWidget(self.eo_number_row)
+        
+        # 추적 정보 섹션
+        self.trace_label = QLabel("추적 정보")
+        self.trace_label.setStyleSheet("""
+            QLabel {
+                background-color: #F8F9FA;
+                padding: 6px 12px;
+                font-weight: bold;
+                font-size: 14px;
+                color: #495057;
+                border: none;
+                border-bottom: 1px solid #DEE2E6;
+            }
+        """)
+        table_layout.addWidget(self.trace_label)
+        
+        # 추적 정보 행들
+        manufacturing_date = self.barcode_data.manufacturing_date or ""
+        traceability_type_char = self.barcode_data.traceability_type_char or ""
+        traceability_number = self.barcode_data.traceability_number or ""
+        
+        # 4M 정보 조합
+        m4_info = ""
+        if self.barcode_data.factory_info:
+            m4_info += str(self.barcode_data.factory_info)
+        if self.barcode_data.line_info:
+            m4_info += str(self.barcode_data.line_info)
+        if self.barcode_data.shift_info:
+            m4_info += str(self.barcode_data.shift_info)
+        if self.barcode_data.equipment_info:
+            m4_info += str(self.barcode_data.equipment_info)
+        
+        print(f"DEBUG: BarcodeAnalysisTab - 생산일자: '{manufacturing_date}', 4M: '{m4_info}'")
+        print(f"DEBUG: BarcodeAnalysisTab - 추적타입: '{traceability_type_char}', 추적번호: '{traceability_number}'")
+        
+        self.production_date_row = self.create_table_row("생산일자", "OK", manufacturing_date)
+        self.part_4m_row = self.create_table_row("부품4M", "OK", m4_info)
+        self.trace_type_row = self.create_table_row("A or @", "OK", traceability_type_char)
+        self.trace_number_row = self.create_table_row("추적번호(7~)", "OK", traceability_number)
+        
+        table_layout.addWidget(self.production_date_row)
+        table_layout.addWidget(self.part_4m_row)
+        table_layout.addWidget(self.trace_type_row)
+        table_layout.addWidget(self.trace_number_row)
+        
+        # 부가 정보 섹션
+        self.additional_label = QLabel("부가 정보")
+        self.additional_label.setStyleSheet("""
+            QLabel {
+                background-color: #F8F9FA;
+                padding: 6px 12px;
+                font-weight: bold;
+                font-size: 14px;
+                color: #495057;
+                border: none;
+                border-bottom: 1px solid #DEE2E6;
+            }
+        """)
+        table_layout.addWidget(self.additional_label)
+        
+        # 부가 정보 행들
+        self.initial_sample_row = self.create_table_row("초도품구분", "-", "")
+        table_layout.addWidget(self.initial_sample_row)
+        
+        # Trailer 행
+        self.trailer_row = self.create_table_row("Trailer", "OK", "RSEOT")
+        table_layout.addWidget(self.trailer_row)
+        
+        scroll_area.setWidget(self.table_widget)
+        parent_layout.addWidget(scroll_area)
+        
+    def create_table_row(self, category, result, data, is_header=False):
+        """테이블 행 생성 - 이미지와 같은 깔끔한 디자인"""
+        from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel
+        
+        row_widget = QWidget()
+        row_layout = QHBoxLayout(row_widget)
+        row_layout.setContentsMargins(0, 0, 0, 0)
+        row_layout.setSpacing(0)
+        
+        # 구분 컬럼
+        category_label = QLabel(category)
+        category_label.setFixedWidth(140)
+        if is_header:
+            category_label.setStyleSheet("""
+                QLabel {
+                    background-color: #F8F9FA;
+                    padding: 8px 12px;
+                    font-weight: bold;
+                    font-size: 14px;
+                    color: #495057;
+                    border: none;
+                    border-right: 1px solid #DEE2E6;
+                    border-bottom: 1px solid #DEE2E6;
+                }
+            """)
+        else:
+            category_label.setStyleSheet("""
+                QLabel {
+                    background-color: white;
+                    padding: 8px 12px;
+                    font-size: 13px;
+                    color: #495057;
+                    border: none;
+                    border-right: 1px solid #DEE2E6;
+                    border-bottom: 1px solid #DEE2E6;
+                }
+            """)
+        row_layout.addWidget(category_label)
+        
+        # 결과 컬럼
+        result_label = QLabel(result)
+        result_label.setFixedWidth(100)
+        result_label.setAlignment(Qt.AlignCenter)
+        if is_header:
+            result_label.setStyleSheet("""
+                QLabel {
+                    background-color: #F8F9FA;
+                    padding: 8px 10px;
+                    font-weight: bold;
+                    font-size: 14px;
+                    color: #495057;
+                    border: none;
+                    border-right: 1px solid #DEE2E6;
+                    border-bottom: 1px solid #DEE2E6;
+                }
+            """)
+        else:
+            if result == "OK":
+                result_label.setStyleSheet("""
+                    QLabel {
+                        background-color: white;
+                        padding: 8px 10px;
+                        color: #28A745;
+                        font-weight: bold;
+                        font-size: 13px;
+                        border: none;
+                        border-right: 1px solid #DEE2E6;
+                        border-bottom: 1px solid #DEE2E6;
+                    }
+                """)
+            else:
+                result_label.setStyleSheet("""
+                    QLabel {
+                        background-color: white;
+                        padding: 8px 10px;
+                        color: #6C757D;
+                        font-size: 13px;
+                        border: none;
+                        border-right: 1px solid #DEE2E6;
+                        border-bottom: 1px solid #DEE2E6;
+                    }
+                """)
+        row_layout.addWidget(result_label)
+        
+        # 데이터 컬럼
+        data_label = QLabel(data)
+        data_label.setWordWrap(True)
+        if is_header:
+            data_label.setStyleSheet("""
+                QLabel {
+                    background-color: #F8F9FA;
+                    padding: 8px 12px;
+                    font-weight: bold;
+                    font-size: 14px;
+                    color: #495057;
+                    border: none;
+                    border-bottom: 1px solid #DEE2E6;
+                }
+            """)
+        else:
+            data_label.setStyleSheet("""
+                QLabel {
+                    background-color: white;
+                    padding: 8px 12px;
+                    font-size: 13px;
+                    color: #495057;
+                    border: none;
+                    border-bottom: 1px solid #DEE2E6;
+                }
+            """)
+        row_layout.addWidget(data_label)
+        
+        return row_widget
+        
+    def create_bottom_buttons_section(self, parent_layout):
+        """하단 버튼 섹션 생성"""
+        button_layout = QHBoxLayout()
+        button_layout.setSpacing(10)
+        
+        # 언어 버튼
+        self.language_btn = QPushButton("언어")
+        self.language_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #2196F3;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #1976D2;
+            }
+            QPushButton:pressed {
+                background-color: #0D47A1;
+            }
+        """)
+        self.language_btn.clicked.connect(self.toggle_language)
+        button_layout.addWidget(self.language_btn)
+        
+        # 이력 버튼
+        self.history_btn = QPushButton("이력")
+        self.history_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #2196F3;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #1976D2;
+            }
+            QPushButton:pressed {
+                background-color: #0D47A1;
+            }
+        """)
+        self.history_btn.clicked.connect(self.show_history)
+        button_layout.addWidget(self.history_btn)
+        
+        # 닫기 버튼
+        self.close_btn = QPushButton("닫기")
+        self.close_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #F44336;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #D32F2F;
+            }
+        """)
+        self.close_btn.clicked.connect(self.close_tab)
+        button_layout.addWidget(self.close_btn)
+        
+        parent_layout.addLayout(button_layout)
+        
+    def get_barcode_content_text(self):
+        """바코드 내용 텍스트 생성"""
+        # 실제 바코드 데이터를 기반으로 색상이 있는 텍스트 생성
+        barcode_text = f"[)>RS06G_S{self.barcode_data.supplier_code}G_SP{self.barcode_data.part_number}G_S S_EG_ST{self.barcode_data.manufacturing_date}{self.barcode_data.factory_info or ''}{self.barcode_data.line_info or ''}{self.barcode_data.shift_info or ''}{self.barcode_data.equipment_info or ''}{self.barcode_data.traceability_type.value}{self.barcode_data.traceability_number}G_SMG_SR_SE_OT"
+        return barcode_text
+        
+    def get_tab_stylesheet(self):
+        """탭 스타일시트"""
+        return """
+            QWidget {
+                background-color: #FFFFFF;
+                border: none;
+            }
+        """
+    
+    def update_barcode_data(self, new_barcode_data):
+        """바코드 데이터 업데이트"""
+        self.barcode_data = new_barcode_data
+        self.refresh_ui()
+    
+    def refresh_ui(self):
+        """UI 새로고침"""
+        # 바코드 내용 업데이트
+        for i in range(self.layout().count()):
+            widget = self.layout().itemAt(i).widget()
+            if isinstance(widget, QLabel) and "G_S" in widget.text():
+                widget.setText(self.get_barcode_content_text())
+                break
+        
+        # 테이블 데이터 업데이트
+        self.update_table_data()
+    
+    def update_table_data(self):
+        """테이블 데이터 업데이트"""
+        if not self.table_widget:
+            return
+            
+        # 특정 행들의 데이터만 업데이트
+        layout = self.table_widget.layout()
+        if layout:
+            for i in range(layout.count()):
+                item = layout.itemAt(i)
+                if item and item.widget():
+                    widget = item.widget()
+                    if hasattr(widget, 'layout'):  # 행 위젯인 경우
+                        self.update_table_row_data_by_index(widget, i)
+    
+    def update_table_row_data_by_index(self, row_widget, row_index):
+        """특정 테이블 행의 데이터 업데이트"""
+        if not hasattr(row_widget, 'layout'):
+            return
+            
+        row_layout = row_widget.layout()
+        if not row_layout:
+            return
+            
+        # 첫 번째 라벨(구분)을 확인하여 어떤 행인지 판단
+        category_label = row_layout.itemAt(0).widget()
+        if not isinstance(category_label, QLabel):
+            return
+            
+        category = category_label.text()
+        
+        # 각 행별로 데이터 업데이트
+        if category == "Header":
+            data_label = row_layout.itemAt(2).widget()
+            if isinstance(data_label, QLabel):
+                data_label.setText("[)>RS06")
+        elif category == "업체코드" or category == "Company Code":
+            data_label = row_layout.itemAt(2).widget()
+            if isinstance(data_label, QLabel):
+                data_label.setText(self.barcode_data.supplier_code)
+        elif category == "부품번호" or category == "Part Number":
+            data_label = row_layout.itemAt(2).widget()
+            if isinstance(data_label, QLabel):
+                data_label.setText(self.barcode_data.part_number)
+        elif category == "생산일자" or category == "Production Date":
+            data_label = row_layout.itemAt(2).widget()
+            if isinstance(data_label, QLabel):
+                data_label.setText(self.barcode_data.manufacturing_date)
+        elif category == "부품4M" or category == "Part 4M":
+            data_label = row_layout.itemAt(2).widget()
+            if isinstance(data_label, QLabel):
+                data_label.setText(f"{self.barcode_data.factory_info or ''}{self.barcode_data.line_info or ''}{self.barcode_data.shift_info or ''}{self.barcode_data.equipment_info or ''}")
+        elif category == "A or @":
+            data_label = row_layout.itemAt(2).widget()
+            if isinstance(data_label, QLabel):
+                data_label.setText(self.barcode_data.traceability_type_char or self.barcode_data.traceability_type.value)
+        elif category == "추적번호(7~)" or category == "Tracking Number (7~)":
+            data_label = row_layout.itemAt(2).widget()
+            if isinstance(data_label, QLabel):
+                data_label.setText(self.barcode_data.traceability_number)
+        elif category == "Trailer":
+            data_label = row_layout.itemAt(2).widget()
+            if isinstance(data_label, QLabel):
+                data_label.setText("RSEOT")
+    
+    def toggle_language(self):
+        """언어 전환 (한국어 ↔ 영어)"""
+        try:
+            self.is_english = not self.is_english
+            
+            if self.is_english:
+                self.update_ui_to_english()
+            else:
+                self.update_ui_to_korean()
+        except Exception as e:
+            print(f"DEBUG: 언어 전환 중 오류 발생: {e}")
+            # 오류 발생 시 원래 상태로 복구
+            self.is_english = not self.is_english
+            QMessageBox.warning(self, "오류", f"언어 전환 중 오류가 발생했습니다: {str(e)}")
+    
+    def update_ui_to_english(self):
+        """UI를 영어로 업데이트"""
+        try:
+            # 섹션 제목들 업데이트
+            if hasattr(self, 'spec_label'):
+                self.spec_label.setText("Spec Info")
+            if hasattr(self, 'trace_label'):
+                self.trace_label.setText("Traceability Info")
+            if hasattr(self, 'additional_label'):
+                self.additional_label.setText("Additional Info")
+            
+            # 버튼 텍스트 업데이트
+            if hasattr(self, 'language_btn'):
+                self.language_btn.setText("Language")
+            if hasattr(self, 'history_btn'):
+                self.history_btn.setText("History")
+            if hasattr(self, 'close_btn'):
+                self.close_btn.setText("Close")
+        except Exception as e:
+            print(f"DEBUG: 영어 UI 업데이트 중 오류 발생: {e}")
+            raise
+    
+    def update_ui_to_korean(self):
+        """UI를 한국어로 업데이트"""
+        try:
+            # 섹션 제목들 업데이트
+            if hasattr(self, 'spec_label'):
+                self.spec_label.setText("사양정보")
+            if hasattr(self, 'trace_label'):
+                self.trace_label.setText("추적정보")
+            if hasattr(self, 'additional_label'):
+                self.additional_label.setText("부가정보")
+            
+            # 버튼 텍스트 업데이트
+            if hasattr(self, 'language_btn'):
+                self.language_btn.setText("언어")
+            if hasattr(self, 'history_btn'):
+                self.history_btn.setText("이력")
+            if hasattr(self, 'close_btn'):
+                self.close_btn.setText("닫기")
+        except Exception as e:
+            print(f"DEBUG: 한국어 UI 업데이트 중 오류 발생: {e}")
+            raise
+    
+    def show_history(self):
+        """스캔 이력 보기"""
+        if not self.scan_history:
+            QMessageBox.information(self, "알림", "스캔 이력이 없습니다.")
+            return
+        
+        print(f"DEBUG: 현재 스캔 이력 개수: {len(self.scan_history)}")
+        for i, item in enumerate(self.scan_history):
+            timestamp = item.get('timestamp', 'N/A')
+            barcode_data = item.get('barcode_data')
+            supplier_code = barcode_data.supplier_code if barcode_data else 'N/A'
+            print(f"DEBUG: 이력 {i}: {timestamp} - {supplier_code}")
+        
+        dialog = ScanHistoryDialog(self.scan_history, self)
+        if dialog.exec_() == QDialog.Accepted:
+            selected_data = dialog.get_selected_data()
+            if selected_data:
+                self.barcode_data = selected_data['barcode_data']
+                self.refresh_ui()
+    
+    def close_tab(self):
+        """탭 닫기"""
+        try:
+            # 부모 탭 위젯에서 이 탭을 제거
+            parent_tab_widget = self.parent()
+            while parent_tab_widget and not isinstance(parent_tab_widget, QTabWidget):
+                parent_tab_widget = parent_tab_widget.parent()
+            
+            if parent_tab_widget:
+                tab_index = parent_tab_widget.indexOf(self)
+                if tab_index >= 0:
+                    parent_tab_widget.removeTab(tab_index)
+                    print(f"DEBUG: {self.tab_name} 탭이 닫혔습니다.")
+        except Exception as e:
+            print(f"ERROR: 탭 닫기 오류: {e}")
 
 
 class ScanHistoryDialog(QDialog):
