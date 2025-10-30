@@ -10640,3 +10640,320 @@
 2025-10-29 08:40:47,814 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
 2025-10-29 08:40:47,815 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
 2025-10-29 08:40:47,816 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-10-30 12:14:44,951 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 12:14:44,952 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 12:14:44,954 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:14:44,955 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:14:44,957 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 12:14:44,957 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 12:14:45,030 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM3 (9600bps)
+2025-10-30 12:14:45,030 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 12:14:45,030 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 12:14:45,105 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM4 (9600bps)
+2025-10-30 12:14:45,105 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 12:14:45,105 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 12:14:45,106 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:14:45,106 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:14:45,106 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 12:14:45,107 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 12:14:45,107 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:14:45,107 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:14:50,107 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 12:14:50,108 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 12:14:50,109 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:14:50,110 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:15:09,833 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-10-30 12:15:09,834 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM4 연결 시도 중... (시도 1/3)
+2025-10-30 12:15:09,837 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM4
+2025-10-30 12:15:09,837 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-10-30 12:15:09,838 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-10-30 12:15:09,838 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-10-30 12:15:35,294 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 12:15:35,296 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 12:15:35,299 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:15:35,299 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:15:35,301 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 12:15:35,301 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 12:15:35,373 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-30 12:15:35,374 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 12:15:35,374 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 12:15:35,449 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 12:15:35,449 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 12:15:35,450 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 12:15:35,451 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:15:35,451 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:15:35,452 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 12:15:35,453 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 12:15:35,453 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:15:35,453 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:15:40,451 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 12:15:40,452 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 12:15:40,453 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 12:15:40,454 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 13:03:32,932 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 13:03:32,933 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 13:03:32,934 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 13:03:32,934 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 13:03:32,935 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 13:03:32,935 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 13:03:33,010 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-30 13:03:33,010 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 13:03:33,010 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 13:03:33,086 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 13:03:33,086 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 13:03:33,086 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 13:03:33,088 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 13:03:33,088 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 13:03:33,089 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 13:03:33,089 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 13:03:33,090 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 13:03:33,090 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 13:03:38,092 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 13:03:38,093 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 13:03:38,093 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 13:03:38,093 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:36:33,403 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 14:36:33,404 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 14:36:33,406 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:36:33,407 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:36:33,408 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 14:36:33,408 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 14:36:33,490 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-30 14:36:33,490 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 14:36:33,490 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 14:36:33,565 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 14:36:33,566 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 14:36:33,566 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 14:36:33,567 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:36:33,567 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:36:33,569 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 14:36:33,569 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 14:36:33,570 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:36:33,570 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:36:38,577 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 14:36:38,578 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 14:36:38,579 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:36:38,579 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:51:31,730 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 14:51:31,731 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 14:51:31,731 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:51:31,732 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:51:31,732 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 14:51:31,732 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 14:51:31,733 - modules.utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-30 14:51:31,733 - modules.utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-30 14:51:31,733 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 14:51:31,733 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 14:51:31,810 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 14:51:31,810 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 14:51:31,810 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 14:51:31,811 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:51:31,811 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:51:31,812 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 14:51:31,812 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 14:51:31,812 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:51:31,812 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:51:36,810 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 14:51:36,810 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 14:51:36,811 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:51:36,811 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:51:36,812 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 14:51:36,813 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 14:51:36,813 - modules.utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-30 14:51:36,813 - modules.utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-30 14:52:01,588 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 14:52:01,589 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 14:52:01,590 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:01,590 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:01,591 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 14:52:01,591 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 14:52:01,592 - modules.utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-30 14:52:01,592 - modules.utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-30 14:52:01,593 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 14:52:01,593 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 14:52:01,671 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 14:52:01,671 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 14:52:01,671 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 14:52:01,672 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:01,672 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:01,673 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 14:52:01,673 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 14:52:01,673 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:01,673 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:28,139 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 14:52:28,140 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 14:52:28,142 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:28,143 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:28,144 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 14:52:28,144 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 14:52:28,227 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-30 14:52:28,227 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 14:52:28,228 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 14:52:28,303 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 14:52:28,303 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 14:52:28,303 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 14:52:28,304 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:28,304 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:28,305 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 14:52:28,305 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 14:52:28,305 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:28,305 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:33,293 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 14:52:33,294 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 14:52:33,295 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 14:52:33,295 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:08:44,394 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 15:08:44,394 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 15:08:44,394 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:08:44,394 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:08:44,405 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 15:08:44,406 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 15:08:44,485 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-30 15:08:44,485 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 15:08:44,485 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 15:08:44,567 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 15:08:44,569 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 15:08:44,569 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 15:08:44,570 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:08:44,571 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:08:44,572 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 15:08:44,572 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 15:08:44,572 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:08:44,572 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:08:49,577 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 15:08:49,577 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 15:08:49,579 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:08:49,579 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:08,607 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 15:12:08,608 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 15:12:08,611 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:08,612 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:08,614 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 15:12:08,615 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 15:12:08,615 - modules.utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-30 15:12:08,615 - modules.utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-30 15:12:08,616 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 15:12:08,617 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 15:12:08,691 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 15:12:08,691 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 15:12:08,691 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 15:12:08,692 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:08,692 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:08,693 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 15:12:08,693 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 15:12:08,693 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:08,693 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:13,685 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 15:12:13,686 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 15:12:13,688 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:13,688 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:13,691 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 15:12:13,691 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 15:12:13,692 - modules.utils.modules.serial_connection_manager - WARNING - 스캐너 시리얼 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-30 15:12:13,692 - modules.utils.modules.serial_connection_manager - ERROR - 스캐너 연결 실패 - COM4: could not open port 'COM4': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-10-30 15:12:32,107 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 15:12:32,108 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 15:12:32,112 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:32,112 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:32,114 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 15:12:32,114 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 15:12:32,197 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-30 15:12:32,197 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 15:12:32,197 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 15:12:32,273 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 15:12:32,273 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 15:12:32,273 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 15:12:32,273 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:32,274 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:32,274 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 15:12:32,274 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 15:12:32,275 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:32,275 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:37,281 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 15:12:37,281 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 15:12:37,283 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:12:37,283 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:26:50,781 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 15:26:50,782 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 15:26:50,784 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:26:50,784 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:26:50,786 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 15:26:50,786 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 15:26:50,861 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-30 15:26:50,861 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 15:26:50,861 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 15:26:50,937 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 15:26:50,937 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 15:26:50,938 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 15:26:50,938 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:26:50,938 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:26:50,940 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 15:26:50,940 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 15:26:50,940 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:26:50,940 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:26:55,934 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 15:26:55,935 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 15:26:55,935 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 15:26:55,935 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:01:46,746 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 16:01:46,747 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 16:01:46,748 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:01:46,748 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:01:46,749 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 16:01:46,749 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 16:01:46,819 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-30 16:01:46,819 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 16:01:46,819 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 16:01:46,896 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 16:01:46,896 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 16:01:46,896 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 16:01:46,896 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:01:46,896 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:01:46,897 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 16:01:46,897 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 16:01:46,898 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:01:46,898 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:01:57,499 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 16:01:57,501 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 16:01:57,504 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:01:57,505 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:01:57,507 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 16:01:57,507 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 16:01:57,586 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-30 16:01:57,586 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 16:01:57,586 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 16:01:57,662 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 16:01:57,662 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 16:01:57,662 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 16:01:57,663 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:01:57,663 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:01:57,664 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 16:01:57,664 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 16:01:57,664 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:01:57,664 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:02:02,655 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 16:02:02,655 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 16:02:02,657 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:02:02,657 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:10:45,107 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 16:10:45,108 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 16:10:45,110 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:10:45,110 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:10:45,111 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM4 - AX99100 PCIe to High Speed Serial Port(COM4)
+2025-10-30 16:10:45,112 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM4, 보드레이트: 9600
+2025-10-30 16:10:45,186 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM4 (9600bps)
+2025-10-30 16:10:45,188 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM3 - AX99100 PCIe to High Speed Serial Port(COM3)
+2025-10-30 16:10:45,188 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-10-30 16:10:45,262 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM3 (9600bps)
+2025-10-30 16:10:45,262 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM7
+2025-10-30 16:10:45,262 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM7, 보드레이트: 9600
+2025-10-30 16:10:45,262 - modules.utils.modules.serial_connection_manager - WARNING - 너트1 시리얼 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:10:45,263 - modules.utils.modules.serial_connection_manager - ERROR - 너트1 연결 실패 - COM7: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:10:45,263 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM8
+2025-10-30 16:10:45,264 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
+2025-10-30 16:10:45,264 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:10:45,264 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:10:50,263 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM6 - AX99100 PCIe to High Speed Serial Port(COM6)
+2025-10-30 16:10:50,264 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-10-30 16:10:50,264 - modules.utils.modules.serial_connection_manager - WARNING - PLC 시리얼 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-10-30 16:10:50,265 - modules.utils.modules.serial_connection_manager - ERROR - PLC 연결 실패 - COM6: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)

@@ -19,8 +19,9 @@ TAG_MAP = {
     'P': 'Part Number',
     'S': 'Sequence Code',  # 서열 코드
     'E': 'EO Number',      # EO 번호
-    'M': 'Misc',
-    'T': 'Traceability'
+    'M': 'Initial Sample',
+    'T': 'Traceability',
+    'C': 'Supplier Area'   # 업체영역(자유필드)
 }
 
 class BarcodeType(Enum):
@@ -44,12 +45,14 @@ class BarcodeData:
     traceability_number: str    # 시리얼 또는 로트번호 (7~30바이트)
     traceability_type_char: str = ""  # 원본 추적 타입 문자 (A 또는 @)
     
-    # 4M 정보 (협력사별 정의가능)
-    factory_info: Optional[str] = None      # 공장 정보
-    line_info: Optional[str] = None         # 라인 정보  
-    shift_info: Optional[str] = None        # 교대 정보
-    equipment_info: Optional[str] = None    # 설비 정보
-    material_info: Optional[str] = None     # 재료 정보
+    # 4M 정보 (임의 4자리, 의미 부여 없음)
+    fourm_info: Optional[str] = None        # 4M(정확히 4자리로 사용)
+    # 아래 필드는 호환용(미사용)
+    factory_info: Optional[str] = None
+    line_info: Optional[str] = None  
+    shift_info: Optional[str] = None
+    equipment_info: Optional[str] = None
+    material_info: Optional[str] = None
     
     # 선택적 필드들
     sequence_code: Optional[str] = None  # 서열 코드 (1~8바이트, 서열부품만)
@@ -99,13 +102,13 @@ class HKMCBarcodeUtils:
 
             # 정규식 기반 필드 패턴 정의
             FIELD_PATTERNS = {
-                r"^V(\w{3,6})$": "Supplier Code",
-                r"^P([A-Z0-9]{8,15})$": "Part Number",
-                r"^S([A-Z0-9]{1,8})$": "Sequence Code",      # 서열부품인 경우
-                r"^E([A-Z0-9]{6,9})$": "EO Number",
-                r"^T(?P<date>\d{6})(?P<m4>[0-9A-Z]{2,6})(?P<stype>[A@])(?P<snum>[0-9A-Z]{1,30})$": "Traceability",
-                r"^M$": "Misc",
-                r"^S$": "Initial Sample"                     # 초도품 구분 (KMM Only)
+                r"^V(\d{4})$": "Supplier Code",                      # 4자리 숫자 권장(예: 2812)
+                r"^P([A-Z0-9]{10,15})$": "Part Number",              # 10~15자리
+                r"^S([A-Z0-9]{1,8})$": "Sequence Code",              # 1~8자리(옵션)
+                r"^E([A-Z0-9]{8,9})$": "EO Number",                  # 8~9자리(옵션)
+                r"^T(?P<date>\d{6})(?P<m4>[0-9A-Z]{4})(?P<stype>[A@])(?P<snum>[0-9A-Z]{7,30})$": "Traceability",  # YYMMDD+4M+A/@+7~30
+                r"^M([YN])$": "Initial Sample",                      # Y/N
+                r"^C(.{1,50})$": "Supplier Area"                     # 1~50자(옵션)
             }
 
             parsed_records = []
@@ -121,7 +124,7 @@ class HKMCBarcodeUtils:
                     'Sequence Code': None,
                     'EO Number': None,
                     'Initial Sample': None,
-                    'Misc': None,
+                    'Supplier Area': None,
                     'Traceability': {
                         'Full': None,
                         '조립일자': None,
@@ -156,9 +159,10 @@ class HKMCBarcodeUtils:
                             elif label == "EO Number":
                                 out['EO Number'] = m.group(1)
                             elif label == "Initial Sample":
-                                out['Initial Sample'] = "S"
-                            elif label == "Misc":
-                                out['Misc'] = "M"
+                                # M 필드: Y/N 값만 허용 (표준)
+                                out['Initial Sample'] = m.group(1)
+                            elif label == "Supplier Area":
+                                out['Supplier Area'] = m.group(1)
                             break
                     
                     if not matched:
@@ -209,6 +213,7 @@ class HKMCBarcodeUtils:
             sequence_code = record.get('Sequence Code', '')
             eo_number = record.get('EO Number', '')
             initial_sample = record.get('Initial Sample', '')
+            supplier_area = record.get('Supplier Area', None)
             
             # 추적 정보 추출
             traceability = record.get('Traceability', {})
@@ -220,16 +225,10 @@ class HKMCBarcodeUtils:
             # 추적 타입 결정
             trace_type = BarcodeType.SERIAL if trace_type_char == 'A' else BarcodeType.LOT
             
-            # 4M 정보 분해
-            factory_info = None
-            line_info = None
-            shift_info = None
-            equipment_info = None
-            if m4_info and len(m4_info) >= 4:
-                factory_info = m4_info[0] if len(m4_info) > 0 else None
-                line_info = m4_info[1] if len(m4_info) > 1 else None
-                shift_info = m4_info[2] if len(m4_info) > 2 else None
-                equipment_info = m4_info[3] if len(m4_info) > 3 else None
+            # 4M은 의미 없는 임의 4자리로 그대로 보존
+            fourm_info = (m4_info or '')[:4]
+            if len(fourm_info) < 4:
+                fourm_info = (fourm_info + '0000')[:4]
             
             print(f"DEBUG: 최종 파싱 결과 - 업체코드: {supplier_code}, 부품번호: {part_number}")
             print(f"DEBUG: 최종 파싱 결과 - 서열코드: {sequence_code}, EO번호: {eo_number}")
@@ -243,13 +242,11 @@ class HKMCBarcodeUtils:
                 traceability_type=trace_type,
                 traceability_number=traceability_number,
                 traceability_type_char=trace_type_char,
-                factory_info=factory_info,
-                line_info=line_info,
-                shift_info=shift_info,
-                equipment_info=equipment_info,
+                fourm_info=fourm_info,
                 sequence_code=sequence_code,
                 eo_number=eo_number,
-                initial_sample=initial_sample
+                initial_sample=initial_sample,
+                supplier_area=supplier_area
             )
             
         except Exception as e:
@@ -354,30 +351,39 @@ class HKMCBarcodeUtils:
         return spec_info
     
     def _build_trace_info(self, data: BarcodeData) -> str:
-        """추적 정보 영역 구성"""
+        """추적 정보 영역 구성 (T{YYMMDD}{4M}{A/@}{serial})"""
         # 제조/조립일자 (6바이트, YYMMDD)
         if len(data.manufacturing_date) != 6:
             raise ValueError("제조/조립일자는 6바이트(YYMMDD)여야 합니다.")
-        
-        # 시리얼 또는 로트구분 (1바이트)
-        trace_type = data.traceability_type.value
-        
+
+        # 4M은 규격 없이 4자리면 됨 → fourm_info 사용, 없으면 '0000'
+        fourm = (data.fourm_info or '')[:4]
+        if len(fourm) < 4:
+            fourm = (fourm + '0000')[:4]
+
+        # 시리얼/로트 구분자는 표준상 A 또는 @ 사용
+        # 데이터에 원문 문자가 제공되면 우선 사용, 없으면 기본 A 사용
+        type_char = data.traceability_type_char or 'A'
+        if type_char not in ('A', '@'):
+            type_char = 'A'
+
         # 시리얼 또는 로트번호 (7~30바이트)
         if len(data.traceability_number) < 7 or len(data.traceability_number) > 30:
             raise ValueError("추적 번호는 7~30바이트여야 합니다.")
-        
-        return f"{data.manufacturing_date}{trace_type}{data.traceability_number}"
+
+        return f"{data.manufacturing_date}{fourm}{type_char}{data.traceability_number}"
     
     def _build_additional_info(self, data: BarcodeData) -> str:
-        """부가 정보 영역 구성"""
+        """부가 정보 영역 구성 (M: Y/N 본문 반환, C 본문은 별도 supplier_area 사용)"""
         additional_info = ""
-        
-        # 초도품 구분 (KMM공장만)
+
+        # 초도품 구분(Y/N). 없으면 미포함.
         if data.initial_sample:
-            if len(data.initial_sample) != 1:
-                raise ValueError("초도품 구분은 1바이트여야 합니다.")
-            additional_info += data.initial_sample
-        
+            val = data.initial_sample.upper()
+            if val not in ("Y", "N"):
+                raise ValueError("초도품 구분은 Y 또는 N 이어야 합니다.")
+            additional_info += val
+
         return additional_info
     
     def validate_child_part_barcode(self, barcode: str) -> Tuple[bool, List[str], Dict]:

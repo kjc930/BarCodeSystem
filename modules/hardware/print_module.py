@@ -263,41 +263,87 @@ class PrintModule(QObject):
             print(f"라벨 이미지 생성 오류: {e}")
             return None
     
-    def create_zpl_data(self, barcode_data, part_number, part_name="", production_date="", tracking_number=""):
-        """ZPL 프린트 데이터 생성"""
+    def create_zpl_data(self, barcode_data, part_number, part_name="", production_date="", tracking_number="",
+                         supplier_code=None, fourm=None, sequence_code="", eo_number="",
+                         initial_sample=None, supplier_area=None):
+        """ZPL 프린트 데이터 생성 - HKMC 표준 형식 조립
+        Header: "[)>" + RS + "06"
+        Body:   GS+V+supplier, GS+P+part, [GS+S+seq], [GS+E+eo], GS+T+YYMMDD+4M+A/@+serial, [GS+M+Y/N], [GS+C+free]
+        Trailer: GS + RS + EOT
+        """
         try:
             # 현재 템플릿 가져오기
             current_template = self.zpl_template_config['current_template']
             zpl_template = self.zpl_template_config['templates'][current_template]['zpl']
-            
-            # ZPL 데이터 포맷팅 (프린트용)
+
+            # ASCII 제어 문자
+            GS, RS, EOT = '\x1d', '\x1e', '\x04'
+
+            # 필수값 검증: supplier_code(4) / fourm(4)
+            if not supplier_code or len(str(supplier_code)) != 4:
+                raise ValueError("supplier_code는 4자리 필수입니다.")
+            if not fourm or len(str(fourm)) != 4:
+                raise ValueError("4M(fourm)는 4자리 필수입니다.")
+            supplier_code = str(supplier_code)
+            fourm = str(fourm)
+
+            # 날짜(필수) 보정: YYMMDD 6자리
+            date_str = (production_date or datetime.now().strftime('%y%m%d'))[:6]
+            if len(date_str) < 6:
+                date_str = (date_str + '000000')[:6]
+
+            # 시리얼 타입/번호
+            type_char = 'A'
+            serial = (tracking_number or '')
+            if len(serial) < 7:
+                serial = serial.zfill(7)
+            elif len(serial) > 30:
+                serial = serial[:30]
+
+            # 본문 조립
+            parts = []
+            parts.append(GS + 'V' + supplier_code)
+            parts.append(GS + 'P' + (part_number or ''))
+            if sequence_code:
+                parts.append(GS + 'S' + sequence_code)
+            if eo_number:
+                parts.append(GS + 'E' + eo_number)
+            parts.append(GS + 'T' + date_str + fourm + type_char + serial)
+            # M (초도품 Y/N)
+            if initial_sample and str(initial_sample).upper() in ('Y', 'N'):
+                parts.append(GS + 'M' + str(initial_sample).upper())
+            # C (업체영역)
+            if supplier_area:
+                parts.append(GS + 'C' + str(supplier_area))
+
+            body = ''.join(parts)
+
+            # 최종 HKMC 데이터
             formatted_data = "".join([
-                "[)>_1E06",  # Header
-                "_1DV2812",  # 업체코드 (고정)
-                "_1DP" + part_number,  # 부품번호
-                "_1DS" + (production_date or ""),  # 생산날짜
-                "_1DT" + (tracking_number or ""),  # 추적번호
-                "_1DB" + barcode_data,  # 바코드 데이터 (하위부품 포함)
-                "_1D_1E_04"  # Trailer
+                "[)>", RS, "06",  # Header
+                body,
+                GS, RS, EOT        # Trailer
             ])
-            
+
             # ZPL 템플릿에 데이터 삽입
             zpl_data = zpl_template.format(
                 formatted_data=formatted_data,
                 part_number=part_number,
                 display_name=part_name,
-                date=production_date,
-                tracking_number=tracking_number,
+                date=date_str,
+                tracking_number=serial,
                 initial_mark=""
             )
-            
+
             return zpl_data
             
         except Exception as e:
             print(f"ZPL 데이터 생성 오류: {e}")
             return None
     
-    def print_barcode(self, main_part_number, child_parts_list, part_name="", production_date="", tracking_number=""):
+    def print_barcode(self, main_part_number, child_parts_list, part_name="", production_date="", tracking_number="",
+                      supplier_code=None, fourm=None, sequence_code="", eo_number="",
+                      initial_sample=None, supplier_area=None):
         """바코드 프린트 실행"""
         try:
             # 프린터 연결 확인
@@ -312,7 +358,19 @@ class PrintModule(QObject):
                 return False
             
             # ZPL 데이터 생성
-            zpl_data = self.create_zpl_data(barcode_data, main_part_number, part_name, production_date, tracking_number)
+            zpl_data = self.create_zpl_data(
+                barcode_data,
+                main_part_number,
+                part_name,
+                production_date,
+                tracking_number,
+                supplier_code=supplier_code,
+                fourm=fourm,
+                sequence_code=sequence_code,
+                eo_number=eo_number,
+                initial_sample=initial_sample,
+                supplier_area=supplier_area
+            )
             if not zpl_data:
                 self.print_error.emit("ZPL 데이터 생성 실패")
                 return False
@@ -440,13 +498,49 @@ class PrintManager:
             production_date = current_date.strftime('%y%m%d')
             tracking_number = current_date.strftime('%H%M%S')
             
+            # 기준정보에서 필수값 추출 (supplier_code, fourm)
+            supplier_code = None
+            fourm = None
+            sequence_code = ''
+            eo_number = ''
+            initial_sample = None
+            supplier_area = None
+            if hasattr(self.main_window, 'master_data') and self.main_window.master_data:
+                for item in self.main_window.master_data:
+                    if item.get('part_number') == part_number:
+                        supplier_code = str(item.get('supplier_code', '')).strip() or None
+                        fourm = (item.get('fourm_info') or item.get('fourm') or '').strip() or None
+                        sequence_code = item.get('sequence_code', '')
+                        eo_number = item.get('eo_number', '')
+                        init_val = item.get('initial_sample', None)
+                        if isinstance(init_val, bool):
+                            initial_sample = 'Y' if init_val else 'N'
+                        elif isinstance(init_val, str) and init_val.upper() in ('Y','N'):
+                            initial_sample = init_val.upper()
+                        supplier_area = item.get('supplier_area', None)
+                        break
+
+            # 필수값 검증
+            if not supplier_code or len(supplier_code) != 4:
+                self.print_error.emit("기준정보 누락: supplier_code(4자리) 필수")
+                return False
+            if not fourm or len(fourm) != 4:
+                self.print_error.emit("기준정보 누락: 4M(fourm, 4자리) 필수")
+                return False
+
             # 프린트 실행
             success = self.print_module.print_barcode(
                 main_part_number=part_number,
                 child_parts_list=child_parts_list,
                 part_name=part_name,
                 production_date=production_date,
-                tracking_number=tracking_number
+                tracking_number=tracking_number,
+                supplier_code=supplier_code,
+                fourm=fourm,
+                sequence_code=sequence_code,
+                eo_number=eo_number,
+                initial_sample=initial_sample,
+                supplier_area=supplier_area
             )
             
             if success:

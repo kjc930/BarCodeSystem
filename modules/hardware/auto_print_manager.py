@@ -251,11 +251,26 @@ class AutoPrintManager(QObject):
             # HKMC 바코드 형식: [)>06V2812P89131CU217SE251016S1B1A0476217M04
             # 구성: [)> + 06 + V2812 + P + 부품번호 + S + E + T + 추적정보 + M + 04
             
-            # 기준정보에서 업체코드 가져오기
+            # 기준정보에서 업체코드/4M 가져오기
             supplier_code = self.get_supplier_code_from_master_data(part_number)
+            # 4M(fourm_info) 조회
+            fourm = '0000'
+            try:
+                if hasattr(self.main_window, 'master_data') and self.main_window.master_data:
+                    for md in self.main_window.master_data:
+                        if md.get('part_number') == part_number:
+                            fourm = (md.get('fourm_info') or md.get('fourm') or fourm)
+                            break
+            except Exception:
+                pass
+            # 4자리 보정
+            fourm = (fourm or '0000')[:4]
+            if len(fourm) < 4:
+                fourm = (fourm + '0000')[:4]
+
             sequence_code = 'S'  # 시퀀스 코드
             eo_number = 'E'  # EO 번호
-            traceability_code = f'{date_str}2000'  # 추적 코드 (날짜 + 4M) - T 제거
+            traceability_code = f'{date_str}{fourm}'  # 추적 코드 (날짜 + 4M)
             serial_type = 'A'  # 시리얼 타입
             initial_mark = 'M'  # 초도품 마크
             

@@ -25,13 +25,13 @@
     "height": 1061
   },
   "scanner": {
-    "port": "COM3 - AX99100 PCIe to High Speed Serial Port(COM3)",
+    "port": "COM4 - AX99100 PCIe to High Speed Serial Port(COM4)",
     "baudrate": 9600,
     "terminator": "\\r\\n (CRLF)",
     "auto_scan": true
   },
   "printer": {
-    "port": "COM4 - AX99100 PCIe to High Speed Serial Port(COM4)",
+    "port": "COM3 - AX99100 PCIe to High Speed Serial Port(COM3)",
     "baudrate": 9600,
     "quality": "표준 (4 DPS)"
   },

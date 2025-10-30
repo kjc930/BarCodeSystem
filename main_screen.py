@@ -3104,7 +3104,7 @@ class BarcodeMainScreen(QMainWindow):
             supplier_code = part_data.get('supplier_code', '2812')
             sequence_code = part_data.get('sequence_code', '')
             eo_number = part_data.get('eo_number', '')
-            fourm_info = part_data.get('fourm_info', 'S1B1')
+            fourm_info = part_data.get('fourm_info', 'S1B1')  # 기준정보 필수 항목 (정확히 4자리 전제)
             serial_type = part_data.get('serial_type', 'A')
             serial_number = part_data.get('serial_number', '0000001')
             
@@ -3140,7 +3140,7 @@ class BarcodeMainScreen(QMainWindow):
             # HKMC 바코드 생성 (실제 ASCII 제어문자 사용)
             current_time = datetime.now()
             date_str = current_time.strftime('%y%m%d')
-            traceability_code = f'{date_str}2000'
+            traceability_code = f'{date_str}{fourm_info}'
             initial_mark = 'M'
             
             # HKMC 바코드 생성 (실제 ASCII 제어 문자 사용)
