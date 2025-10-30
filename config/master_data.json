@@ -8,9 +8,24 @@
     "eo_number": "",
     "fourm_info": "S1B2",
     "use_status": "Y",
+    "initial_sample": "N",
     "memo": "testtest",
     "child_parts": [],
-    "modified_time": "2025-09-15 08:49:10"
+    "modified_time": "2025-10-31 08:20:41"
+  },
+  {
+    "supplier_code": "2812",
+    "division": "2",
+    "part_number": "89131CU210",
+    "part_name": "TEST1",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B1",
+    "use_status": "Y",
+    "initial_sample": "N",
+    "memo": "TEST",
+    "child_parts": [],
+    "modified_time": "2025-10-31 08:22:57"
   },
   {
     "supplier_code": "2812",
@@ -21,6 +36,7 @@
     "eo_number": "",
     "fourm_info": "S1B3",
     "use_status": "Y",
+    "initial_sample": "N",
     "memo": "test2",
     "child_parts": [
       {
@@ -49,20 +65,7 @@
         "use_status": "Y"
       }
     ],
-    "modified_time": "2025-09-12 09:56:33"
-  },
-  {
-    "supplier_code": "2812",
-    "division": "2",
-    "part_number": "89131CU210",
-    "part_name": "TEST1",
-    "sequence_code": "",
-    "eo_number": "",
-    "fourm_info": "S1B1",
-    "use_status": "Y",
-    "memo": "TEST",
-    "child_parts": [],
-    "modified_time": "2025-09-12 10:33:50"
+    "modified_time": "2025-10-31 08:20:49"
   },
   {
     "supplier_code": "2812",
@@ -73,6 +76,7 @@
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
+    "initial_sample": "N",
     "memo": "TEST4",
     "child_parts": [
       {
@@ -97,6 +101,7 @@
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
+    "initial_sample": "N",
     "memo": "89131CU210",
     "child_parts": [],
     "modified_time": "2025-09-12 10:44:10"
@@ -110,6 +115,7 @@
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
+    "initial_sample": "N",
     "memo": "V89131CU21689131CU216",
     "child_parts": [],
     "modified_time": "2025-09-12 10:44:38"
@@ -123,10 +129,8 @@
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
+    "initial_sample": "N",
     "memo": "TEST 89131CU216",
-    "identifier": "251016",
-    "serial_type": "A",
-    "serial_number": "0476217",
     "child_parts": [
       {
         "part_number": "89231CU1000",
@@ -145,7 +149,10 @@
         "serial_number": "0476218"
       }
     ],
-    "modified_time": "2025-09-12 12:36:29"
+    "modified_time": "2025-09-12 12:36:29",
+    "identifier": "251016",
+    "serial_type": "A",
+    "serial_number": "0476217"
   },
   {
     "supplier_code": "2812",
@@ -156,6 +163,7 @@
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
+    "initial_sample": "N",
     "memo": "TEST 89131CU218",
     "child_parts": [],
     "modified_time": "2025-09-12 10:45:31"
@@ -169,6 +177,7 @@
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
+    "initial_sample": "N",
     "memo": "89131CU219",
     "child_parts": [],
     "modified_time": "2025-09-12 10:45:56"

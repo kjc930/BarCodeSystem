@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QComboBox, QPushButton, QTextEdit, QGroupBox, 
                              QGridLayout, QMessageBox, QLineEdit, QTableWidget,
                              QTableWidgetItem, QListWidget, QListWidgetItem,
-                             QDialog)
+                             QDialog, QCheckBox)
 from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtGui import QFont
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -131,11 +131,34 @@ class MasterDataTab(QWidget):
         self.use_status_combo.setStyleSheet(get_bold_combo_style())
         input_layout.addWidget(self.use_status_combo, 4, 3)
         
+        # 초도품 선택여부
+        input_layout.addWidget(QLabel("초도품:"), 5, 0)
+        self.initial_sample_checkbox = QCheckBox("초도품 선택여부")
+        self.initial_sample_checkbox.setStyleSheet("""
+            QCheckBox {
+                color: #333;
+                padding: 5px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+                border: 2px solid #3498db;
+                border-radius: 3px;
+                background-color: white;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #3498db;
+                border-color: #2980b9;
+            }
+        """)
+        self.initial_sample_checkbox.stateChanged.connect(self.on_initial_sample_changed)
+        input_layout.addWidget(self.initial_sample_checkbox, 5, 1)
+        
         # 비고
-        input_layout.addWidget(QLabel("비고:"), 5, 0)
+        input_layout.addWidget(QLabel("비고:"), 6, 0)
         self.memo_edit = QLineEdit()
         self.memo_edit.setPlaceholderText("메모 입력")
-        input_layout.addWidget(self.memo_edit, 5, 1, 1, 3)
+        input_layout.addWidget(self.memo_edit, 6, 1, 1, 3)
         
         # 버튼
         button_layout = QHBoxLayout()
@@ -295,10 +318,22 @@ class MasterDataTab(QWidget):
         self.master_table.setRowCount(len(master_data))
         
         # 기존 데이터의 use_status가 빈 값인 경우 Y로 업데이트
+        # initial_sample이 없으면 기본값 "N"으로 추가 (use_status 다음 위치에)
         data_updated = False
         for data in master_data:
             if not data.get('use_status') or data.get('use_status').strip() == '':
                 data['use_status'] = 'Y'
+                data_updated = True
+            # initial_sample 필드가 없으면 기본값 "N"으로 추가 (필드 순서 재정렬)
+            if 'initial_sample' not in data:
+                # 필드 순서를 유지하면서 initial_sample 추가 (use_status 다음)
+                ordered_data = {}
+                for key, value in data.items():
+                    ordered_data[key] = value
+                    if key == 'use_status':
+                        ordered_data['initial_sample'] = 'N'  # use_status 다음에 추가
+                data.clear()
+                data.update(ordered_data)
                 data_updated = True
         
         # 데이터가 업데이트된 경우 저장
@@ -427,9 +462,12 @@ class MasterDataTab(QWidget):
         eo_number = self.eo_number_edit.text().strip()
         fourm_info = self.fourm_info_edit.text().strip()
         use_status = self.use_status_combo.currentText()
+        # 체크박스의 현재 상태를 직접 확인 (입력 필드와 무관하게)
+        initial_sample = 'Y' if self.initial_sample_checkbox.isChecked() else 'N'
         memo = self.memo_edit.text().strip()
         
         print(f"DEBUG: 입력된 필수 필드 - 업체코드: '{supplier_code}', 구분: '{division}', 부품번호: '{part_number}'")
+        print(f"DEBUG: save_master_data - 체크박스 상태: {self.initial_sample_checkbox.isChecked()}, initial_sample: {initial_sample}")
         
         if not supplier_code or not part_number or not division:
             QMessageBox.warning(self, "경고", "업체코드, 구분, Part_No는 필수입니다.")
@@ -458,6 +496,7 @@ class MasterDataTab(QWidget):
         from datetime import datetime
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
+        # 필드 순서: use_status 다음에 initial_sample 위치
         data = {
             'supplier_code': supplier_code,
             'division': division,
@@ -467,6 +506,7 @@ class MasterDataTab(QWidget):
             'eo_number': eo_number,
             'fourm_info': fourm_info,
             'use_status': use_status,
+            'initial_sample': initial_sample,  # use_status 다음 위치
             'memo': memo,
             'child_parts': child_parts,
             'modified_time': current_time
@@ -482,8 +522,55 @@ class MasterDataTab(QWidget):
             self.backup_manager.create_backup(old_data, 'update', current_row)
             
             if self.master_data_manager.update_master_data(current_row, data):
+                # 저장한 데이터의 initial_sample 값 사용 (파일에 저장된 값)
+                saved_initial_sample = data.get('initial_sample', 'N')
+                
+                print(f"DEBUG: save_master_data 저장 완료 - initial_sample: {saved_initial_sample}")
+                
+                # 체크박스 신호 차단 및 데이터 로딩 플래그 설정
+                self.initial_sample_checkbox.blockSignals(True)
+                self.is_loading_data = True
+                
                 self.load_master_data()
-                self.exit_edit_mode()
+                
+                # 저장된 행 다시 찾기 (정렬로 인해 인덱스가 변경되었을 수 있음)
+                # division과 part_number로 찾기
+                master_data = self.master_data_manager.get_master_data()
+                saved_row = current_row
+                for i, item in enumerate(master_data):
+                    if (item.get('division') == division and 
+                        item.get('part_number') == part_number):
+                        saved_row = i
+                        break
+                
+                # 저장된 행 선택
+                if saved_row < self.master_table.rowCount():
+                    # 먼저 체크박스를 저장된 값으로 설정 (on_selection_changed 호출 전)
+                    self.initial_sample_checkbox.setChecked(saved_initial_sample == 'Y')
+                    print(f"DEBUG: 체크박스 설정 - saved_initial_sample: {saved_initial_sample}, isChecked: {self.initial_sample_checkbox.isChecked()}")
+                    
+                    # 행 선택 (이때 on_selection_changed가 호출되지만 이미 올바른 값으로 설정됨)
+                    self.master_table.selectRow(saved_row)
+                    
+                    # 한 번 더 확인 및 설정 (on_selection_changed에서 덮어씌워졌을 수 있음)
+                    self.initial_sample_checkbox.setChecked(saved_initial_sample == 'Y')
+                
+                # 신호 차단 해제
+                self.initial_sample_checkbox.blockSignals(False)
+                self.is_loading_data = False
+                
+                print(f"DEBUG: 체크박스 최종 상태 - isChecked: {self.initial_sample_checkbox.isChecked()}, 저장된 값: {saved_initial_sample}")
+                
+                # 수정 모드 종료 (clear_inputs는 호출하지 않고 입력 필드만 비활성화)
+                self.edit_mode = False
+                self.set_inputs_enabled(False)
+                self.add_btn.setEnabled(True)
+                self.update_btn.setEnabled(True)
+                self.delete_btn.setEnabled(True)
+                self.cancel_btn.setEnabled(False)
+                self.save_btn.setEnabled(False)
+                # clear_inputs()는 호출하지 않음 (현재 선택된 행의 데이터 유지)
+                
                 QMessageBox.information(self, "성공", "기준정보가 수정되었습니다. (백업 생성됨)")
             else:
                 QMessageBox.warning(self, "오류", "기준정보 수정에 실패했습니다.")
@@ -557,6 +644,104 @@ class MasterDataTab(QWidget):
             if current_row < len(master_data):
                 child_parts = master_data[current_row].get('child_parts', [])
                 self.set_child_parts(child_parts)
+                # 초도품 선택여부 로드
+                initial_sample = master_data[current_row].get('initial_sample', 'N')
+                # 체크박스 변경 이벤트를 일시적으로 차단하여 로드 시 저장이 발생하지 않도록 함
+                # 단, is_loading_data가 True이면 이미 신호가 차단되어 있으므로 중복 차단 불필요
+                if not self.is_loading_data:
+                    self.initial_sample_checkbox.blockSignals(True)
+                self.initial_sample_checkbox.setChecked(initial_sample == 'Y')
+                if not self.is_loading_data:
+                    self.initial_sample_checkbox.blockSignals(False)
+    
+    def on_initial_sample_changed(self, state):
+        """초도품 선택여부 변경 시 자동 저장 (해당 부모 부품 정보 수정)"""
+        current_row = self.master_table.currentRow()
+        if current_row < 0:
+            # 선택된 항목이 없으면 저장하지 않음
+            return
+        
+        # 데이터 로딩 중이면 저장하지 않음
+        if self.is_loading_data:
+            return
+        
+        # 현재 항목의 기존 데이터 가져오기
+        master_data = self.master_data_manager.get_master_data()
+        if current_row >= len(master_data):
+            return
+        
+        try:
+            # 기존 데이터 복사 (필드 순서 유지)
+            original_data = master_data[current_row]
+            # 체크박스의 현재 상태를 확인 (isChecked() 사용)
+            initial_sample = 'Y' if self.initial_sample_checkbox.isChecked() else 'N'
+            
+            print(f"DEBUG: 초도품 체크박스 변경 - state: {state}, isChecked: {self.initial_sample_checkbox.isChecked()}, initial_sample: {initial_sample}")
+            print(f"DEBUG: 현재 선택된 행: {current_row}")
+            print(f"DEBUG: 기존 데이터 - initial_sample: {original_data.get('initial_sample')}")
+            
+            # 필드 순서를 유지하면서 초도품 선택여부만 업데이트
+            # use_status 다음에 initial_sample 위치
+            ordered_data = {}
+            initial_sample_added = False
+            for key, value in original_data.items():
+                if key == 'use_status':
+                    ordered_data[key] = value
+                    ordered_data['initial_sample'] = initial_sample  # use_status 다음에 위치
+                    initial_sample_added = True
+                elif key != 'initial_sample':  # 기존 initial_sample은 건너뛰기
+                    ordered_data[key] = value
+            
+            # use_status가 없는 경우에도 initial_sample 추가 (안전장치)
+            if not initial_sample_added:
+                ordered_data['initial_sample'] = initial_sample
+            
+            print(f"DEBUG: 저장할 데이터 - initial_sample: {ordered_data.get('initial_sample')}")
+            
+            # modified_time 업데이트
+            from datetime import datetime
+            ordered_data['modified_time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            data = ordered_data
+            
+            # 수정 모드 플래그를 임시로 설정하여 구분값 검증에서 현재 항목이 제외되도록 함
+            was_in_edit_mode = self.edit_mode
+            self.edit_mode = True
+            
+            # update_master_data 호출 (수정 모드이므로 구분값 검증에서 현재 항목은 제외됨)
+            if self.master_data_manager.update_master_data(current_row, data):
+                print(f"DEBUG: 초도품 선택여부 자동 저장 완료 - 구분값: {data.get('division')}, 초도품: {initial_sample}")
+                
+                # 체크박스 신호 차단 (테이블 새로고침 시 원래 값으로 되돌아가는 것 방지)
+                self.initial_sample_checkbox.blockSignals(True)
+                # 데이터 로딩 시작
+                self.is_loading_data = True
+                
+                # 테이블 새로고침
+                self.load_master_data()
+                
+                # 다시 원래 행 선택 (신호 차단 상태 유지)
+                self.master_table.selectRow(current_row)
+                
+                # 체크박스 값을 저장된 값으로 설정 (신호 차단 상태에서)
+                saved_initial_sample = data.get('initial_sample', 'N')
+                self.initial_sample_checkbox.setChecked(saved_initial_sample == 'Y')
+                
+                # 신호 차단 해제 및 로딩 완료
+                self.initial_sample_checkbox.blockSignals(False)
+                self.is_loading_data = False
+                
+                print(f"DEBUG: 체크박스 상태 업데이트 완료 - {saved_initial_sample}")
+            else:
+                print("DEBUG: 초도품 선택여부 저장 실패")
+                QMessageBox.warning(self, "오류", "초도품 선택여부 저장에 실패했습니다.")
+            
+            # 수정 모드 플래그 복원
+            self.edit_mode = was_in_edit_mode
+                
+        except Exception as e:
+            print(f"DEBUG: 초도품 선택여부 변경 오류: {e}")
+            QMessageBox.warning(self, "오류", f"초도품 선택여부 저장 중 오류가 발생했습니다: {e}")
     
     def clear_inputs(self):
         """입력 필드 초기화"""
@@ -568,6 +753,7 @@ class MasterDataTab(QWidget):
         self.eo_number_edit.clear()
         self.fourm_info_edit.clear()
         self.use_status_combo.setCurrentText("Y")
+        self.initial_sample_checkbox.setChecked(False)
         self.memo_edit.clear()
         self.clear_child_parts()
     
@@ -581,6 +767,7 @@ class MasterDataTab(QWidget):
         self.eo_number_edit.setEnabled(enabled)
         self.fourm_info_edit.setEnabled(enabled)
         self.use_status_combo.setEnabled(enabled)
+        self.initial_sample_checkbox.setEnabled(enabled)
         self.memo_edit.setEnabled(enabled)
         
         # 저장 버튼도 함께 활성화/비활성화

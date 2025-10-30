@@ -285,16 +285,74 @@ class MasterDataManager:
         self.master_list = self.load_master_data()
     
     def load_master_data(self):
-        """마스터 데이터 로드"""
+        """마스터 데이터 로드 및 표준 형식으로 마이그레이션"""
         if os.path.exists(self.data_file):
             try:
                 with open(self.data_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
+                    master_data = json.load(f)
+                    
+                # 표준 형식으로 마이그레이션 (필드 순서 재정렬)
+                migrated = False
+                for data in master_data:
+                    if self._migrate_to_standard_format(data):
+                        migrated = True
+                
+                # 마이그레이션이 필요했으면 저장
+                if migrated:
+                    print("DEBUG: master_data.json을 표준 형식으로 마이그레이션합니다.")
+                    self.master_list = master_data
+                    self.save_master_data()
+                
+                return master_data
             except Exception as e:
                 print(f"마스터 데이터 로드 오류: {e}")
                 return []
         else:
             return []
+    
+    def _migrate_to_standard_format(self, data):
+        """단일 항목을 표준 형식으로 마이그레이션 (필드 순서 재정렬)"""
+        # 표준 필드 순서 정의
+        standard_order = [
+            'supplier_code', 'division', 'part_number', 'part_name',
+            'sequence_code', 'eo_number', 'fourm_info',
+            'use_status', 'initial_sample',  # initial_sample은 use_status 바로 다음
+            'memo', 'child_parts', 'modified_time'
+        ]
+        
+        # 기존 데이터의 필드 순서 확인
+        current_keys = list(data.keys())
+        
+        # initial_sample이 없으면 기본값 "N" 추가
+        if 'initial_sample' not in data:
+            data['initial_sample'] = 'N'
+        
+        # 표준 순서와 다르면 재정렬 필요
+        needs_reorder = False
+        expected_order = []
+        for key in standard_order:
+            if key in data:
+                expected_order.append(key)
+        
+        # 표준 순서에 없는 필드도 추가 (identifier, serial_type, serial_number 등)
+        for key in current_keys:
+            if key not in expected_order:
+                expected_order.append(key)
+        
+        # 순서가 다르면 재정렬
+        if current_keys != expected_order:
+            needs_reorder = True
+            # 새로운 순서로 데이터 재구성
+            ordered_data = {}
+            for key in expected_order:
+                if key in data:
+                    ordered_data[key] = data[key]
+            
+            # 원본 데이터를 정렬된 데이터로 교체
+            data.clear()
+            data.update(ordered_data)
+        
+        return needs_reorder
     
     def save_master_data(self):
         """마스터 데이터 저장"""

@@ -1,0 +1,20 @@
+{
+  "timestamp": "20251031_081300",
+  "operation_type": "update",
+  "index": 0,
+  "data": {
+    "supplier_code": "2812",
+    "division": "1",
+    "part_number": "89131CU210",
+    "part_name": "TESTETST TEST 0",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B2",
+    "use_status": "Y",
+    "initial_sample": "Y",
+    "memo": "testtest",
+    "child_parts": [],
+    "modified_time": "2025-10-31 08:12:59"
+  },
+  "backup_id": "update_20251031_081300"
+}
