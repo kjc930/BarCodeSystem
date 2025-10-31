@@ -2,21 +2,21 @@
   "current_date": "2025-10-31",
   "daily_total": {
     "2025-10-31": {
-      "FRONT/LH": 16,
-      "REAR/RH": 24
+      "FRONT/LH": 19,
+      "REAR/RH": 28
     }
   },
   "part_counts": {
     "89131CU217": {
       "FRONT/LH": 0,
-      "REAR/RH": 24
+      "REAR/RH": 28
     },
     "89131CU216": {
       "FRONT/LH": 0,
       "REAR/RH": 1
     },
     "89131CU214": {
-      "FRONT/LH": 16,
+      "FRONT/LH": 19,
       "REAR/RH": 0
     }
   }

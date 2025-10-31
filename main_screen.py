@@ -193,6 +193,9 @@ class BarcodeMainScreen(QMainWindow):
             # PLC 시뮬레이션 다이얼로그 초기화
             self.plc_simulation_dialog = None
             
+            # 부모바코드 스캔 시점의 패널 정보 저장 (완료신호 검증용)
+            self.pending_print_panel = None
+            
             # 하위부품 바코드 검증기 초기화
             try:
                 self.child_part_validator = HKMCBarcodeUtils()
@@ -2412,6 +2415,14 @@ class BarcodeMainScreen(QMainWindow):
             if barcode == current_part_number:
                 print(f"DEBUG: 바코드와 부품번호 일치 - {barcode}")
                 
+                # 부모바코드 스캔 시점의 패널 정보 저장 (완료신호 검증용)
+                if hasattr(self, 'front_panel') and self.front_panel and self.front_panel.part_number == barcode:
+                    self.pending_print_panel = "FRONT/LH"
+                    print(f"DEBUG: 부모바코드 스캔 - FRONT/LH 패널 정보 저장")
+                elif hasattr(self, 'rear_panel') and self.rear_panel and self.rear_panel.part_number == barcode:
+                    self.pending_print_panel = "REAR/RH"
+                    print(f"DEBUG: 부모바코드 스캔 - REAR/RH 패널 정보 저장")
+                
                 # ===== 공정 부품코드 스캔 시 완전한 초기화 =====
                 print(f"DEBUG: 공정 부품코드 스캔 - 이전 데이터 완전 삭제")
                 self.complete_reset_for_new_work()
@@ -2662,6 +2673,9 @@ class BarcodeMainScreen(QMainWindow):
         """공정 부품코드 스캔 시 완전한 초기화 (사용자 요구사항에 따른 명확한 로직)"""
         try:
             print(f"DEBUG: ===== 공정 부품코드 스캔 시 완전한 초기화 시작 =====")
+            
+            # 부모바코드 스캔 시점의 패널 정보는 유지 (완료신호 검증을 위해)
+            # self.pending_print_panel은 process_barcode_with_workflow에서 설정되므로 여기서 초기화하지 않음
             
             # 1. 모든 메모리 데이터 초기화 (하위부품 데이터 완전 삭제)
             self.temp_scan_data = []
@@ -3247,6 +3261,20 @@ class BarcodeMainScreen(QMainWindow):
     def save_print_log(self, panel_name, part_number, main_part_info, success=True, printed_child_parts=None):
         """바코드 출력 완료 로그 저장"""
         try:
+            # 패널명 검증 및 정규화
+            panel_name_upper = panel_name.upper() if panel_name else ""
+            if panel_name_upper == "FRONT/LH":
+                panel_name = "FRONT/LH"
+                log_key = "front_lh"
+            elif panel_name_upper == "REAR/RH":
+                panel_name = "REAR/RH"
+                log_key = "rear_rh"
+            else:
+                print(f"DEBUG: ⚠️ 잘못된 패널명 - panel_name: {panel_name}")
+                return
+            
+            print(f"DEBUG: ✅ 출력 로그 저장 시작 - 패널명: {panel_name}, 부품번호: {part_number}")
+            
             # 하위부품 정보 가져오기
             child_parts_info = self.get_child_parts_info_for_panel(panel_name)
             
@@ -3262,14 +3290,10 @@ class BarcodeMainScreen(QMainWindow):
             }
             
             # 해당 패널의 출력 로그에 추가
-            if panel_name == "FRONT/LH":
-                if "front_lh" not in self.print_logs:
-                    self.print_logs["front_lh"] = []
-                self.print_logs["front_lh"].append(print_log_entry)
-            elif panel_name == "REAR/RH":
-                if "rear_rh" not in self.print_logs:
-                    self.print_logs["rear_rh"] = []
-                self.print_logs["rear_rh"].append(print_log_entry)
+            if log_key not in self.print_logs:
+                self.print_logs[log_key] = []
+            self.print_logs[log_key].append(print_log_entry)
+            print(f"DEBUG: 출력 로그 추가 완료 - {log_key}: {len(self.print_logs[log_key])}개 항목")
             
             # 출력 로그 파일로 저장
             self.save_print_logs_to_file()
@@ -3294,21 +3318,41 @@ class BarcodeMainScreen(QMainWindow):
                 os.makedirs(year_log_dir)
             
             # FRONT/LH 출력 로그 저장
-            if "front_lh" in self.print_logs:
+            if "front_lh" in self.print_logs and len(self.print_logs["front_lh"]) > 0:
                 front_print_log_file = os.path.join(year_log_dir, f"front_lh_print_{today}.json")
                 with open(front_print_log_file, 'w', encoding='utf-8') as f:
                     json.dump(self.print_logs["front_lh"], f, ensure_ascii=False, indent=2)
+                print(f"DEBUG: ✅ FRONT/LH 출력 로그 저장 - 파일: {front_print_log_file}, 항목 수: {len(self.print_logs['front_lh'])}")
+            else:
+                # 빈 배열로 저장 (파일이 존재하지 않도록 유지)
+                front_print_log_file = os.path.join(year_log_dir, f"front_lh_print_{today}.json")
+                if os.path.exists(front_print_log_file):
+                    # 파일이 있으면 빈 배열로 저장
+                    with open(front_print_log_file, 'w', encoding='utf-8') as f:
+                        json.dump([], f, ensure_ascii=False, indent=2)
+                    print(f"DEBUG: FRONT/LH 출력 로그 빈 배열로 저장 - 파일: {front_print_log_file}")
             
             # REAR/RH 출력 로그 저장
-            if "rear_rh" in self.print_logs:
+            if "rear_rh" in self.print_logs and len(self.print_logs["rear_rh"]) > 0:
                 rear_print_log_file = os.path.join(year_log_dir, f"rear_rh_print_{today}.json")
                 with open(rear_print_log_file, 'w', encoding='utf-8') as f:
                     json.dump(self.print_logs["rear_rh"], f, ensure_ascii=False, indent=2)
+                print(f"DEBUG: ✅ REAR/RH 출력 로그 저장 - 파일: {rear_print_log_file}, 항목 수: {len(self.print_logs['rear_rh'])}")
+            else:
+                # 빈 배열로 저장 (파일이 존재하지 않도록 유지)
+                rear_print_log_file = os.path.join(year_log_dir, f"rear_rh_print_{today}.json")
+                if os.path.exists(rear_print_log_file):
+                    # 파일이 있으면 빈 배열로 저장
+                    with open(rear_print_log_file, 'w', encoding='utf-8') as f:
+                        json.dump([], f, ensure_ascii=False, indent=2)
+                    print(f"DEBUG: REAR/RH 출력 로그 빈 배열로 저장 - 파일: {rear_print_log_file}")
             
             print(f"DEBUG: 출력 로그 파일 저장 완료 - {today}")
             
         except Exception as e:
             print(f"DEBUG: 출력 로그 파일 저장 오류: {e}")
+            import traceback
+            traceback.print_exc()
     
     def save_print_log_to_text_file(self, panel_name, part_number, main_part_info, child_parts_info, success, printed_child_parts=None):
         """출력 로그를 텍스트 파일로 저장 (부모바코드 + 하위부품 스캔결과 포함)"""
@@ -3649,11 +3693,25 @@ class BarcodeMainScreen(QMainWindow):
         if success:
             print(f"DEBUG: {panel_type} 패널 출력 성공")
             
-            # 패널명 매핑 (표준화)
-            panel_name = self.panel_titles.get(panel_type, panel_type)
-            # 패널명 표준화 (REAR/RH -> REAR/RH)
-            if panel_name.startswith('1'):
-                panel_name = panel_name[1:]  # 첫 번째 문자 제거
+            # 부모바코드 스캔 시점의 패널 정보 우선 확인 (정확한 패널 식별)
+            pending_panel = getattr(self, 'pending_print_panel', None)
+            if pending_panel:
+                panel_name = pending_panel
+                print(f"DEBUG: ✅ pending_print_panel 사용 - panel_name: {panel_name}")
+            else:
+                # 패널명 매핑 (표준화)
+                panel_name = self.panel_titles.get(panel_type, panel_type)
+                # 패널명 표준화 (REAR/RH -> REAR/RH)
+                if panel_name.startswith('1'):
+                    panel_name = panel_name[1:]  # 첫 번째 문자 제거
+                
+                # panel_type을 기반으로 표준 패널명 설정 (save_print_log와 일치하도록)
+                if panel_type == "front_lh" or panel_type.upper() == "FRONT_LH":
+                    panel_name = "FRONT/LH"
+                elif panel_type == "rear_rh" or panel_type.upper() == "REAR_RH":
+                    panel_name = "REAR/RH"
+                
+                print(f"DEBUG: 패널명 변환 - panel_type: {panel_type} -> panel_name: {panel_name}")
             
             # 메인 부품 정보 가져오기
             main_part_info = self.get_main_part_info(panel_name)
@@ -3698,32 +3756,51 @@ class BarcodeMainScreen(QMainWindow):
             if not part_number:
                 return []
             
-            # 스캔된 하위부품의 원시 데이터 사용
+            # 스캔된 하위부품의 원시 데이터 사용 (temp_scan_data 먼저 확인)
             scanned_child_parts = []
-            if hasattr(self, 'temp_scan_data') and self.temp_scan_data:
-                for scan_data in self.temp_scan_data:
-                    if scan_data.get('panel', '').upper() == panel_name_upper:
-                        # 원시 바코드 데이터에서 추적 정보 추출
-                        raw_data = scan_data.get('raw_data', '')
-                        if raw_data:
-                            # 원시 데이터에서 추적 정보 파싱
-                            trace_info = self.parse_traceability_from_raw_data(raw_data)
-                            if trace_info:
-                                scanned_child_parts.append({
-                                    "part_number": scan_data.get('part_number', ''),
-                                    "part_name": scan_data.get('part_number', ''),
-                                    "use_status": "Y",
-                                    "identifier": trace_info.get('identifier', ''),
-                                    "serial_type": trace_info.get('serial_type', ''),
-                                    "serial_number": trace_info.get('serial_number', '')
-                                })
-                                print(f"DEBUG: 스캔된 하위부품 원시 데이터 사용: {scan_data.get('part_number', '')} - {trace_info}")
+            scan_data_sources = []
             
-            # 스캔된 데이터가 없으면 기준정보에서 가져오기
+            # 1. temp_scan_data 확인
+            if hasattr(self, 'temp_scan_data') and self.temp_scan_data:
+                scan_data_sources.extend(self.temp_scan_data)
+            
+            # 2. global_scan_data도 확인 (temp_scan_data에 없을 경우 대비)
+            if hasattr(self, 'global_scan_data') and self.global_scan_data:
+                scan_data_sources.extend(self.global_scan_data)
+            
+            # 스캔 데이터에서 추적 정보 추출
+            processed_part_numbers = set()  # 중복 방지
+            for scan_data in scan_data_sources:
+                scan_panel = scan_data.get('panel', '').upper()
+                scan_part_number = scan_data.get('part_number', '')
+                
+                # 패널명이 일치하고, 이미 처리하지 않은 부품번호인 경우
+                if scan_panel == panel_name_upper and scan_part_number not in processed_part_numbers:
+                    processed_part_numbers.add(scan_part_number)
+                    
+                    # 원시 바코드 데이터에서 추적 정보 추출
+                    raw_data = scan_data.get('raw_data', '')
+                    if raw_data:
+                        # 원시 데이터에서 추적 정보 파싱
+                        trace_info = self.parse_traceability_from_raw_data(raw_data)
+                        if trace_info:
+                            scanned_child_parts.append({
+                                "part_number": scan_part_number,
+                                "part_name": scan_part_number,
+                                "use_status": "Y",
+                                "identifier": trace_info.get('identifier', ''),
+                                "serial_type": trace_info.get('serial_type', ''),
+                                "serial_number": trace_info.get('serial_number', '')
+                            })
+                            print(f"DEBUG: 스캔된 하위부품 원시 데이터 사용: {scan_part_number} - {trace_info}")
+            
+            # 스캔된 데이터가 없으면 기준정보에서 가져오기 (기본 형식으로)
             if not scanned_child_parts:
                 for part_data in self.master_data:
                     if part_data.get("part_number") == part_number:
-                        return part_data.get("child_parts", [])
+                        child_parts = part_data.get("child_parts", [])
+                        # 기준정보의 child_parts는 기본 형식이므로 그대로 반환
+                        return child_parts
             
             return scanned_child_parts
         except Exception as e:

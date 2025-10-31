@@ -432,26 +432,42 @@ class PLCDataManager:
             self.main_screen.front_panel.update_work_status(0)  # 작업중
             self.main_screen.rear_panel.update_work_status(0)   # 작업중
             
-            # 작업 시작 시 완료 처리 상태 리셋
+            # 작업 시작 시 완료 처리 상태 리셋 및 부모바코드 스캔 패널 정보 초기화
             if signal_changed and self.previous_completion_signal in [1, 2]:
-                print(f"DEBUG: 작업 시작 - 완료 처리 상태 리셋")
+                print(f"DEBUG: 작업 시작 - 완료 처리 상태 리셋 및 부모바코드 스캔 패널 정보 초기화")
                 self.completion_processed["front_lh"] = False
                 self.completion_processed["rear_rh"] = False
                 self.print_completion_status["front_lh"] = False
                 self.print_completion_status["rear_rh"] = False
+                # 새로운 작업 사이클 시작 - 부모바코드 스캔 패널 정보 초기화
+                if hasattr(self.main_screen, 'pending_print_panel'):
+                    self.main_screen.pending_print_panel = None
+                    print(f"DEBUG: 새로운 작업 사이클 - pending_print_panel 초기화")
                 
         elif completion_signal == 1:
             # FRONT/LH 작업완료 - 0에서 1로 변화할 때만 처리
             print(f"DEBUG: FRONT/LH 완료신호 수신 - 이전: {self.previous_completion_signal}, 현재: {completion_signal}")
             
+            # 부모바코드 스캔 시점의 패널 정보 확인
+            pending_panel = getattr(self.main_screen, 'pending_print_panel', None)
+            if pending_panel != "FRONT/LH":
+                print(f"DEBUG: ⚠️ FRONT/LH 완료신호 무시 - 부모바코드 스캔 시점의 패널: {pending_panel}")
+                # UI 상태만 업데이트 (출력은 하지 않음)
+                self.main_screen.front_panel.update_work_status(1)  # 완료
+                self.main_screen.rear_panel.update_work_status(0)   # 작업중
+                return
+            
             if signal_changed and self.previous_completion_signal == 0 and not self.completion_processed["front_lh"]:
-                print(f"DEBUG: FRONT/LH 작업완료 처리 시작 - 0에서 1로 변화 감지")
+                print(f"DEBUG: ✅ FRONT/LH 작업완료 처리 시작 - 부모바코드 스캔 시점의 패널과 일치")
                 self.main_screen.front_panel.update_work_status(1)  # 완료
                 self.main_screen.rear_panel.update_work_status(0)   # 작업중
                 
                 # 작업완료 처리 실행
                 self.main_screen.complete_work("FRONT/LH")
                 self.completion_processed["front_lh"] = True
+                
+                # 완료 처리 후 pending_print_panel 초기화
+                self.main_screen.pending_print_panel = None
                 print(f"DEBUG: FRONT/LH 작업완료 처리 완료")
             else:
                 print(f"DEBUG: FRONT/LH 완료신호 중복 수신 - 처리 건너뜀")
@@ -463,14 +479,26 @@ class PLCDataManager:
             # REAR/RH 작업완료 - 0에서 2로 변화할 때만 처리
             print(f"DEBUG: REAR/RH 완료신호 수신 - 이전: {self.previous_completion_signal}, 현재: {completion_signal}")
             
+            # 부모바코드 스캔 시점의 패널 정보 확인
+            pending_panel = getattr(self.main_screen, 'pending_print_panel', None)
+            if pending_panel != "REAR/RH":
+                print(f"DEBUG: ⚠️ REAR/RH 완료신호 무시 - 부모바코드 스캔 시점의 패널: {pending_panel}")
+                # UI 상태만 업데이트 (출력은 하지 않음)
+                self.main_screen.front_panel.update_work_status(0)  # 작업중
+                self.main_screen.rear_panel.update_work_status(1)   # 완료
+                return
+            
             if signal_changed and self.previous_completion_signal == 0 and not self.completion_processed["rear_rh"]:
-                print(f"DEBUG: REAR/RH 작업완료 처리 시작 - 0에서 2로 변화 감지")
+                print(f"DEBUG: ✅ REAR/RH 작업완료 처리 시작 - 부모바코드 스캔 시점의 패널과 일치")
                 self.main_screen.front_panel.update_work_status(0)  # 작업중
                 self.main_screen.rear_panel.update_work_status(1)   # 완료
                 
                 # 작업완료 처리 실행
                 self.main_screen.complete_work("REAR/RH")
                 self.completion_processed["rear_rh"] = True
+                
+                # 완료 처리 후 pending_print_panel 초기화
+                self.main_screen.pending_print_panel = None
                 print(f"DEBUG: REAR/RH 작업완료 처리 완료")
             else:
                 print(f"DEBUG: REAR/RH 완료신호 중복 수신 - 처리 건너뜀")
