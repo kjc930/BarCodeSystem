@@ -1,0 +1,33 @@
+[
+  {
+    "timestamp": "2025-10-31 09:01:37",
+    "panel_name": "REAR/RH",
+    "part_number": "89131CU217",
+    "print_result": "SUCCESS",
+    "main_part_info": {
+      "part_number": "89131CU217",
+      "part_name": "89131CU217",
+      "division": "7",
+      "work_status": 0
+    },
+    "child_parts_info": [
+      {
+        "part_number": "89231CU1000",
+        "part_name": "89231CU1000",
+        "use_status": "Y",
+        "identifier": "251002",
+        "serial_type": "A",
+        "serial_number": "0000001"
+      },
+      {
+        "part_number": "89231CU1001",
+        "part_name": "89231CU1001",
+        "use_status": "Y",
+        "identifier": "251002",
+        "serial_type": "A",
+        "serial_number": "0000001"
+      }
+    ],
+    "print_type": "AUTO_PRINT"
+  }
+]

@@ -304,14 +304,16 @@ class PrintModule(QObject):
             parts = []
             parts.append(GS + 'V' + supplier_code)
             parts.append(GS + 'P' + (part_number or ''))
-            if sequence_code:
-                parts.append(GS + 'S' + sequence_code)
-            if eo_number:
-                parts.append(GS + 'E' + eo_number)
+            # 서열코드: 값이 있을 때만 추가
+            if sequence_code and sequence_code.strip():
+                parts.append(GS + 'S' + sequence_code.strip())
+            # EO번호: 값이 있을 때만 추가
+            if eo_number and eo_number.strip():
+                parts.append(GS + 'E' + eo_number.strip())
             parts.append(GS + 'T' + date_str + fourm + type_char + serial)
-            # M (초도품 Y/N)
-            if initial_sample and str(initial_sample).upper() in ('Y', 'N'):
-                parts.append(GS + 'M' + str(initial_sample).upper())
+            # M (초도품): 'Y'일 때만 추가, 'N'이거나 없으면 생략 (기본값이므로)
+            if initial_sample and str(initial_sample).upper() == 'Y':
+                parts.append(GS + 'M' + 'Y')
             # C (업체영역)
             if supplier_area:
                 parts.append(GS + 'C' + str(supplier_area))
@@ -459,6 +461,9 @@ class PrintManager:
         self.main_window = main_window
         self.print_module = PrintModule()
         
+        # 현재 출력 중인 정보 저장 (로그 저장용)
+        self.current_print_info = {}
+        
         # 시그널 연결
         self.print_module.print_status_changed.connect(self.on_print_status_changed)
         self.print_module.print_completed.connect(self.on_print_completed)
@@ -472,7 +477,51 @@ class PrintManager:
     def on_print_completed(self, part_number, barcode_data):
         """프린트 완료 처리"""
         print(f"프린트 완료 - 부품번호: {part_number}, 바코드: {barcode_data}")
-        # 메인화면에 완료 알림 (필요시)
+        
+        # 출력 로그 저장
+        if part_number in self.current_print_info:
+            print_info = self.current_print_info[part_number]
+            panel_name = print_info.get('panel_name', '')
+            part_name = print_info.get('part_name', '')
+            child_parts_list = print_info.get('child_parts_list', [])
+            
+            # 메인 부품 정보 생성
+            main_part_info = {
+                'part_number': part_number,
+                'part_name': part_name,
+                'panel_name': panel_name
+            }
+            
+            # 하위부품 정보를 스캔 데이터 형식으로 변환
+            printed_child_parts = []
+            if child_parts_list:
+                # global_scan_data에서 하위부품 정보 찾기
+                if hasattr(self.main_window, 'global_scan_data') and self.main_window.global_scan_data:
+                    for scan_data in self.main_window.global_scan_data:
+                        scan_panel = scan_data.get('panel', '')
+                        scan_part_number = scan_data.get('part_number', '')
+                        # 패널명과 부품번호가 일치하는 스캔 데이터 찾기
+                        if scan_panel.upper() == panel_name.upper():
+                            # child_parts_list에 포함된 부품번호인지 확인
+                            # child_parts_list는 "part_number_1" 형식일 수 있으므로 부분 매칭
+                            for child_part in child_parts_list:
+                                if child_part in scan_part_number or scan_part_number in child_part:
+                                    printed_child_parts.append(scan_data)
+                                    break
+            
+            # 로그 저장
+            if hasattr(self.main_window, 'save_print_log'):
+                self.main_window.save_print_log(
+                    panel_name=panel_name,
+                    part_number=part_number,
+                    main_part_info=main_part_info,
+                    success=True,
+                    printed_child_parts=printed_child_parts if printed_child_parts else None
+                )
+                print(f"DEBUG: PrintManager - 출력 로그 저장 완료: {panel_name} - {part_number}")
+            
+            # 저장된 정보 삭제
+            del self.current_print_info[part_number]
     
     def on_print_error(self, error_msg):
         """프린트 오류 처리"""
@@ -528,10 +577,54 @@ class PrintManager:
                 self.print_error.emit("기준정보 누락: 4M(fourm, 4자리) 필수")
                 return False
 
+            # 하위부품 필터링 (출력포함여부 Y인 것만)
+            filtered_child_parts_list = []
+            if child_parts_list:
+                # 기준정보에서 해당 부품번호의 하위부품 정보 가져오기
+                expected_child_parts = []
+                if hasattr(self.main_window, 'master_data') and self.main_window.master_data is not None:
+                    for item in self.main_window.master_data:
+                        if item.get('part_number') == part_number:
+                            expected_child_parts = item.get('child_parts', [])
+                            break
+                
+                # 사용유무 Y이고 출력포함여부 Y인 하위부품만 필터링
+                print_include_parts = []
+                for child in expected_child_parts:
+                    use_status = child.get('use_status', 'Y')  # 기본값 Y
+                    print_include = child.get('print_include', 'Y')  # 기본값 Y
+                    
+                    # 사용유무가 Y이고 출력포함여부가 Y인 하위부품만 포함
+                    if use_status == 'Y' and print_include == 'Y':
+                        print_include_parts.append(child.get('part_number', ''))
+                        print(f"DEBUG: - {child.get('part_number', '')} (사용유무: {use_status}, 출력포함: {print_include})")
+                    else:
+                        print(f"DEBUG: - {child.get('part_number', '')} 제외 (사용유무: {use_status}, 출력포함: {print_include})")
+                
+                # child_parts_list에서 출력포함여부 Y인 하위부품만 필터링
+                for child_part in child_parts_list:
+                    if child_part in print_include_parts:
+                        filtered_child_parts_list.append(child_part)
+                        print(f"DEBUG: 하위부품 {child_part} 출력포함 - 바코드에 포함")
+                    else:
+                        print(f"DEBUG: 하위부품 {child_part} 출력포함여부 N - 바코드에서 제외")
+            else:
+                filtered_child_parts_list = child_parts_list
+            
+            print(f"DEBUG: 필터링된 하위부품: {filtered_child_parts_list} (원본: {child_parts_list})")
+
+            # 출력 정보 저장 (로그 저장용)
+            self.current_print_info[part_number] = {
+                'panel_name': panel_name,
+                'part_number': part_number,
+                'part_name': part_name,
+                'child_parts_list': filtered_child_parts_list
+            }
+
             # 프린트 실행
             success = self.print_module.print_barcode(
                 main_part_number=part_number,
-                child_parts_list=child_parts_list,
+                child_parts_list=filtered_child_parts_list,
                 part_name=part_name,
                 production_date=production_date,
                 tracking_number=tracking_number,
@@ -544,8 +637,8 @@ class PrintManager:
             )
             
             if success:
-                # 바코드 이미지도 저장
-                barcode_data = self.print_module.create_barcode_data(part_number, child_parts_list)
+                # 바코드 이미지도 저장 (필터링된 하위부품 리스트 사용)
+                barcode_data = self.print_module.create_barcode_data(part_number, filtered_child_parts_list)
                 self.print_module.save_barcode_image(
                     barcode_data=barcode_data,
                     part_number=part_number,

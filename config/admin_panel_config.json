@@ -19,8 +19,8 @@
     "baudrate": 9600
   },
   "admin_panel": {
-    "x": 535,
-    "y": 43,
+    "x": 230,
+    "y": 58,
     "width": 1200,
     "height": 1061
   },

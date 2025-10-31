@@ -696,9 +696,11 @@ class BarcodeScannerTab(QWidget):
             QMessageBox.warning(self, "설정 저장 실패", "설정 저장에 실패했습니다.")
     
     def ensure_scan_logs_directory(self):
-        """스캔 로그 디렉토리 확인 및 생성"""
+        """스캔 로그 디렉토리 확인 및 생성 (연도별 폴더)"""
         try:
-            scan_logs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scan_logs")
+            current_year = datetime.now().strftime("%Y")
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            scan_logs_dir = os.path.join(base_dir, "logs", current_year, "scan_logs")
             if not os.path.exists(scan_logs_dir):
                 os.makedirs(scan_logs_dir)
                 print(f"스캔 로그 디렉토리 생성: {scan_logs_dir}")
@@ -706,14 +708,18 @@ class BarcodeScannerTab(QWidget):
             print(f"스캔 로그 디렉토리 생성 실패: {e}")
     
     def save_scan_to_file(self, barcode_data, barcode_info):
-        """스캔 결과를 자동으로 텍스트 파일에 저장"""
+        """스캔 결과를 자동으로 텍스트 파일에 저장 (연도별 폴더)"""
         try:
             # 현재 날짜로 파일명 생성
             today = datetime.now().strftime('%Y-%m-%d')
             filename = f"scan_history_{today}.txt"
             
-            # 파일 경로 설정
-            scan_logs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scan_logs")
+            # 연도별 파일 경로 설정
+            current_year = datetime.now().strftime("%Y")
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            scan_logs_dir = os.path.join(base_dir, "logs", current_year, "scan_logs")
+            if not os.path.exists(scan_logs_dir):
+                os.makedirs(scan_logs_dir)
             file_path = os.path.join(scan_logs_dir, filename)
             
             # 파일이 존재하지 않으면 헤더 작성

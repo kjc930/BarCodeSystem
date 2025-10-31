@@ -6,20 +6,20 @@
       {
         "part_number": "89231CU1001",
         "status": "OK",
-        "scan_time": "16:10:49",
+        "scan_time": "13:39:21",
         "raw_barcode": "[)>\u001e06\u001dV2812\u001dP89231CU1001\u001dS\u001dE\u001dT251002S1B2A0000001\u001dM\u001d\u001e\u0004"
       },
       {
         "part_number": "89231CU1000",
         "status": "OK",
-        "scan_time": "16:10:49",
+        "scan_time": "13:39:22",
         "raw_barcode": "[)>\u001e06\u001dV2812\u001dP89231CU1000\u001dS\u001dE\u001dT2510022000A0000001\u001dM\u001d\u001e\u0004"
       },
       {
         "part_number": "89131CU217",
         "status": "OK",
-        "scan_time": "15:44:26",
-        "raw_barcode": "[)>\u001e06\u001dV2812\u001dP89131CU217\u001dS\u001dE\u001dT2510222000A0000003\u001dM\u001d\u001e\u0004#[)>\u001e06\u001dV2812\u001dP89231CU1000\u001dS\u001dE\u001dT2510222000A0000001\u001dM\u001d\u001e\u0004#[)>\u001e06\u001dV2812\u001dP89231"
+        "scan_time": "11:22:04",
+        "raw_barcode": "[)>\u001e06\u001dV2812\u001dP89131CU217\u001dT251031S2B2A0000010\u001d\u001e\u0004#[)>\u001e06\u001dV2812\u001dP89231CU1000\u001dS\u001dE\u001dT2510022000A0000001\u001dM\u001d\u001e\u0004"
       },
       {
         "part_number": "CU1001\u001dS\u001dE\u001dT2510222000A0000001\u001dM\u001d\u001e\u0004",
@@ -38,11 +38,23 @@
         "status": "NG",
         "scan_time": "12:37:28",
         "raw_barcode": "#[)>\u001e06\u001dVV2812\u001dP89231CU1000\u001dSS\u001dEE\u001dT251023T2510232000A0000091\u001dMM\u001d\u001e\u0004#[)>\u001e06\u001dVV2812\u001dP89231CU1001\u001dSS\u001dEE\u001dT251023T2510232000A0000091\u001dMM\u001d\u001e\u0004"
+      },
+      {
+        "part_number": "89331CU1003",
+        "status": "OK",
+        "scan_time": "13:39:37",
+        "raw_barcode": "[)>\u001e06\u001dV2812\u001dP89331CU1003\u001dS\u001dE\u001dT251002S1B1A0000001\u001dM\u001d\u001e\u0004"
+      },
+      {
+        "part_number": "89231CU1002",
+        "status": "OK",
+        "scan_time": "13:39:37",
+        "raw_barcode": "[)>\u001e06\u001dV2812\u001dP89231CU1002\u001dS\u001dE\u001dT251002S1B1A0000001\u001dM\u001d\u001e\u0004"
       }
     ],
     "created_time": "12:56:35",
-    "last_scan_time": "16:10:49",
-    "print_string": "89131CU214#DIV4#89231CU1001#OK#89231CU1000#OK#89131CU217#OK#CU1001\u001dS\u001dE\u001dT2510222000A0000001\u001dM\u001d\u001e\u0004#NG#[)>\u001e06\u001dVV2812\u001dP89131CU217\u001dSS\u001dEE\u001dT251023T2510232000A0000091\u001dMM\u001d\u001e\u0004#NG##[)>\u001e06\u001dVV2812\u001dP89231CU1000\u001dSS\u001dEE\u001dT251023T2510232000A0000091\u001dMM\u001d\u001e\u0004#[)>\u001e06\u001dVV2812\u001dP89231CU1001\u001dSS\u001dEE\u001dT251023T2510232000A0000091\u001dMM\u001d\u001e\u0004#NG"
+    "last_scan_time": "13:39:37",
+    "print_string": "89131CU214#DIV4"
   },
   {
     "process_barcode": "123456789",
@@ -51,7 +63,7 @@
       {
         "part_number": "89131CU217",
         "status": "NG",
-        "scan_time": "14:14:37",
+        "scan_time": "11:03:39",
         "raw_barcode": "89131CU217"
       },
       {
@@ -68,7 +80,7 @@
       }
     ],
     "created_time": "14:13:24",
-    "last_scan_time": "14:14:38",
+    "last_scan_time": "11:03:39",
     "print_string": "123456789#DIVA001#89131CU217#NG#89231CU1001#OK#89231CU1000#OK"
   }
 ]

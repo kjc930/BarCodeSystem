@@ -1,0 +1,20 @@
+{
+  "timestamp": "20251031_082525",
+  "operation_type": "update",
+  "index": 8,
+  "data": {
+    "supplier_code": "2812",
+    "division": "9",
+    "part_number": "89131CU219",
+    "part_name": "89131CU219",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B1",
+    "use_status": "Y",
+    "initial_sample": "N",
+    "memo": "89131CU219",
+    "child_parts": [],
+    "modified_time": "2025-09-12 10:45:56"
+  },
+  "backup_id": "update_20251031_082525"
+}

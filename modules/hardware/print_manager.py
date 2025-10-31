@@ -57,8 +57,45 @@ class PrintManager:
             
             output_parts = [process_hkmc]
             
-            # 2. 하위부품 HKMC 바코드들 생성
+            # 2. 하위부품 HKMC 바코드들 생성 (출력포함여부 Y인 것만)
+            # 공정부품의 하위부품 정보에서 출력포함여부 확인
+            process_part_number = process_part.get('part_number', '')
+            expected_child_parts = []
+            if hasattr(self.main_window, 'master_data') and self.main_window.master_data:
+                for part_data in self.main_window.master_data:
+                    if part_data.get('part_number') == process_part_number:
+                        expected_child_parts = part_data.get('child_parts', [])
+                        break
+            
+            # 사용유무 Y이고 출력포함여부 Y인 하위부품만 필터링
+            print_include_parts = []
+            for child in expected_child_parts:
+                use_status = child.get('use_status', 'Y')  # 기본값 Y
+                print_include = child.get('print_include', 'Y')  # 기본값 Y
+                
+                # 사용유무가 Y이고 출력포함여부가 Y인 하위부품만 포함
+                if use_status == 'Y' and print_include == 'Y':
+                    print_include_parts.append(child)
+                    print(f"DEBUG: - {child.get('part_number', '')} (사용유무: {use_status}, 출력포함: {print_include})")
+                else:
+                    print(f"DEBUG: - {child.get('part_number', '')} 제외 (사용유무: {use_status}, 출력포함: {print_include})")
+            
+            print(f"DEBUG: 사용유무 Y이고 출력포함여부 Y인 하위부품: {len(print_include_parts)}개")
+            
             for child_data in child_parts_scanned:
+                child_part_number = child_data.get('part_number', '')
+                
+                # 사용유무 Y이고 출력포함여부 Y인 하위부품인지 확인
+                is_print_include = False
+                for print_part in print_include_parts:
+                    if print_part.get('part_number') == child_part_number:
+                        is_print_include = True
+                        break
+                
+                if not is_print_include:
+                    print(f"DEBUG: 하위부품 {child_part_number} 사용유무 N 또는 출력포함여부 N - 바코드에서 제외")
+                    continue
+                
                 # 하위부품 데이터에서 HKMC 정보 추출
                 child_part_data = {
                     'supplier_code': 'V2812',  # 기본값

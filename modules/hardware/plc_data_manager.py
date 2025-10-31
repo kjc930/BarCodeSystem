@@ -403,6 +403,19 @@ class PLCDataManager:
         print(f"  - FRONT 구분값 변화: {front_division_changed} (이전: {getattr(self, 'previous_front_division', '')}, 현재: {front_division})")
         print(f"  - REAR 구분값 변화: {rear_division_changed} (이전: {getattr(self, 'previous_rear_division', '')}, 현재: {rear_division})")
         
+        # 구분값 변경 시 해당 부모 부품번호의 최종 생산수량을 가져오기 (작업중 상태일 때만)
+        # 완료신호가 0(작업중)일 때만 구분값 변경으로 간주하여 해당 부품번호의 생산수량 로드
+        if completion_signal == 0:
+            if front_division_changed and front_division and front_division != "0":
+                print(f"DEBUG: FRONT/LH 구분값 변경 감지 (작업중) - 해당 부품번호의 최종 생산수량 가져오기")
+                if hasattr(self.main_screen, 'reset_production_count_for_division_change'):
+                    self.main_screen.reset_production_count_for_division_change("FRONT/LH", front_division)
+            
+            if rear_division_changed and rear_division and rear_division != "0":
+                print(f"DEBUG: REAR/RH 구분값 변경 감지 (작업중) - 해당 부품번호의 최종 생산수량 가져오기")
+                if hasattr(self.main_screen, 'reset_production_count_for_division_change'):
+                    self.main_screen.reset_production_count_for_division_change("REAR/RH", rear_division)
+        
         # PLC 데이터가 정상적으로 수신되면 정상 상태로 표시
         print(f"DEBUG: PLC 데이터 정상 수신 - 정상 상태로 표시")
         self._update_plc_connection_display('normal')

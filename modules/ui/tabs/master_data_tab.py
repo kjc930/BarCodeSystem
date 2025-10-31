@@ -56,6 +56,9 @@ class MasterDataTab(QWidget):
         self.master_table.setSelectionBehavior(QTableWidget.SelectRows)
         self.master_table.itemSelectionChanged.connect(self.on_selection_changed)
         
+        # 테이블 정렬 기능 활성화 (헤더 클릭으로 정렬 가능)
+        self.master_table.setSortingEnabled(True)
+        
         # 테이블 편집 가능하도록 설정
         self.master_table.setEditTriggers(QTableWidget.DoubleClicked | QTableWidget.EditKeyPressed)
         self.master_table.cellChanged.connect(self.on_cell_changed)
@@ -284,6 +287,8 @@ class MasterDataTab(QWidget):
                 color: white;
             }
         """)
+        # 하위부품 리스트 선택 시 입력 필드에 로드
+        self.child_part_list.itemSelectionChanged.connect(self.on_child_part_selected)
         child_part_layout.addWidget(self.child_part_list)
         
         # 하위 부품번호 관리 버튼
@@ -312,7 +317,7 @@ class MasterDataTab(QWidget):
         self.is_loading_data = True  # 데이터 로딩 시작
         master_data = self.master_data_manager.get_master_data()
         
-        # 데이터 정렬: 사용유무(Y/N) 구분, 업체코드별 분류, 구분값, 부품번호 오름차순
+        # 데이터 정렬: 사용유무(Y 우선), 구분값 오름차순
         master_data = self.sort_master_data(master_data)
         
         self.master_table.setRowCount(len(master_data))
@@ -402,16 +407,16 @@ class MasterDataTab(QWidget):
             use_status = data.get('use_status', 'N')
             use_status_order = 0 if use_status == 'Y' else 1
             
-            # 2순위: 업체코드 (오름차순)
-            supplier_code = data.get('supplier_code', '')
+            # 2순위: 구분값 (숫자로 변환 가능하면 숫자 기준, 아니면 문자열 기준)
+            division = data.get('division', '').strip()
+            try:
+                # 숫자로 변환 가능하면 숫자로 정렬 (1, 2, 11 순서)
+                division_sort = int(division) if division else 0
+            except ValueError:
+                # 숫자가 아니면 문자열로 정렬
+                division_sort = division
             
-            # 3순위: 구분값 (오름차순)
-            division = data.get('division', '')
-            
-            # 4순위: 부품번호 (오름차순)
-            part_number = data.get('part_number', '')
-            
-            return (use_status_order, supplier_code, division, part_number)
+            return (use_status_order, division_sort)
         
         return sorted(master_data, key=sort_key)
     
@@ -466,19 +471,42 @@ class MasterDataTab(QWidget):
         initial_sample = 'Y' if self.initial_sample_checkbox.isChecked() else 'N'
         memo = self.memo_edit.text().strip()
         
-        print(f"DEBUG: 입력된 필수 필드 - 업체코드: '{supplier_code}', 구분: '{division}', 부품번호: '{part_number}'")
+        print(f"DEBUG: 입력된 필수 필드 - 업체코드: '{supplier_code}', 구분: '{division}', 부품번호: '{part_number}', 부품명: '{part_name}', 4M정보: '{fourm_info}'")
         print(f"DEBUG: save_master_data - 체크박스 상태: {self.initial_sample_checkbox.isChecked()}, initial_sample: {initial_sample}")
         
-        if not supplier_code or not part_number or not division:
-            QMessageBox.warning(self, "경고", "업체코드, 구분, Part_No는 필수입니다.")
+        # 필수 항목 검증: 업체코드, 구분, Part_No, Part_Name, 4M정보
+        missing_fields = []
+        if not supplier_code:
+            missing_fields.append("업체코드")
+        if not division:
+            missing_fields.append("구분")
+        if not part_number:
+            missing_fields.append("Part_No")
+        if not part_name:
+            missing_fields.append("Part_Name")
+        if not fourm_info:
+            missing_fields.append("4M정보")
+        
+        if missing_fields:
+            QMessageBox.warning(self, "경고", f"다음 필수 항목을 입력해주세요:\n{', '.join(missing_fields)}")
             return
         
         # 구분값 중복 검증 (사용유무가 Y일 때만)
+        # 수정 모드인 경우 원본 데이터에서 실제 인덱스를 찾아 현재 항목 제외
         if use_status == 'Y':
             master_data = self.master_data_manager.get_master_data()
+            current_item_original_index = None
+            if self.edit_mode:
+                # division과 part_number로 원본 데이터에서 실제 항목 찾기
+                for i, data in enumerate(master_data):
+                    if (data.get('division', '').strip() == division.strip() and 
+                        data.get('part_number', '').strip() == part_number.strip()):
+                        current_item_original_index = i
+                        break
+            
             for i, data in enumerate(master_data):
-                # 수정 모드인 경우 현재 항목은 제외
-                if (self.edit_mode and i == current_row):
+                # 수정 모드인 경우 현재 항목은 제외 (원본 데이터 인덱스 사용)
+                if (self.edit_mode and current_item_original_index is not None and i == current_item_original_index):
                     continue
                 if (data.get('division', '').strip() == division.strip() and 
                     data.get('use_status') == 'Y'):
@@ -517,11 +545,24 @@ class MasterDataTab(QWidget):
             print(f"DEBUG: 수정할 하위 부품번호: {child_parts}")
             print(f"DEBUG: 수정할 전체 데이터: {data}")
             
-            # 수정 전 데이터 백업
-            old_data = self.master_data_manager.master_list[current_row].copy()
-            self.backup_manager.create_backup(old_data, 'update', current_row)
+            # 원본 데이터에서 실제 인덱스 찾기
+            master_data = self.master_data_manager.get_master_data()
+            current_item_original_index = None
+            for i, item in enumerate(master_data):
+                if (item.get('division', '').strip() == division.strip() and 
+                    item.get('part_number', '').strip() == part_number.strip()):
+                    current_item_original_index = i
+                    break
             
-            if self.master_data_manager.update_master_data(current_row, data):
+            if current_item_original_index is None:
+                QMessageBox.warning(self, "오류", "수정할 데이터를 찾을 수 없습니다.")
+                return
+            
+            # 수정 전 데이터 백업 (원본 데이터 인덱스 사용)
+            old_data = master_data[current_item_original_index].copy()
+            self.backup_manager.create_backup(old_data, 'update', current_item_original_index)
+            
+            if self.master_data_manager.update_master_data(current_item_original_index, data):
                 # 저장한 데이터의 initial_sample 값 사용 (파일에 저장된 값)
                 saved_initial_sample = data.get('initial_sample', 'N')
                 
@@ -806,8 +847,39 @@ class MasterDataTab(QWidget):
         self.save_btn.setEnabled(False)
         self.clear_inputs()
     
+    def on_child_part_selected(self):
+        """하위부품 리스트 항목 선택 시 입력 필드에 로드"""
+        try:
+            current_item = self.child_part_list.currentItem()
+            if current_item:
+                text = current_item.text()
+                # "부품번호 - 부품이름 [Y/N] [출력:Y/N]" 형식에서 파싱
+                if ' - ' in text and ' [' in text and ']' in text:
+                    part_number = text.split(' - ')[0]
+                    remaining = text.split(' - ')[1]
+                    part_name = remaining.split(' [')[0]
+                    
+                    # 사용유무와 출력포함여부 파싱
+                    status_parts = remaining.split(' [')[1:]
+                    use_status = status_parts[0].rstrip(']') if status_parts else 'Y'
+                    print_include = 'Y'  # 기본값
+                    
+                    # 출력포함여부 파싱
+                    if len(status_parts) > 1 and '출력:' in status_parts[1]:
+                        print_include = status_parts[1].split('출력:')[1].rstrip(']')
+                    elif '출력:' in text:
+                        print_include = text.split('출력:')[1].split(']')[0]
+                    
+                    # 입력 필드에 로드
+                    self.child_part_number_edit.setText(part_number)
+                    self.child_part_name_edit.setText(part_name)
+                    self.child_use_status_combo.setCurrentText(use_status)
+                    self.child_print_include_combo.setCurrentText(print_include)
+        except Exception as e:
+            print(f"DEBUG: on_child_part_selected 오류: {e}")
+    
     def add_child_part(self):
-        """하위 부품번호 추가"""
+        """하위 부품번호 추가/수정"""
         child_part_number = self.child_part_number_edit.text().strip()
         child_part_name = self.child_part_name_edit.text().strip()
         use_status = self.child_use_status_combo.currentText()
@@ -818,19 +890,37 @@ class MasterDataTab(QWidget):
             return
         
         if self.child_part_list.count() >= 6:
-            QMessageBox.warning(self, "경고", "하위 Part_No는 최대 6개까지 등록할 수 있습니다.")
-            return
+            # 수정 모드인 경우 제외
+            current_item = self.child_part_list.currentItem()
+            if not current_item or not child_part_number in current_item.text():
+                QMessageBox.warning(self, "경고", "하위 Part_No는 최대 6개까지 등록할 수 있습니다.")
+                return
         
-        # 중복 체크
+        # 기존 항목이 있는지 확인 (선택된 항목 제외)
+        existing_item_index = -1
         for i in range(self.child_part_list.count()):
             item = self.child_part_list.item(i)
             if item and child_part_number in item.text():
-                QMessageBox.warning(self, "경고", "이미 등록된 하위 Part_No입니다.")
-                return
+                # 현재 선택된 항목과 같으면 수정 모드
+                if item == self.child_part_list.currentItem():
+                    existing_item_index = i
+                    break
+                else:
+                    # 다른 항목이면 중복 오류
+                    QMessageBox.warning(self, "경고", "이미 등록된 하위 Part_No입니다.")
+                    return
         
-        # 리스트에 추가 (출력포함여부 포함)
+        # 리스트 항목 추가/수정 (출력포함여부 포함)
         item_text = f"{child_part_number} - {child_part_name} [{use_status}] [출력:{print_include}]"
-        self.child_part_list.addItem(item_text)
+        
+        if existing_item_index >= 0:
+            # 기존 항목 수정
+            self.child_part_list.item(existing_item_index).setText(item_text)
+            message = f"하위 Part_No '{child_part_number}'가 수정되고"
+        else:
+            # 새 항목 추가
+            self.child_part_list.addItem(item_text)
+            message = f"하위 Part_No '{child_part_number}'가 추가되고"
         
         # 입력 필드 초기화
         self.child_part_number_edit.clear()
@@ -838,13 +928,16 @@ class MasterDataTab(QWidget):
         self.child_use_status_combo.setCurrentText("Y")
         self.child_print_include_combo.setCurrentText("Y")
         
+        # 리스트 선택 해제
+        self.child_part_list.clearSelection()
+        
         # 현재 선택된 기준정보가 있으면 자동으로 저장
         current_row = self.master_table.currentRow()
         if current_row >= 0:
             self.auto_save_child_parts(current_row)
-            QMessageBox.information(self, "성공", f"하위 Part_No '{child_part_number}'가 추가되고 자동 저장되었습니다.")
+            QMessageBox.information(self, "성공", f"{message} 자동 저장되었습니다.")
         else:
-            QMessageBox.information(self, "성공", f"하위 Part_No '{child_part_number}'가 추가되었습니다.\n기준정보를 선택하고 '수정' 버튼을 눌러 저장하세요.")
+            QMessageBox.information(self, "성공", f"{message}\n기준정보를 선택하고 '수정' 버튼을 눌러 저장하세요.")
     
     def remove_child_part(self):
         """선택된 하위 Part_No 삭제"""
@@ -1133,24 +1226,59 @@ class MasterDataTab(QWidget):
         use_status = get_item_text(row, 7)
         memo = get_item_text(row, 8)
         
-        # 필수 필드 검증
-        if not supplier_code or not part_number or not division:
-            QMessageBox.warning(self, "경고", "업체코드, 구분, Part_No는 필수입니다.")
+        # 필수 항목 검증: 업체코드, 구분, Part_No, Part_Name, 4M정보
+        missing_fields = []
+        if not supplier_code:
+            missing_fields.append("업체코드")
+        if not division:
+            missing_fields.append("구분")
+        if not part_number:
+            missing_fields.append("Part_No")
+        if not part_name:
+            missing_fields.append("Part_Name")
+        if not fourm_info:
+            missing_fields.append("4M정보")
+        
+        if missing_fields:
+            QMessageBox.warning(self, "경고", f"다음 필수 항목을 입력해주세요:\n{', '.join(missing_fields)}")
             return
         
+        # 현재 수정 중인 항목의 원본 데이터 찾기 (division과 part_number로)
+        master_data = self.master_data_manager.get_master_data()
+        current_item_original_index = None
+        for i, data in enumerate(master_data):
+            if (data.get('division', '') == division and 
+                data.get('part_number', '') == part_number):
+                current_item_original_index = i
+                break
+        
         # 구분값 중복 검증 (사용유무가 Y일 때만, 현재 항목 제외)
-        if use_status == 'Y':
-            master_data = self.master_data_manager.get_master_data()
+        # 단, 구분값을 변경하는 경우에만 검증 (4M정보나 다른 필드 수정 시에는 구분값이 같으므로 검증 불필요)
+        if use_status == 'Y' and column == 1:  # 구분값 컬럼(1)을 변경할 때만 검증
             for i, data in enumerate(master_data):
-                if (i != row and 
+                if (current_item_original_index is not None and i != current_item_original_index and
                     data.get('division', '').strip() == division.strip() and 
                     data.get('use_status') == 'Y'):
                     QMessageBox.warning(self, "경고", f"구분값 '{division}'은 이미 사용 중입니다. (사용유무 Y인 항목과 중복) 다른 값을 입력하세요.")
+                    # 변경 취소를 위해 원래 값으로 되돌리기
+                    if current_item_original_index is not None:
+                        original_division = master_data[current_item_original_index].get('division', '')
+                        division_item = QTableWidgetItem(original_division)
+                        division_item.setTextAlignment(Qt.AlignCenter)
+                        self.master_table.setItem(row, 1, division_item)
                     return
         
-        # 기존 하위 부품번호 유지
-        master_data = self.master_data_manager.get_master_data()
-        child_parts = master_data[row].get('child_parts', []) if row < len(master_data) else []
+        # 기존 하위 부품번호 유지 (원본 데이터에서 가져오기)
+        if current_item_original_index is not None:
+            child_parts = master_data[current_item_original_index].get('child_parts', [])
+        else:
+            child_parts = []
+        
+        # initial_sample도 원본 데이터에서 가져오기
+        if current_item_original_index is not None:
+            initial_sample = master_data[current_item_original_index].get('initial_sample', 'N')
+        else:
+            initial_sample = 'N'
         
         # 수정된 시간 업데이트
         from datetime import datetime
@@ -1166,43 +1294,45 @@ class MasterDataTab(QWidget):
             'eo_number': eo_number,
             'fourm_info': fourm_info,
             'use_status': use_status,
+            'initial_sample': initial_sample,
             'memo': memo,
             'child_parts': child_parts,
             'modified_time': current_time
         }
         
-        # 데이터 업데이트
-        if self.master_data_manager.update_master_data(row, data):
-            # 수정된 시간 컬럼 업데이트
-            time_item = QTableWidgetItem(current_time)
-            self.master_table.setItem(row, 9, time_item)
-            
-            # 가운데 정렬이 필요한 컬럼들 업데이트
-            from PyQt5.QtCore import Qt
-            
-            # 업체코드, 구분, 서열코드, 4M정보 가운데 정렬
-            supplier_item = self.master_table.item(row, 0)
-            if supplier_item:
-                supplier_item.setTextAlignment(Qt.AlignCenter)
-            
-            division_item = self.master_table.item(row, 1)
-            if division_item:
-                division_item.setTextAlignment(Qt.AlignCenter)
-            
-            sequence_item = self.master_table.item(row, 4)
-            if sequence_item:
-                sequence_item.setTextAlignment(Qt.AlignCenter)
-            
-            fourm_item = self.master_table.item(row, 6)
-            if fourm_item:
-                fourm_item.setTextAlignment(Qt.AlignCenter)
-            
-            # 백업 생성
-            self.backup_manager.create_backup(data, 'update', row)
-            
-            print(f"DEBUG: 테이블에서 직접 수정된 데이터 저장 완료: {data}")
+        # 데이터 업데이트 (원본 데이터의 인덱스 사용)
+        if current_item_original_index is not None:
+            if self.master_data_manager.update_master_data(current_item_original_index, data):
+                # 수정된 시간 컬럼 업데이트
+                time_item = QTableWidgetItem(current_time)
+                self.master_table.setItem(row, 9, time_item)
+                
+                # 가운데 정렬이 필요한 컬럼들 업데이트
+                from PyQt5.QtCore import Qt
+                
+                # 업체코드, 구분, 서열코드, 4M정보 가운데 정렬
+                supplier_item = self.master_table.item(row, 0)
+                if supplier_item:
+                    supplier_item.setTextAlignment(Qt.AlignCenter)
+                
+                division_item = self.master_table.item(row, 1)
+                if division_item:
+                    division_item.setTextAlignment(Qt.AlignCenter)
+                
+                sequence_item = self.master_table.item(row, 4)
+                if sequence_item:
+                    sequence_item.setTextAlignment(Qt.AlignCenter)
+                
+                fourm_item = self.master_table.item(row, 6)
+                if fourm_item:
+                    fourm_item.setTextAlignment(Qt.AlignCenter)
+                
+                # 백업 생성
+                self.backup_manager.create_backup(data, 'update', current_item_original_index)
+                
+                print(f"DEBUG: 테이블에서 직접 수정된 데이터 저장 완료: {data}")
         else:
-            QMessageBox.warning(self, "오류", "데이터 저장에 실패했습니다.")
+            QMessageBox.warning(self, "오류", "수정할 데이터를 찾을 수 없습니다.")
     
     def on_use_status_changed(self, row, new_status):
         """사용유무 콤보박스 변경 시 자동 저장"""
@@ -1228,9 +1358,21 @@ class MasterDataTab(QWidget):
         fourm_info = get_item_text(row, 6)
         memo = get_item_text(row, 8)
         
-        # 필수 필드 검증
-        if not supplier_code or not part_number or not division:
-            QMessageBox.warning(self, "경고", "업체코드, 구분, Part_No는 필수입니다.")
+        # 필수 항목 검증: 업체코드, 구분, Part_No, Part_Name, 4M정보
+        missing_fields = []
+        if not supplier_code:
+            missing_fields.append("업체코드")
+        if not division:
+            missing_fields.append("구분")
+        if not part_number:
+            missing_fields.append("Part_No")
+        if not part_name:
+            missing_fields.append("Part_Name")
+        if not fourm_info:
+            missing_fields.append("4M정보")
+        
+        if missing_fields:
+            QMessageBox.warning(self, "경고", f"다음 필수 항목을 입력해주세요:\n{', '.join(missing_fields)}")
             return
         
         # 구분값 중복 검증 (사용유무가 Y일 때만, 현재 항목 제외)

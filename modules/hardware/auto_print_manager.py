@@ -30,6 +30,9 @@ class AutoPrintManager(QObject):
             'rear_rh': {'printed': False, 'last_part': None, 'last_time': None}
         }
         
+        # 출력에 사용된 하위부품 정보 저장 (로그 저장용)
+        self.printed_child_parts = {}
+        
         self.init_serial_connection()
         
         print("DEBUG: AutoPrintManager 초기화 완료")
@@ -145,6 +148,12 @@ class AutoPrintManager(QObject):
                 print(f"DEBUG: ===== {panel_type} 패널 출력 완료 =====")
                 # 출력 완료 상태 업데이트
                 self.mark_as_printed(panel_type, process_part)
+                
+                # 출력에 사용된 하위부품 정보 저장 (로그 저장용)
+                panel_name = self.main_window.panel_titles.get(panel_type, panel_type)
+                self.printed_child_parts[panel_name] = child_parts_scanned.copy() if child_parts_scanned else []
+                print(f"DEBUG: 출력에 사용된 하위부품 정보 저장: {panel_name} - {len(self.printed_child_parts[panel_name])}개")
+                
                 self.print_completed.emit(panel_type, True)
                 return True
             else:
@@ -251,15 +260,19 @@ class AutoPrintManager(QObject):
             # HKMC 바코드 형식: [)>06V2812P89131CU217SE251016S1B1A0476217M04
             # 구성: [)> + 06 + V2812 + P + 부품번호 + S + E + T + 추적정보 + M + 04
             
-            # 기준정보에서 업체코드/4M 가져오기
+            # 기준정보에서 업체코드/4M/서열코드/EO번호 가져오기
             supplier_code = self.get_supplier_code_from_master_data(part_number)
             # 4M(fourm_info) 조회
             fourm = '0000'
+            sequence_code = ''  # 서열코드 (기본값 빈 문자열)
+            eo_number = ''  # EO번호 (기본값 빈 문자열)
             try:
                 if hasattr(self.main_window, 'master_data') and self.main_window.master_data:
                     for md in self.main_window.master_data:
                         if md.get('part_number') == part_number:
                             fourm = (md.get('fourm_info') or md.get('fourm') or fourm)
+                            sequence_code = md.get('sequence_code', '').strip() if md.get('sequence_code') else ''
+                            eo_number = md.get('eo_number', '').strip() if md.get('eo_number') else ''
                             break
             except Exception:
                 pass
@@ -267,22 +280,52 @@ class AutoPrintManager(QObject):
             fourm = (fourm or '0000')[:4]
             if len(fourm) < 4:
                 fourm = (fourm + '0000')[:4]
-
-            sequence_code = 'S'  # 시퀀스 코드
-            eo_number = 'E'  # EO 번호
             traceability_code = f'{date_str}{fourm}'  # 추적 코드 (날짜 + 4M)
             serial_type = 'A'  # 시리얼 타입
-            initial_mark = 'M'  # 초도품 마크
+            
+            # 초도품 구분값 가져오기 (기준정보에서)
+            initial_sample = 'N'  # 기본값
+            try:
+                if hasattr(self.main_window, 'master_data') and self.main_window.master_data:
+                    for md in self.main_window.master_data:
+                        if md.get('part_number') == part_number:
+                            init_val = md.get('initial_sample', 'N')
+                            if isinstance(init_val, bool):
+                                initial_sample = 'Y' if init_val else 'N'
+                            elif isinstance(init_val, str):
+                                initial_sample = init_val.upper()
+                            break
+            except Exception as e:
+                print(f"DEBUG: initial_sample 가져오기 오류: {e}")
+                initial_sample = 'N'
             
             # 1. 공정부품 HKMC 바코드 생성 (ASCII 코드 포함)
+            # 초도품 구분 (M 필드): 'Y'일 때만 추가
+            initial_mark_part = ''
+            if initial_sample == 'Y':
+                initial_mark_part = 'M' + initial_sample
+            
+            # 서열코드와 EO번호: 값이 있을 때만 포함
+            seq_part = sequence_code if sequence_code else ''
+            eo_part = eo_number if eo_number else ''
+            
             process_hkmc = (
                 f"[)>06{supplier_code}P{part_number}"
-                f"{sequence_code}{eo_number}{traceability_code}"
-                f"{serial_type}{tracking_number}{initial_mark}04"
+                f"{seq_part}{eo_part}{traceability_code}"
+                f"{serial_type}{tracking_number}{initial_mark_part}04"
             )
             
             # ASCII 코드 추가 (HKMC 규격) - 실제 바이너리 ASCII 코드
-            process_hkmc_ascii = f"[)>\x1e06\x1d{supplier_code}\x1dP{part_number}\x1d{sequence_code}\x1d{eo_number}\x1d{traceability_code}{serial_type}{tracking_number}\x1d{initial_mark}\x1d\x1e\x04"
+            process_s_part = ''
+            if sequence_code:
+                process_s_part = '\x1dS' + sequence_code
+            process_e_part = ''
+            if eo_number:
+                process_e_part = '\x1dE' + eo_number
+            process_m_part = ''
+            if initial_sample == 'Y':
+                process_m_part = '\x1dM' + initial_sample
+            process_hkmc_ascii = f"[)>\x1e06\x1d{supplier_code}\x1dP{part_number}{process_s_part}{process_e_part}\x1d{traceability_code}{serial_type}{tracking_number}{process_m_part}\x1d\x1e\x04"
             
             print(f"DEBUG: 공정부품 HKMC: {process_hkmc}")
             
@@ -330,13 +373,24 @@ class AutoPrintManager(QObject):
                 child_serial_number = child_data.get('serial_number', '0000001')  # 하위부품별 serial_number 사용
                 
                 if child_part_number:
+                    # 하위부품은 초도품 구분 없음 (기본값 'N'이므로 M 필드 생략)
+                    # 서열코드와 EO번호도 값이 있을 때만 포함
+                    child_seq_part = sequence_code if sequence_code else ''
+                    child_eo_part = eo_number if eo_number else ''
                     child_hkmc = (
                         f"[)>06{supplier_code}P{child_part_number}"
-                        f"{sequence_code}{eo_number}{traceability_code}"
-                        f"{child_serial_type}{child_serial_number}{initial_mark}04"
+                        f"{child_seq_part}{child_eo_part}{traceability_code}"
+                        f"{child_serial_type}{child_serial_number}04"
                     )
                     # ASCII 코드 추가 (HKMC 규격) - 실제 바이너리 ASCII 코드
-                    child_hkmc_ascii = f"[)>\x1e06\x1d{supplier_code}\x1dP{child_part_number}\x1d{sequence_code}\x1d{eo_number}\x1d{traceability_code}{child_serial_type}{child_serial_number}\x1d{initial_mark}\x1d\x1e\x04"
+                    # 하위부품은 초도품 구분 없음 (기본값 'N'이므로 M 필드 생략)
+                    child_s_part = ''
+                    if sequence_code:
+                        child_s_part = '\x1dS' + sequence_code
+                    child_e_part = ''
+                    if eo_number:
+                        child_e_part = '\x1dE' + eo_number
+                    child_hkmc_ascii = f"[)>\x1e06\x1d{supplier_code}\x1dP{child_part_number}{child_s_part}{child_e_part}\x1d{traceability_code}{child_serial_type}{child_serial_number}\x1d\x1e\x04"
                     child_hkmc_list.append(child_hkmc_ascii)
                     print(f"DEBUG: 하위부품 HKMC: {child_hkmc}")
                     print(f"DEBUG: 하위부품 HKMC ASCII: {child_hkmc_ascii}")
@@ -344,24 +398,46 @@ class AutoPrintManager(QObject):
             
             # 3. 첨부 파일 방식으로 formatted_data 구성 (프린터용)
             # 공정바코드 (첨부 파일 방식 - ASCII 코드 없이)
+            process_s_for_printer = ''
+            if sequence_code:
+                process_s_for_printer = "_1DS" + sequence_code
+            process_e_for_printer = ''
+            if eo_number:
+                process_e_for_printer = "_1DE" + eo_number
+            process_m_for_printer = ''
+            if initial_sample == 'Y':
+                process_m_for_printer = "_1DM" + initial_sample
+            
             process_barcode_for_printer = "".join([
                 "[)>_1E06",  # Header (RS, ASCII 30)
                 "_1DV" + supplier_code,  # Supplier Code (GS, ASCII 29)
                 "_1DP" + part_number,  # Part Number
-                "_1D" + sequence_code,  # Sequence Code (구분자만)
-                "_1D" + eo_number,  # Engineering Order Number (구분자만)
+                process_s_for_printer,  # 서열코드: 값이 있을 때만 "_1DS" + 값 추가
+                process_e_for_printer,  # EO번호: 값이 있을 때만 "_1DE" + 값 추가
                 "_1DT" + traceability_code,  # Traceability Code (date_str 제거)
                 "" + serial_type + tracking_number,  # A/@ + 추적번호
-                "_1D" + initial_mark,  # 초도품 여부 추가 (구분자만)
+                process_m_for_printer,  # 초도품 구분: 'Y'일 때만 "_1DMY" 추가
                 "_1D_1E_04"  # Trailer (GS + RS + EOT)
             ])
             
             # formatted_data 구성 (프린터용)
             formatted_parts = [process_barcode_for_printer]  # 공정바코드부터 시작
             
-            # 하위부품 정보 추가 (원시데이터 그대로 # 구분기호로 연결)
+            # 하위부품 정보 추가 (출력포함여부 Y인 것만, 원시데이터 그대로 # 구분기호로 연결)
             for child_data in child_parts_scanned:
                 child_part_number = child_data.get('part_number', '')
+                
+                # 출력포함여부 Y인 하위부품인지 확인
+                is_print_include = False
+                for print_part in print_include_parts:
+                    if print_part.get('part_number') == child_part_number:
+                        is_print_include = True
+                        break
+                
+                if not is_print_include:
+                    print(f"DEBUG: 하위부품 {child_part_number} 출력포함여부 N - formatted_parts에서 제외")
+                    continue
+                
                 raw_barcode_data = child_data.get('raw_data', '')  # raw_data 필드 사용
                 if child_part_number and raw_barcode_data:
                     # 하위부품 원시데이터 ASCII 제어문자 변환
@@ -371,15 +447,23 @@ class AutoPrintManager(QObject):
                     print(f"DEBUG: 하위부품 변환된 데이터: {converted_barcode}")
                 elif child_part_number:
                     # 원시데이터가 없는 경우에만 새로 생성
+                    # 하위부품은 초도품 구분 없음 (기본값 'N'이므로 M 필드 생략)
+                    # 서열코드와 EO번호도 값이 있을 때만 포함
+                    child_s_for_printer = ''
+                    if sequence_code:
+                        child_s_for_printer = "_1DS" + sequence_code
+                    child_e_for_printer = ''
+                    if eo_number:
+                        child_e_for_printer = "_1DE" + eo_number
                     child_barcode_for_printer = "".join([
                         "[)>_1E06",  # Header (RS, ASCII 30)
                         "_1DV" + supplier_code,  # Supplier Code (GS, ASCII 29)
                         "_1DP" + child_part_number,  # Part Number
-                        "_1D" + sequence_code,  # Sequence Code (구분자만)
-                        "_1D" + eo_number,  # Engineering Order Number (구분자만)
+                        child_s_for_printer,  # 서열코드: 값이 있을 때만 "_1DS" + 값 추가
+                        child_e_for_printer,  # EO번호: 값이 있을 때만 "_1DE" + 값 추가
                         "_1DT" + traceability_code,  # Traceability Code (date_str 제거)
                         "" + serial_type + tracking_number,  # A/@ + 추적번호
-                        "_1D" + initial_mark,  # 초도품 여부 추가 (구분자만)
+                        # 하위부품은 초도품 구분 없음 (M 필드 생략)
                         "_1D_1E_04"  # Trailer (GS + RS + EOT)
                     ])
                     formatted_parts.append(child_barcode_for_printer)
