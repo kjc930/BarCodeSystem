@@ -3295,8 +3295,8 @@ class BarcodeMainScreen(QMainWindow):
             self.print_logs[log_key].append(print_log_entry)
             print(f"DEBUG: 출력 로그 추가 완료 - {log_key}: {len(self.print_logs[log_key])}개 항목")
             
-            # 출력 로그 파일로 저장
-            self.save_print_logs_to_file()
+            # 출력 로그 파일로 저장 (해당 패널만)
+            self.save_print_logs_to_file(panel_name=panel_name)
             
             # 출력 로그 텍스트 파일로 저장 (출력에 사용된 하위부품 정보 전달)
             self.save_print_log_to_text_file(panel_name, part_number, main_part_info, child_parts_info, success, printed_child_parts)
@@ -3306,8 +3306,8 @@ class BarcodeMainScreen(QMainWindow):
         except Exception as e:
             print(f"DEBUG: 바코드 출력 로그 저장 오류: {e}")
     
-    def save_print_logs_to_file(self):
-        """출력 로그를 날짜별 파일로 저장 (연도별 폴더)"""
+    def save_print_logs_to_file(self, panel_name=None):
+        """출력 로그를 날짜별 파일로 저장 (연도별 폴더) - 해당 패널의 파일만 덮어쓰기"""
         try:
             today = datetime.now().strftime("%Y-%m-%d")
             current_year = datetime.now().strftime("%Y")
@@ -3317,35 +3317,38 @@ class BarcodeMainScreen(QMainWindow):
             if not os.path.exists(year_log_dir):
                 os.makedirs(year_log_dir)
             
-            # FRONT/LH 출력 로그 저장
-            if "front_lh" in self.print_logs and len(self.print_logs["front_lh"]) > 0:
-                front_print_log_file = os.path.join(year_log_dir, f"front_lh_print_{today}.json")
-                with open(front_print_log_file, 'w', encoding='utf-8') as f:
-                    json.dump(self.print_logs["front_lh"], f, ensure_ascii=False, indent=2)
-                print(f"DEBUG: ✅ FRONT/LH 출력 로그 저장 - 파일: {front_print_log_file}, 항목 수: {len(self.print_logs['front_lh'])}")
+            # 패널명이 지정된 경우 해당 패널만 저장
+            if panel_name:
+                if panel_name == "FRONT/LH":
+                    log_key = "front_lh"
+                    file_prefix = "front_lh_print"
+                elif panel_name == "REAR/RH":
+                    log_key = "rear_rh"
+                    file_prefix = "rear_rh_print"
+                else:
+                    print(f"DEBUG: 알 수 없는 패널명: {panel_name}")
+                    return
+                
+                log_file = os.path.join(year_log_dir, f"{file_prefix}_{today}.json")
+                
+                # 해당 패널의 로그 데이터 저장 (기존 내용 덮어쓰기)
+                if log_key not in self.print_logs:
+                    self.print_logs[log_key] = []
+                
+                # 메모리의 모든 로그 데이터를 파일에 저장 (완전히 새로 쓰기)
+                with open(log_file, 'w', encoding='utf-8') as f:
+                    json.dump(self.print_logs[log_key], f, ensure_ascii=False, indent=2)
+                print(f"DEBUG: ✅ {panel_name} 출력 로그 저장 - 파일: {log_file}, 항목 수: {len(self.print_logs[log_key])}")
             else:
-                # 빈 배열로 저장 (파일이 존재하지 않도록 유지)
-                front_print_log_file = os.path.join(year_log_dir, f"front_lh_print_{today}.json")
-                if os.path.exists(front_print_log_file):
-                    # 파일이 있으면 빈 배열로 저장
-                    with open(front_print_log_file, 'w', encoding='utf-8') as f:
-                        json.dump([], f, ensure_ascii=False, indent=2)
-                    print(f"DEBUG: FRONT/LH 출력 로그 빈 배열로 저장 - 파일: {front_print_log_file}")
-            
-            # REAR/RH 출력 로그 저장
-            if "rear_rh" in self.print_logs and len(self.print_logs["rear_rh"]) > 0:
-                rear_print_log_file = os.path.join(year_log_dir, f"rear_rh_print_{today}.json")
-                with open(rear_print_log_file, 'w', encoding='utf-8') as f:
-                    json.dump(self.print_logs["rear_rh"], f, ensure_ascii=False, indent=2)
-                print(f"DEBUG: ✅ REAR/RH 출력 로그 저장 - 파일: {rear_print_log_file}, 항목 수: {len(self.print_logs['rear_rh'])}")
-            else:
-                # 빈 배열로 저장 (파일이 존재하지 않도록 유지)
-                rear_print_log_file = os.path.join(year_log_dir, f"rear_rh_print_{today}.json")
-                if os.path.exists(rear_print_log_file):
-                    # 파일이 있으면 빈 배열로 저장
-                    with open(rear_print_log_file, 'w', encoding='utf-8') as f:
-                        json.dump([], f, ensure_ascii=False, indent=2)
-                    print(f"DEBUG: REAR/RH 출력 로그 빈 배열로 저장 - 파일: {rear_print_log_file}")
+                # 패널명이 없으면 둘 다 저장
+                for log_key, file_prefix in [("front_lh", "front_lh_print"), ("rear_rh", "rear_rh_print")]:
+                    log_file = os.path.join(year_log_dir, f"{file_prefix}_{today}.json")
+                    if log_key not in self.print_logs:
+                        self.print_logs[log_key] = []
+                    
+                    with open(log_file, 'w', encoding='utf-8') as f:
+                        json.dump(self.print_logs[log_key], f, ensure_ascii=False, indent=2)
+                    print(f"DEBUG: ✅ {log_key.upper()} 출력 로그 저장 - 파일: {log_file}, 항목 수: {len(self.print_logs[log_key])}")
             
             print(f"DEBUG: 출력 로그 파일 저장 완료 - {today}")
             
@@ -3861,22 +3864,26 @@ class BarcodeMainScreen(QMainWindow):
             
             # 특정 패널만 저장하거나, 모두 저장
             if panel_name:
-                # 특정 패널만 저장
+                # 특정 패널만 저장 (덮어쓰기)
                 panel_name_upper = panel_name.upper()
                 if panel_name_upper == "FRONT/LH":
                     print(f"DEBUG: FRONT/LH 로그 개수: {len(self.scan_logs['front_lh'])}")
                     front_log_file = os.path.join(year_log_dir, f"front_lh_{today}.json")
+                    
+                    # 메모리의 로그 데이터를 파일에 덮어쓰기
                     with open(front_log_file, 'w', encoding='utf-8') as f:
                         json.dump(self.scan_logs["front_lh"], f, ensure_ascii=False, indent=2)
-                    print(f"DEBUG: FRONT/LH 로그 파일 저장: {front_log_file}")
+                    print(f"DEBUG: FRONT/LH 로그 파일 저장 (덮어쓰기) - 항목 수: {len(self.scan_logs['front_lh'])}")
                 elif panel_name_upper == "REAR/RH":
                     print(f"DEBUG: REAR/RH 로그 개수: {len(self.scan_logs['rear_rh'])}")
                     rear_log_file = os.path.join(year_log_dir, f"rear_rh_{today}.json")
+                    
+                    # 메모리의 로그 데이터를 파일에 덮어쓰기
                     with open(rear_log_file, 'w', encoding='utf-8') as f:
                         json.dump(self.scan_logs["rear_rh"], f, ensure_ascii=False, indent=2)
-                    print(f"DEBUG: REAR/RH 로그 파일 저장: {rear_log_file}")
+                    print(f"DEBUG: REAR/RH 로그 파일 저장 (덮어쓰기) - 항목 수: {len(self.scan_logs['rear_rh'])}")
             else:
-                # 모든 패널 저장 (기존 동작)
+                # 모든 패널 저장 (덮어쓰기)
                 print(f"DEBUG: FRONT/LH 로그 개수: {len(self.scan_logs['front_lh'])}")
                 print(f"DEBUG: REAR/RH 로그 개수: {len(self.scan_logs['rear_rh'])}")
                 
@@ -3884,13 +3891,13 @@ class BarcodeMainScreen(QMainWindow):
                 front_log_file = os.path.join(year_log_dir, f"front_lh_{today}.json")
                 with open(front_log_file, 'w', encoding='utf-8') as f:
                     json.dump(self.scan_logs["front_lh"], f, ensure_ascii=False, indent=2)
-                print(f"DEBUG: FRONT/LH 로그 파일 저장: {front_log_file}")
+                print(f"DEBUG: FRONT/LH 로그 파일 저장 (덮어쓰기) - 항목 수: {len(self.scan_logs['front_lh'])}")
                 
                 # REAR/RH 로그 저장
                 rear_log_file = os.path.join(year_log_dir, f"rear_rh_{today}.json")
                 with open(rear_log_file, 'w', encoding='utf-8') as f:
                     json.dump(self.scan_logs["rear_rh"], f, ensure_ascii=False, indent=2)
-                print(f"DEBUG: REAR/RH 로그 파일 저장: {rear_log_file}")
+                print(f"DEBUG: REAR/RH 로그 파일 저장 (덮어쓰기) - 항목 수: {len(self.scan_logs['rear_rh'])}")
             
             print(f"DEBUG: 로그 파일 저장 완료 - {today}")
             
@@ -3916,9 +3923,23 @@ class BarcodeMainScreen(QMainWindow):
         
         print(f"DEBUG: {panel_name} 작업완료 - Part_No: {part_number}")
         
-        # 작업 완료 시점에 해당 패널의 하위부품 스캔 로그 저장
+        # 작업 완료 시점에 해당 패널의 하위부품 스캔 로그 저장 (덮어쓰기)
         self.save_logs_to_file(panel_name=panel_name)
         print(f"DEBUG: {panel_name} 작업완료 - 하위부품 스캔 로그 저장 완료")
+        
+        # 저장 후 해당 패널의 메모리 로그 초기화 (다음 작업을 위해)
+        if panel_name == "FRONT/LH":
+            self.scan_logs["front_lh"] = []
+            # 프린트 로그도 초기화 (중복 저장 방지)
+            if "front_lh" in self.print_logs:
+                self.print_logs["front_lh"] = []
+            print(f"DEBUG: FRONT/LH 메모리 로그 초기화 완료 (스캔 로그 + 프린트 로그)")
+        elif panel_name == "REAR/RH":
+            self.scan_logs["rear_rh"] = []
+            # 프린트 로그도 초기화 (중복 저장 방지)
+            if "rear_rh" in self.print_logs:
+                self.print_logs["rear_rh"] = []
+            print(f"DEBUG: REAR/RH 메모리 로그 초기화 완료 (스캔 로그 + 프린트 로그)")
         
         # 자동 프린트 실행
         self.auto_print_on_completion(panel_name, part_number, part_name, panel)
