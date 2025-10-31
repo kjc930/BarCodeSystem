@@ -112,7 +112,7 @@
     "eo_number": "",
     "fourm_info": "S1B1",
     "use_status": "Y",
-    "initial_sample": "N",
+    "initial_sample": "Y",
     "memo": "TEST4",
     "child_parts": [
       {
@@ -128,7 +128,7 @@
         "print_include": "Y"
       }
     ],
-    "modified_time": "2025-09-12 15:43:21"
+    "modified_time": "2025-10-31 15:41:03"
   },
   {
     "supplier_code": "2812",

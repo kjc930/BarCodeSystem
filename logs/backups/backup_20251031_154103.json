@@ -1,0 +1,33 @@
+{
+  "timestamp": "20251031_154103",
+  "operation_type": "update",
+  "index": 3,
+  "data": {
+    "supplier_code": "2812",
+    "division": "4",
+    "part_number": "89131CU214",
+    "part_name": "TEST4",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "S1B1",
+    "use_status": "Y",
+    "initial_sample": "Y",
+    "memo": "TEST4",
+    "child_parts": [
+      {
+        "part_number": "89231CU1002",
+        "part_name": "89231CU1002",
+        "use_status": "Y",
+        "print_include": "Y"
+      },
+      {
+        "part_number": "89331CU1003",
+        "part_name": "TEST 89331CU1003",
+        "use_status": "Y",
+        "print_include": "Y"
+      }
+    ],
+    "modified_time": "2025-10-31 15:41:01"
+  },
+  "backup_id": "update_20251031_154103"
+}
