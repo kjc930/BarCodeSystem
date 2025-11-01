@@ -2014,3 +2014,5 @@
 [2025-10-31 15:41:15] 너트1 연결 실패 - 포트: COM7, 오류: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
 [2025-10-31 15:41:15] 너트2 연결 실패 - 포트: COM8, 오류: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
 [2025-10-31 15:41:20] PLC 연결 실패 - 포트: COM6, 오류: could not open port 'COM6': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+[2025-11-01 12:31:53] 너트1 연결 실패 - 포트: COM7, 오류: could not open port 'COM7': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+[2025-11-01 12:31:53] 너트2 연결 실패 - 포트: COM8, 오류: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)

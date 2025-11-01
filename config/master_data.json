@@ -219,7 +219,7 @@
     "part_name": "89131CU219",
     "sequence_code": "",
     "eo_number": "",
-    "fourm_info": "1111",
+    "fourm_info": "2222",
     "use_status": "Y",
     "initial_sample": "N",
     "memo": "89131CU219",
@@ -255,6 +255,6 @@
         "print_include": "Y"
       }
     ],
-    "modified_time": "2025-10-31 08:45:00"
+    "modified_time": "2025-11-01 12:23:59"
   }
 ]

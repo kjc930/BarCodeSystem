@@ -3,7 +3,6 @@
 sw_qrcode_prj.py를 참고하여 작성
 """
 
-from pylibdmtx.pylibdmtx import encode
 from PIL import Image, ImageDraw, ImageFont
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QObject, pyqtSignal
@@ -200,6 +199,11 @@ class PrintModule(QObject):
     
     def generate_data_matrix(self, barcode_data, size=(100, 100)):
         """Data Matrix 바코드 이미지 생성"""
+        if not PYLIBDMTX_AVAILABLE:
+            print("오류: pylibdmtx가 설치되지 않았거나 DLL을 찾을 수 없습니다.")
+            print("Data Matrix 바코드 생성이 불가능합니다. ZPL 프린터를 사용하는 것을 권장합니다.")
+            return None
+            
         try:
             # Data Matrix 인코딩
             encoded = encode(barcode_data.encode('utf-8'))
@@ -212,6 +216,7 @@ class PrintModule(QObject):
             
         except Exception as e:
             print(f"Data Matrix 생성 오류: {e}")
+            print("Data Matrix 바코드 생성에 실패했습니다. ZPL 프린터를 사용하는 것을 권장합니다.")
             return None
     
     def create_label_image(self, barcode_data, part_number, part_name="", production_date="", tracking_number=""):

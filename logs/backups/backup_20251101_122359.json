@@ -1,0 +1,51 @@
+{
+  "timestamp": "20251101_122359",
+  "operation_type": "update",
+  "index": 8,
+  "data": {
+    "supplier_code": "2812",
+    "division": "11",
+    "part_number": "89131CU219",
+    "part_name": "89131CU219",
+    "sequence_code": "",
+    "eo_number": "",
+    "fourm_info": "1111",
+    "use_status": "Y",
+    "initial_sample": "N",
+    "memo": "89131CU219",
+    "child_parts": [
+      {
+        "part_number": "111111111",
+        "part_name": "subassy",
+        "use_status": "Y",
+        "print_include": "Y"
+      },
+      {
+        "part_number": "333333",
+        "part_name": "111",
+        "use_status": "Y",
+        "print_include": "Y"
+      },
+      {
+        "part_number": "44444",
+        "part_name": "4444",
+        "use_status": "Y",
+        "print_include": "Y"
+      },
+      {
+        "part_number": "5555",
+        "part_name": "555",
+        "use_status": "Y",
+        "print_include": "Y"
+      },
+      {
+        "part_number": "6666",
+        "part_name": "6666",
+        "use_status": "Y",
+        "print_include": "Y"
+      }
+    ],
+    "modified_time": "2025-10-31 08:45:00"
+  },
+  "backup_id": "update_20251101_122359"
+}
