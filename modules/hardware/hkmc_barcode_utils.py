@@ -386,6 +386,72 @@ class HKMCBarcodeUtils:
 
         return additional_info
     
+    def get_barcode_info(self, barcode: str) -> Dict:
+        """
+        바코드 정보 딕셔너리 생성 - 분석 다이얼로그용
+        
+        Args:
+            barcode: 바코드 문자열
+            
+        Returns:
+            Dict: 바코드 정보 딕셔너리
+        """
+        try:
+            # 바코드 파싱
+            barcode_data = self.parse_barcode(barcode)
+            
+            # 4M 정보 존재 여부 확인
+            has_4m_info = bool(barcode_data.fourm_info and len(barcode_data.fourm_info) == 4)
+            
+            # 업체명 조회
+            supplier_name = self.supplier_codes.get(barcode_data.supplier_code, "알 수 없음")
+            
+            # 서열부품 여부 확인 (서열코드가 있으면 서열부품)
+            is_sequential = bool(barcode_data.sequence_code)
+            
+            # 바코드 정보 구성
+            barcode_info = {
+                'supplier_code': barcode_data.supplier_code,
+                'part_number': barcode_data.part_number,
+                'manufacturing_date': barcode_data.manufacturing_date,
+                'traceability_type': barcode_data.traceability_type_char,
+                'traceability_number': barcode_data.traceability_number,
+                'sequence_code': barcode_data.sequence_code,
+                'eo_number': barcode_data.eo_number,
+                'initial_sample': barcode_data.initial_sample,
+                'factory_info': barcode_data.factory_info,
+                'line_info': barcode_data.line_info,
+                'shift_info': barcode_data.shift_info,
+                'equipment_info': barcode_data.equipment_info,
+                'has_4m_info': has_4m_info,
+                'supplier_name': supplier_name,
+                'is_sequential': is_sequential,
+                'fourm_info': barcode_data.fourm_info
+            }
+            
+            return barcode_info
+            
+        except Exception as e:
+            print(f"DEBUG: get_barcode_info 오류: {e}")
+            return {
+                'supplier_code': '',
+                'part_number': '',
+                'manufacturing_date': '',
+                'traceability_type': '',
+                'traceability_number': '',
+                'sequence_code': None,
+                'eo_number': None,
+                'initial_sample': None,
+                'factory_info': None,
+                'line_info': None,
+                'shift_info': None,
+                'equipment_info': None,
+                'has_4m_info': False,
+                'supplier_name': '알 수 없음',
+                'is_sequential': False,
+                'fourm_info': None
+            }
+    
     def validate_child_part_barcode(self, barcode: str) -> Tuple[bool, List[str], Dict]:
         """
         하위부품 바코드 검증 - 기존 child_part_barcode_validator와 호환

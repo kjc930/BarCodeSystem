@@ -440,7 +440,23 @@ class BarcodeScannerTab(QWidget):
     def on_code_selected(self, item):
         """바코드 선택 시 자동 분석"""
         barcode = item.text()
-        self.analyze_barcode(barcode)
+        
+        # AdminPanel이 있으면 탭 다이얼로그 사용, 없으면 기존 방식 사용
+        if hasattr(self, 'admin_panel') and self.admin_panel:
+            # #로 구분된 여러 바코드 처리
+            barcode_parts = barcode.split('#')
+            # 빈 문자열 제거
+            barcode_parts = [part.strip() for part in barcode_parts if part.strip()]
+            
+            if len(barcode_parts) > 1:
+                # 여러 바코드인 경우 탭 다이얼로그 사용
+                self.admin_panel.show_barcode_analysis_dialog(barcode_parts)
+            else:
+                # 단일 바코드인 경우도 탭 다이얼로그 사용 (일관성)
+                self.admin_panel.show_barcode_analysis_dialog(barcode_parts)
+        else:
+            # AdminPanel이 없는 경우 기존 방식 사용
+            self.analyze_barcode(barcode)
     
     def update_connection_status_from_main(self, is_connected):
         """메인 화면에서 연결 상태 업데이트"""
@@ -528,7 +544,7 @@ class BarcodeScannerTab(QWidget):
         """테스트용 바코드 추가"""
         import time
         test_barcodes = [
-            "[)>06V2812P89131CU210SET2509052000A0000010M"
+            "[)>06V2812P89131CU217T251031S2B2A0000033MY#[)>06V2812P89231CU1000SET2510022000@0000001M#[)>06V2812P89231CU1001SET251002S1B2A0000001M"
         ]
         
         for i, barcode in enumerate(test_barcodes):
@@ -546,6 +562,56 @@ class BarcodeScannerTab(QWidget):
     
     def analyze_barcode(self, barcode):
         """바코드 분석 및 결과 표시"""
+        try:
+            # #로 구분된 여러 바코드 처리
+            if '#' in barcode:
+                barcode_parts = barcode.split('#')
+                print(f"DEBUG: 여러 바코드 감지 - 개수: {len(barcode_parts)}")
+                
+                # 각 바코드를 개별적으로 분석
+                for idx, single_barcode in enumerate(barcode_parts):
+                    single_barcode = single_barcode.strip()
+                    if not single_barcode:
+                        continue
+                    
+                    print(f"DEBUG: 바코드 {idx+1}/{len(barcode_parts)} 분석: {single_barcode[:50]}...")
+                    self.analyze_single_barcode(single_barcode, idx+1, len(barcode_parts))
+                
+                return
+            
+            # 단일 바코드 처리
+            self.analyze_single_barcode(barcode)
+            
+        except Exception as e:
+            error_msg = f"바코드 분석 오류: {str(e)}"
+            print(f"ERROR: {error_msg}")
+            import traceback
+            print(f"DEBUG: 상세 오류: {traceback.format_exc()}")
+            
+            # 오류 메시지 표시
+            analysis_result = f"""
+                            ❌ 바코드 분석 오류
+
+                            ==================================================
+
+                            🚫 오류 발생: {error_msg}
+
+                            📏 바코드 길이: {len(barcode)} 바이트
+
+                            📊 원본 바코드: {barcode[:200]}
+
+                            💡 가능한 원인:
+
+                            • 바코드 형식이 HKMC 표준과 다름
+
+                            • 바코드가 손상됨
+
+                            • 인식 오류
+                            """
+            self.analysis_text.setPlainText(analysis_result)
+    
+    def analyze_single_barcode(self, barcode, barcode_index=None, total_count=None):
+        """단일 바코드 분석"""
         try:
             # HKMC 바코드 유효성 검증
             is_valid, errors = self.barcode_utils.validate_barcode(barcode)

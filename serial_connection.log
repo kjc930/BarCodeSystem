@@ -12851,3 +12851,87 @@
 2025-11-01 12:31:53,852 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM8, 보드레이트: 9600
 2025-11-01 12:31:53,852 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
 2025-11-01 12:31:53,852 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM8: could not open port 'COM8': FileNotFoundError(2, '지정된 파일을 찾을 수 없습니다.', None, 2)
+2025-11-01 12:51:05,992 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 12:51:06,002 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 12:51:06,003 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 12:51:06,003 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 12:51:06,005 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 12:51:06,005 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 12:56:10,017 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 12:56:10,018 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 12:56:10,020 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 12:56:10,020 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 12:56:10,021 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 12:56:10,021 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 12:57:54,156 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 12:57:54,157 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 12:57:54,159 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 12:57:54,159 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 12:57:54,159 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 12:57:54,160 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 13:02:36,654 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 13:02:36,655 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 13:02:36,657 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 13:02:36,657 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 13:02:36,658 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 13:02:36,658 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 13:08:12,192 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 13:08:12,193 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 13:08:12,195 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 13:08:12,195 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 13:08:12,195 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 13:08:12,195 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 13:10:44,160 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 13:10:44,161 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 13:10:44,163 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 13:10:44,163 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 13:10:44,164 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 13:10:44,164 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 13:13:23,519 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 13:13:23,519 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 13:13:23,521 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 13:13:23,522 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 13:13:23,522 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 13:13:23,522 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 13:14:19,235 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 13:14:19,235 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 13:14:19,237 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 13:14:19,237 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 13:14:19,238 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 13:14:19,238 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 13:16:48,427 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 13:16:48,427 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 13:16:48,429 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 13:16:48,429 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 13:16:48,430 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 13:16:48,430 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 13:17:37,426 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 13:17:37,427 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 13:17:37,429 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 13:17:37,429 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 13:17:37,429 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 13:17:37,430 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 13:19:04,277 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 13:19:04,277 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 13:19:04,279 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 13:19:04,280 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 13:19:04,280 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 13:19:04,280 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 13:19:50,300 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 13:19:50,301 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 13:19:50,302 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 13:19:50,303 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 13:19:50,303 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 13:19:50,303 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 13:25:13,486 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 13:25:13,486 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 13:25:13,488 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 13:25:13,489 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 13:25:13,489 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 13:25:13,489 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)
+2025-11-01 13:27:38,202 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작
+2025-11-01 13:27:38,202 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 COM3 연결 시도 중... (시도 1/3)
+2025-11-01 13:27:38,204 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공: 연결 성공: COM3
+2025-11-01 13:27:38,205 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 시작
+2025-11-01 13:27:38,205 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 설정 저장 성공
+2025-11-01 13:27:38,205 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 UI 업데이트 완료 (연결됨)

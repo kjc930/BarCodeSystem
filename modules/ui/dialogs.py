@@ -188,19 +188,12 @@ class BarcodeAnalysisDialog(QDialog):
         traceability_type_char = self.barcode_data.traceability_type_char or ""
         traceability_number = self.barcode_data.traceability_number or ""
         
-        # 4M 정보 조합
-        m4_info = ""
-        if self.barcode_data.factory_info:
-            m4_info += str(self.barcode_data.factory_info)
-        if self.barcode_data.line_info:
-            m4_info += str(self.barcode_data.line_info)
-        if self.barcode_data.shift_info:
-            m4_info += str(self.barcode_data.shift_info)
-        if self.barcode_data.equipment_info:
-            m4_info += str(self.barcode_data.equipment_info)
+        # 4M 정보 - fourm_info 사용 (파싱된 4자리 4M 정보)
+        m4_info = self.barcode_data.fourm_info or ""
         
         print(f"DEBUG: BarcodeAnalysisDialog - 생산일자: '{manufacturing_date}', 4M: '{m4_info}'")
         print(f"DEBUG: BarcodeAnalysisDialog - 추적타입: '{traceability_type_char}', 추적번호: '{traceability_number}'")
+        print(f"DEBUG: BarcodeAnalysisDialog - fourm_info: '{self.barcode_data.fourm_info}'")
         
         self.production_date_row = self.create_table_row("생산일자", "OK", manufacturing_date)
         self.part_4m_row = self.create_table_row("부품4M", "OK", m4_info)
@@ -228,7 +221,10 @@ class BarcodeAnalysisDialog(QDialog):
         table_layout.addWidget(self.additional_label)
         
         # 부가 정보 행들
-        self.initial_sample_row = self.create_table_row("초도품구분", "-", "")
+        # 초도품 구분 표시 (실제 파싱된 값 사용)
+        initial_sample = self.barcode_data.initial_sample or ""
+        initial_sample_status = "OK" if initial_sample else "-"
+        self.initial_sample_row = self.create_table_row("초도품구분", initial_sample_status, initial_sample)
         table_layout.addWidget(self.initial_sample_row)
         
         # Trailer 행
@@ -426,8 +422,17 @@ class BarcodeAnalysisDialog(QDialog):
     def get_barcode_content_text(self):
         """바코드 내용 텍스트 생성"""
         # 실제 바코드 데이터를 기반으로 색상이 있는 텍스트 생성
-        # 실제 바코드 데이터를 사용하여 텍스트 생성
-        barcode_text = f"[)>RS06G_S{self.barcode_data.supplier_code}G_SP{self.barcode_data.part_number}G_S S_EG_ST{self.barcode_data.manufacturing_date}{self.barcode_data.factory_info or ''}{self.barcode_data.line_info or ''}{self.barcode_data.shift_info or ''}{self.barcode_data.equipment_info or ''}{self.barcode_data.traceability_type.value}{self.barcode_data.traceability_number}G_SMG_SR_SE_OT"
+        # 실제 스캔된 바코드의 원본 값을 사용 (traceability_type_char: A 또는 @)
+        # 4M 정보는 fourm_info 사용
+        trace_type_char = self.barcode_data.traceability_type_char or self.barcode_data.traceability_type.value
+        fourm = self.barcode_data.fourm_info or ""
+        
+        # 초도품 구분 (M 필드) - 값이 있을 때만 추가
+        initial_sample_part = ""
+        if self.barcode_data.initial_sample:
+            initial_sample_part = f"G_SM{self.barcode_data.initial_sample}"
+        
+        barcode_text = f"[)>RS06G_S{self.barcode_data.supplier_code}G_SP{self.barcode_data.part_number}G_S S_EG_ST{self.barcode_data.manufacturing_date}{fourm}{trace_type_char}{self.barcode_data.traceability_number}{initial_sample_part}G_SR_SE_OT"
         return barcode_text
         
     def get_dialog_stylesheet(self):
@@ -1108,19 +1113,12 @@ class BarcodeAnalysisTab(QWidget):
         traceability_type_char = self.barcode_data.traceability_type_char or ""
         traceability_number = self.barcode_data.traceability_number or ""
         
-        # 4M 정보 조합
-        m4_info = ""
-        if self.barcode_data.factory_info:
-            m4_info += str(self.barcode_data.factory_info)
-        if self.barcode_data.line_info:
-            m4_info += str(self.barcode_data.line_info)
-        if self.barcode_data.shift_info:
-            m4_info += str(self.barcode_data.shift_info)
-        if self.barcode_data.equipment_info:
-            m4_info += str(self.barcode_data.equipment_info)
+        # 4M 정보 - fourm_info 사용 (파싱된 4자리 4M 정보)
+        m4_info = self.barcode_data.fourm_info or ""
         
         print(f"DEBUG: BarcodeAnalysisTab - 생산일자: '{manufacturing_date}', 4M: '{m4_info}'")
         print(f"DEBUG: BarcodeAnalysisTab - 추적타입: '{traceability_type_char}', 추적번호: '{traceability_number}'")
+        print(f"DEBUG: BarcodeAnalysisTab - fourm_info: '{self.barcode_data.fourm_info}'")
         
         self.production_date_row = self.create_table_row("생산일자", "OK", manufacturing_date)
         self.part_4m_row = self.create_table_row("부품4M", "OK", m4_info)
@@ -1148,7 +1146,10 @@ class BarcodeAnalysisTab(QWidget):
         table_layout.addWidget(self.additional_label)
         
         # 부가 정보 행들
-        self.initial_sample_row = self.create_table_row("초도품구분", "-", "")
+        # 초도품 구분 표시 (실제 파싱된 값 사용)
+        initial_sample = self.barcode_data.initial_sample or ""
+        initial_sample_status = "OK" if initial_sample else "-"
+        self.initial_sample_row = self.create_table_row("초도품구분", initial_sample_status, initial_sample)
         table_layout.addWidget(self.initial_sample_row)
         
         # Trailer 행
@@ -1345,7 +1346,17 @@ class BarcodeAnalysisTab(QWidget):
     def get_barcode_content_text(self):
         """바코드 내용 텍스트 생성"""
         # 실제 바코드 데이터를 기반으로 색상이 있는 텍스트 생성
-        barcode_text = f"[)>RS06G_S{self.barcode_data.supplier_code}G_SP{self.barcode_data.part_number}G_S S_EG_ST{self.barcode_data.manufacturing_date}{self.barcode_data.factory_info or ''}{self.barcode_data.line_info or ''}{self.barcode_data.shift_info or ''}{self.barcode_data.equipment_info or ''}{self.barcode_data.traceability_type.value}{self.barcode_data.traceability_number}G_SMG_SR_SE_OT"
+        # 실제 스캔된 바코드의 원본 값을 사용 (traceability_type_char: A 또는 @)
+        # 4M 정보는 fourm_info 사용
+        trace_type_char = self.barcode_data.traceability_type_char or self.barcode_data.traceability_type.value
+        fourm = self.barcode_data.fourm_info or ""
+        
+        # 초도품 구분 (M 필드) - 값이 있을 때만 추가
+        initial_sample_part = ""
+        if self.barcode_data.initial_sample:
+            initial_sample_part = f"G_SM{self.barcode_data.initial_sample}"
+        
+        barcode_text = f"[)>RS06G_S{self.barcode_data.supplier_code}G_SP{self.barcode_data.part_number}G_S S_EG_ST{self.barcode_data.manufacturing_date}{fourm}{trace_type_char}{self.barcode_data.traceability_number}{initial_sample_part}G_SR_SE_OT"
         return barcode_text
         
     def get_tab_stylesheet(self):
