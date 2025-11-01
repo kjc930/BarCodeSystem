@@ -2052,3 +2052,8 @@
 [2025-11-01 17:03:11] 너트2 연결 실패 - 포트: COM3, 오류: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
 [2025-11-01 17:26:49] 너트2 연결 실패 - 포트: COM3, 오류: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
 [2025-11-01 17:28:00] 너트2 연결 실패 - 포트: COM3, 오류: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+[2025-11-01 17:30:50] 너트2 연결 실패 - 포트: COM3, 오류: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+[2025-11-01 17:31:15] 너트2 연결 실패 - 포트: COM3, 오류: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+[2025-11-01 17:31:31] 너트2 연결 실패 - 포트: COM3, 오류: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+[2025-11-01 17:32:01] 너트2 연결 실패 - 포트: COM3, 오류: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+[2025-11-01 17:43:53] 너트2 연결 실패 - 포트: COM3, 오류: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)

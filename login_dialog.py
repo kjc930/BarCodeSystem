@@ -309,7 +309,7 @@ class LoginDialog(QDialog):
         """UI 초기화"""
         # 프로그램 버전 정보
         self.version = "1.0.0"
-        self.compile_date = "2025-11-0"
+        self.compile_date = "2025-11-01"
         self.copyright = "© 2025 DAEIL INDUSTRIAL CO., LTD. All rights reserved."
         
         self.setFixedSize(800, 450)

@@ -13823,3 +13823,83 @@
 2025-11-01 17:28:00,144 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
 2025-11-01 17:28:00,145 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
 2025-11-01 17:28:00,145 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-11-01 17:30:50,665 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3) -사용중-
+2025-11-01 17:30:50,665 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:30:50,716 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM3 (9600bps)
+2025-11-01 17:30:50,716 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3) -사용중-
+2025-11-01 17:30:50,716 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:30:50,767 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM3 (9600bps)
+2025-11-01 17:30:50,767 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM5 - Eterlogic Virtual Serial Port(COM5)
+2025-11-01 17:30:50,767 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-11-01 17:30:50,818 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM5 (9600bps)
+2025-11-01 17:30:50,818 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM6 - Eterlogic Virtual Serial Port(COM6)
+2025-11-01 17:30:50,818 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-11-01 17:30:50,869 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM6 (9600bps)
+2025-11-01 17:30:50,869 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3)
+2025-11-01 17:30:50,869 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:30:50,870 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-11-01 17:30:50,870 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-11-01 17:31:15,654 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3) -사용중-
+2025-11-01 17:31:15,654 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:31:15,705 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM3 (9600bps)
+2025-11-01 17:31:15,705 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3) -사용중-
+2025-11-01 17:31:15,705 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:31:15,756 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM3 (9600bps)
+2025-11-01 17:31:15,756 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM5 - Eterlogic Virtual Serial Port(COM5)
+2025-11-01 17:31:15,756 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-11-01 17:31:15,807 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM5 (9600bps)
+2025-11-01 17:31:15,807 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM6 - Eterlogic Virtual Serial Port(COM6)
+2025-11-01 17:31:15,807 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-11-01 17:31:15,858 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM6 (9600bps)
+2025-11-01 17:31:15,858 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3)
+2025-11-01 17:31:15,858 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:31:15,859 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-11-01 17:31:15,859 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-11-01 17:31:31,641 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3) -사용중-
+2025-11-01 17:31:31,641 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:31:31,692 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM3 (9600bps)
+2025-11-01 17:31:31,692 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3) -사용중-
+2025-11-01 17:31:31,692 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:31:31,743 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM3 (9600bps)
+2025-11-01 17:31:31,743 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM5 - Eterlogic Virtual Serial Port(COM5)
+2025-11-01 17:31:31,743 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-11-01 17:31:31,794 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM5 (9600bps)
+2025-11-01 17:31:31,794 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM6 - Eterlogic Virtual Serial Port(COM6)
+2025-11-01 17:31:31,794 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-11-01 17:31:31,845 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM6 (9600bps)
+2025-11-01 17:31:31,845 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3)
+2025-11-01 17:31:31,845 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:31:31,846 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-11-01 17:31:31,846 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-11-01 17:32:01,295 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3) -사용중-
+2025-11-01 17:32:01,295 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:32:01,346 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM3 (9600bps)
+2025-11-01 17:32:01,347 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3) -사용중-
+2025-11-01 17:32:01,347 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:32:01,397 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM3 (9600bps)
+2025-11-01 17:32:01,398 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM5 - Eterlogic Virtual Serial Port(COM5)
+2025-11-01 17:32:01,398 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-11-01 17:32:01,448 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM5 (9600bps)
+2025-11-01 17:32:01,449 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM6 - Eterlogic Virtual Serial Port(COM6)
+2025-11-01 17:32:01,449 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-11-01 17:32:01,500 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM6 (9600bps)
+2025-11-01 17:32:01,500 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3)
+2025-11-01 17:32:01,500 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:32:01,501 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-11-01 17:32:01,501 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-11-01 17:43:53,657 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3) -사용중-
+2025-11-01 17:43:53,658 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:43:53,708 - modules.utils.modules.serial_connection_manager - INFO - PLC 연결 성공 - COM3 (9600bps)
+2025-11-01 17:43:53,709 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3) -사용중-
+2025-11-01 17:43:53,709 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:43:53,760 - modules.utils.modules.serial_connection_manager - INFO - 스캐너 연결 성공 - COM3 (9600bps)
+2025-11-01 17:43:53,760 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 시작 - 포트: COM5 - Eterlogic Virtual Serial Port(COM5)
+2025-11-01 17:43:53,760 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 시도 (1/1) - 포트: COM5, 보드레이트: 9600
+2025-11-01 17:43:53,811 - modules.utils.modules.serial_connection_manager - INFO - 프린터 연결 성공 - COM5 (9600bps)
+2025-11-01 17:43:53,811 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 시작 - 포트: COM6 - Eterlogic Virtual Serial Port(COM6)
+2025-11-01 17:43:53,811 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 시도 (1/1) - 포트: COM6, 보드레이트: 9600
+2025-11-01 17:43:53,862 - modules.utils.modules.serial_connection_manager - INFO - 너트1 연결 성공 - COM6 (9600bps)
+2025-11-01 17:43:53,862 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 시작 - 포트: COM3 - Eterlogic Virtual Serial Port(COM3)
+2025-11-01 17:43:53,863 - modules.utils.modules.serial_connection_manager - INFO - 너트2 연결 시도 (1/1) - 포트: COM3, 보드레이트: 9600
+2025-11-01 17:43:53,863 - modules.utils.modules.serial_connection_manager - WARNING - 너트2 시리얼 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
+2025-11-01 17:43:53,864 - modules.utils.modules.serial_connection_manager - ERROR - 너트2 연결 실패 - COM3: could not open port 'COM3': PermissionError(13, '액세스가 거부되었습니다.', None, 5)
