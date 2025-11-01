@@ -7,7 +7,7 @@ import time
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QComboBox, QPushButton, QGroupBox, QGridLayout, 
                              QSpinBox, QTextEdit, QMessageBox)
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
 import sys
 import os
@@ -50,7 +50,7 @@ class PLCCommunicationTab(QWidget):
         # 포트 선택
         serial_layout.addWidget(QLabel("포트:"), 0, 0)
         self.port_combo = QComboBox()
-        self.port_combo.setMinimumWidth(150)
+        self.port_combo.setMinimumWidth(500)  # "-사용중-" 표시를 위해 너비 확장
         serial_layout.addWidget(self.port_combo, 0, 1)
         
         # 연결 상태 표시 (포트 옆에)
@@ -245,6 +245,17 @@ class PLCCommunicationTab(QWidget):
             available_ports.sort(key=lambda x: x.device)
             for port in available_ports:
                 port_info = f"{port.device} - {port.description}"
+                
+                # AdminPanel에서 포트 사용 중인지 확인
+                is_in_use = False
+                using_tab = None
+                if hasattr(self, 'admin_panel') and self.admin_panel:
+                    is_in_use, using_tab = self.admin_panel.is_port_in_use(port.device, getattr(self, 'tab_name', 'PLC 통신'))
+                
+                # 사용 중인 포트는 "-사용중-" 표시
+                if is_in_use:
+                    port_info += f" -사용중-"
+                
                 self.port_combo.addItem(port_info)
                 print(f"DEBUG: PLC 포트 추가 (사용가능): {port_info}")
         
@@ -252,6 +263,17 @@ class PLCCommunicationTab(QWidget):
         if unavailable_ports:
             for port, error in unavailable_ports:
                 port_info = f"{port.device} - {port.description} (사용불가)"
+                
+                # AdminPanel에서 포트 사용 중인지 확인 (사용불가여도 다른 탭에서 사용 중일 수 있음)
+                is_in_use = False
+                using_tab = None
+                if hasattr(self, 'admin_panel') and self.admin_panel:
+                    is_in_use, using_tab = self.admin_panel.is_port_in_use(port.device, getattr(self, 'tab_name', 'PLC 통신'))
+                
+                # 사용 중인 포트는 "-사용중-" 표시 추가
+                if is_in_use:
+                    port_info = port_info.replace(" (사용불가)", "") + f" -사용중-"
+                
                 self.port_combo.addItem(port_info)
                 print(f"DEBUG: PLC 포트 추가 (사용불가): {port_info}")
         
@@ -302,6 +324,17 @@ class PLCCommunicationTab(QWidget):
                 available_ports.sort(key=lambda x: x.device)
                 for port in available_ports:
                     port_info = f"{port.device} - {port.description}"
+                    
+                    # AdminPanel에서 포트 사용 중인지 확인
+                    is_in_use = False
+                    using_tab = None
+                    if hasattr(self, 'admin_panel') and self.admin_panel:
+                        is_in_use, using_tab = self.admin_panel.is_port_in_use(port.device, getattr(self, 'tab_name', 'PLC 통신'))
+                    
+                    # 사용 중인 포트는 "-사용중-" 표시
+                    if is_in_use:
+                        port_info += f" -사용중-"
+                    
                     self.port_combo.addItem(port_info)
             
             print(f"DEBUG: PLC 강제 새로고침 완료 - {len(available_ports)}개 포트 발견")
@@ -314,7 +347,7 @@ class PLCCommunicationTab(QWidget):
         """간단한 포트 새로고침 - 포트 테스트 없이"""
         import serial.tools.list_ports
         
-        # print("DEBUG: PLC 간단한 포트 새로고침 시작")
+        print("DEBUG: PLC simple_refresh_ports 시작")
         
         # 현재 연결된 포트 정보 저장
         current_connected_port = None
@@ -336,6 +369,17 @@ class PLCCommunicationTab(QWidget):
                 ports.sort(key=lambda x: x.device)
                 for port in ports:
                     port_info = f"{port.device} - {port.description}"
+                    
+                    # AdminPanel에서 포트 사용 중인지 확인
+                    is_in_use = False
+                    using_tab = None
+                    if hasattr(self, 'admin_panel') and self.admin_panel:
+                        is_in_use, using_tab = self.admin_panel.is_port_in_use(port.device, getattr(self, 'tab_name', 'PLC 통신'))
+                    
+                    # 사용 중인 포트는 "-사용중-" 표시
+                    if is_in_use:
+                        port_info += f" -사용중-"
+                    
                     self.port_combo.addItem(port_info)
                     
                     # 현재 연결된 포트가 있으면 선택
@@ -351,6 +395,23 @@ class PLCCommunicationTab(QWidget):
     
     def connect_serial(self):
         """시리얼 포트 연결"""
+        # 포트 중복 사용 확인
+        port_name = self.port_combo.currentText().split(" - ")[0]
+        tab_name = getattr(self, 'tab_name', 'PLC 통신')
+        
+        if hasattr(self, 'admin_panel') and self.admin_panel:
+            is_in_use, using_tab = self.admin_panel.is_port_in_use(port_name, tab_name)
+            if is_in_use:
+                from PyQt5.QtWidgets import QMessageBox
+                QMessageBox.warning(
+                    self, 
+                    "포트 사용 중", 
+                    f"{port_name} 포트는 현재 '{using_tab}' 탭에서 사용 중입니다.\n\n"
+                    f"다른 탭에서 해당 포트 연결을 해제한 후 다시 시도하세요."
+                )
+                self.connect_btn.setChecked(False)
+                return
+        
         # SerialConnectionManager를 사용하여 연결
         success = self.connection_manager.connect_serial(
             self.port_combo, 
@@ -362,14 +423,25 @@ class PLCCommunicationTab(QWidget):
         )
         
         if success:
+            # connection_manager에 admin_panel 및 tab_name 설정 (연결 성공 시 포트 등록용)
+            self.connection_manager.admin_panel = self.admin_panel
+            self.connection_manager.tab_name = tab_name
             self.log_message(f"🚀 PLC 연결 시도 중...")
+            # 연결 완료 시 AdminPanel.register_port에서 모든 탭 새로고침됨
     
     def disconnect_serial(self):
-        """시리얼 포트 연결 해제 - 단순하고 확실한 방법"""
+        """시리얼 포트 연결 해제 - connection_manager 객체 유지"""
         try:
             print("DEBUG: PLC 연결 해제 시작")
             
-            # 연결 매니저가 있으면 간단히 해제
+            # 현재 사용 중인 포트 확인 및 해제
+            port_name = None
+            if hasattr(self.connection_manager, 'port_name'):
+                port_name = self.connection_manager.port_name
+            elif self.port_combo.currentText() != "사용 가능한 포트 없음":
+                port_name = self.port_combo.currentText().split(" - ")[0]
+            
+            # connection_manager를 통해 연결 해제 (내부 상태 정리 포함)
             if self.connection_manager:
                 try:
                     self.connection_manager.disconnect_serial(
@@ -378,17 +450,25 @@ class PLCCommunicationTab(QWidget):
                         self.status_label, 
                         self.log_message
                     )
-                except:
-                    pass
-                self.connection_manager = None
+                    
+                    # 포트 사용 해제
+                    if port_name and hasattr(self, 'admin_panel') and self.admin_panel:
+                        self.admin_panel.unregister_port(port_name)
+                except Exception as e:
+                    print(f"ERROR: connection_manager.disconnect_serial 오류: {e}")
+                    # 오류가 발생해도 UI 상태는 업데이트
+                    self.connect_btn.setEnabled(True)
+                    self.connect_btn.setChecked(False)
+                    self.disconnect_btn.setEnabled(False)
+                    self.disconnect_btn.setChecked(False)
+                    self.status_label.setText("🔴 연결되지 않음")
+                    self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
             
-            # UI 상태 즉시 업데이트
+            # UI 상태 업데이트
             self.port_status_label.setText("🔴 미연결")
             self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
             
-            # 메인화면 알림 제거 - AdminPanel은 독립적인 설정/테스트 도구
-            
-            # 포트 새로고침 (간단한 방법)
+            # 연결 해제 시 포트 목록 새로고침 (사용 중인 포트 상태 반영)
             self.simple_refresh_ports()
             
             print("DEBUG: PLC 연결 해제 완료")
@@ -396,6 +476,19 @@ class PLCCommunicationTab(QWidget):
         except Exception as e:
             print(f"ERROR: PLC 연결 해제 중 오류: {e}")
             self.log_message(f"연결 해제 중 오류: {e}")
+            
+            # 오류가 발생해도 UI 상태는 업데이트
+            try:
+                self.connect_btn.setEnabled(True)
+                self.connect_btn.setChecked(False)
+                self.disconnect_btn.setEnabled(False)
+                self.disconnect_btn.setChecked(False)
+                self.status_label.setText("🔴 연결되지 않음")
+                self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+                self.port_status_label.setText("🔴 미연결")
+                self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
+            except:
+                pass
     
     def on_connection_status(self, success, message):
         """연결 상태 변경 처리"""
@@ -408,6 +501,18 @@ class PLCCommunicationTab(QWidget):
             self.status_label, 
             self.log_message
         )
+        
+        # 연결 상태 변경 시 포트 목록 새로고침 (최초 연결한 탭 포함)
+        # register_port는 connection_status_changed 신호 발송 전에 호출되고
+        # refresh_all_port_lists()도 이미 실행되었지만, 현재 탭의 콤보박스를 확실히 업데이트하기 위해 즉시 새로고침
+        if success:
+            # 연결 성공 시 포트가 이미 등록되어 있으므로 즉시 새로고침
+            # QTimer.singleShot으로 약간 지연하여 refresh_all_port_lists() 실행 후 새로고침
+            from PyQt5.QtCore import QTimer
+            QTimer.singleShot(10, self.simple_refresh_ports)
+        else:
+            # 연결 실패 시 즉시 새로고침
+            self.simple_refresh_ports()
         
         # 포트 상태 라벨 업데이트
         if success:

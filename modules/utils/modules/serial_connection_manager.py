@@ -49,6 +49,8 @@ class SerialConnectionManager(QObject):
         self._reconnect_timer = QTimer()
         self._reconnect_timer.timeout.connect(self._attempt_reconnect)
         self._last_error = None
+        self.port_name = None  # 현재 연결된 포트명
+        self.admin_panel = None  # AdminPanel 참조 (포트 관리용)
         
     def connect_serial(self, port_combo, baudrate_combo, connect_btn, disconnect_btn, status_label, log_callback):
         """시리얼 포트 연결 - 안정성 강화"""
@@ -66,6 +68,9 @@ class SerialConnectionManager(QObject):
                 
                 port_name = port_combo.currentText().split(" - ")[0]
                 baudrate = int(baudrate_combo.currentText())
+                
+                # 포트명 저장 (나중에 해제 시 사용)
+                self.port_name = port_name
                 
                 # 기존 연결이 있으면 안전하게 해제
                 if self.serial_thread and self.serial_thread.isRunning():
@@ -119,6 +124,11 @@ class SerialConnectionManager(QObject):
                     
                     self.serial_thread = None
                 
+                # 포트 사용 해제 (AdminPanel에 등록되어 있다면)
+                if self.port_name and self.admin_panel:
+                    self.admin_panel.unregister_port(self.port_name)
+                    logger.info(f"{self.device_name} 포트 해제: {self.port_name}")
+                
                 # 연결 해제 시 버튼 상태 업데이트
                 connect_btn.setEnabled(True)
                 connect_btn.setChecked(False)
@@ -129,6 +139,7 @@ class SerialConnectionManager(QObject):
                 
                 self.is_connected = False
                 self._connection_attempts = 0
+                self.port_name = None  # 포트명 초기화
                 logger.info(f"{self.device_name} 연결 해제 완료")
                 log_callback("연결이 해제되었습니다.")
                 
@@ -148,9 +159,19 @@ class SerialConnectionManager(QObject):
                 self._connection_attempts = 0  # 연결 성공 시 시도 횟수 리셋
                 if self._reconnect_timer.isActive():
                     self._reconnect_timer.stop()
+                
+                # 연결 성공 시 포트 등록 (실제 포트가 열린 후)
+                if self.port_name and self.admin_panel:
+                    tab_name = getattr(self, 'tab_name', self.device_name)
+                    self.admin_panel.register_port(self.port_name, tab_name)
+                    logger.info(f"{self.device_name} 포트 등록 완료: {self.port_name} → {tab_name}")
             else:
                 logger.warning(f"{self.device_name} 연결 실패: {message}")
                 self._last_error = message
+                
+                # 연결 실패 시 포트 해제 (등록되지 않았더라도 안전하게)
+                if self.port_name and self.admin_panel:
+                    self.admin_panel.unregister_port(self.port_name)
                 
                 # 자동 재연결 시도
                 if self._connection_attempts < self._max_connection_attempts:

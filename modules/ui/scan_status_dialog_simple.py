@@ -48,7 +48,11 @@ class SimpleScanStatusDialog(QDialog):
     def setup_ui(self):
         """UI 설정 - ScanStatusDialog 스타일 적용"""
         self.setWindowTitle("Part_No 스캔 현황")
-        self.setModal(True)
+        # 시뮬레이션 모드에서는 모달리스, 정상 모드에서는 모달
+        is_simulation_mode = False
+        if self.main_window and hasattr(self.main_window, 'plc_data_manager') and self.main_window.plc_data_manager:
+            is_simulation_mode = getattr(self.main_window.plc_data_manager, 'simulation_mode', False)
+        self.setModal(not is_simulation_mode)  # 시뮬레이션 모드일 때만 모달리스
         self.resize(900, 400)  # ScanStatusDialog와 동일한 크기
         self.setStyleSheet(get_main_dialog_style())
         

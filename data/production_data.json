@@ -2,9 +2,18 @@
   "current_date": "2025-11-01",
   "daily_total": {
     "2025-11-01": {
-      "FRONT/LH": 0,
-      "REAR/RH": 0
+      "FRONT/LH": 1,
+      "REAR/RH": 8
     }
   },
-  "part_counts": {}
+  "part_counts": {
+    "89131CU217": {
+      "FRONT/LH": 0,
+      "REAR/RH": 8
+    },
+    "89131CU214": {
+      "FRONT/LH": 1,
+      "REAR/RH": 0
+    }
+  }
 }

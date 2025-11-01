@@ -9,7 +9,7 @@ import os
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QTabWidget, QLabel, QPushButton, 
                              QMessageBox, QSystemTrayIcon, QMenu, QAction)
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QThread
 from PyQt5.QtGui import QFont, QIcon
 
 # modules 디렉토리를 Python 경로에 추가 (상대경로)
@@ -33,12 +33,38 @@ from modules.ui.dialogs import BarcodeAnalysisDialog, ScanHistoryDialog
 class AdminPanel(QMainWindow):
     """시리얼 통신 관리자 패널"""
     
-    def __init__(self):
+    # 중복 실행 방지를 위한 클래스 변수
+    _instance = None
+    
+    def __new__(cls, *args, **kwargs):
+        """싱글톤 패턴 - 중복 실행 방지"""
+        if cls._instance is not None:
+            # 이미 실행 중인 인스턴스가 있으면 기존 인스턴스 반환
+            if hasattr(cls._instance, '_initialized') and cls._instance._initialized:
+                print("⚠️ 관리자 패널이 이미 실행 중입니다. 기존 창을 활성화합니다.")
+                return cls._instance
+        cls._instance = super().__new__(cls)
+        return cls._instance
+    
+    def __init__(self, *args, **kwargs):
+        # QMainWindow 초기화를 먼저 수행 (필수)
+        # super().__init__() 호출 전에는 속성 접근이 불안정할 수 있음
         super().__init__()
+        
+        # 이미 초기화되었는지 확인 (기존 인스턴스 재사용 시)
+        # super().__init__() 이후에 체크하여 안전하게 접근
+        if hasattr(self, '_initialized') and self._initialized:
+            return
+        
+        # 초기화 플래그 설정
+        self._initialized = True
         self.settings_manager = SettingsManager()
         
         # 메인 화면 참조 (바코드 스캔 이벤트 전달용)
         self.main_screen = None
+        
+        # 포트 사용 추적 (포트명 -> 탭명 매핑)
+        self.port_usage = {}  # 예: {"COM3": "PLC 통신", "COM4": "바코드 스캐너"}
         
         self.init_ui()
         self.setup_tray_icon()
@@ -46,7 +72,12 @@ class AdminPanel(QMainWindow):
         
     def init_ui(self):
         """UI 초기화"""
-        self.setWindowTitle("시리얼 통신 관리자 패널")
+        # 프로그램 버전 정보
+        self.version = "1.0.0"
+        self.compile_date = "2024-03-19"
+        self.copyright = "© 2024 DAEIL INDUSTRIAL CO., LTD. All rights reserved."
+        
+        self.setWindowTitle(f"시리얼 통신 관리자 패널 v{self.version}")
         self.setGeometry(100, 100, 1200, 800)
         self.setStyleSheet(get_main_window_style())
         
@@ -114,10 +145,15 @@ class AdminPanel(QMainWindow):
         
         # 각 탭에 admin_panel 참조 설정
         self.plc_tab.admin_panel = self
+        self.plc_tab.tab_name = "PLC 통신"
         self.scanner_tab.admin_panel = self
+        self.scanner_tab.tab_name = "바코드 스캐너"
         self.printer_tab.admin_panel = self
+        self.printer_tab.tab_name = "바코드 프린터"
         self.nutrunner_tab.admin_panel = self
+        self.nutrunner_tab.tab_name = "너트 런너"
         self.master_data_tab.admin_panel = self
+        self.master_data_tab.tab_name = "기준정보"
         
         # 바코드 스캐너 탭에 메인 화면 참조 설정
         if hasattr(self.scanner_tab, 'set_main_screen_reference'):
@@ -187,9 +223,13 @@ class AdminPanel(QMainWindow):
         """창 닫기 이벤트"""
         try:
             self.save_settings()
+            # 인스턴스 참조 제거 (다시 실행 가능하도록)
+            AdminPanel._instance = None
             event.accept()
         except Exception as e:
             print(f"⚠️ 종료 처리 실패: {e}")
+            # 인스턴스 참조 제거 (오류가 발생해도)
+            AdminPanel._instance = None
             event.accept()
     
     def on_barcode_scanned(self, barcode: str):
@@ -229,10 +269,75 @@ class AdminPanel(QMainWindow):
             print(f"ERROR: 바코드 분석 다이얼로그 표시 오류: {e}")
             import traceback
             print(f"DEBUG: 상세 오류: {traceback.format_exc()}")
+    
+    def is_port_in_use(self, port_name, current_tab_name):
+        """포트가 사용 중인지 확인 (현재 탭 포함)"""
+        if port_name in self.port_usage:
+            using_tab = self.port_usage[port_name]
+            # 현재 탭이든 다른 탭이든 사용 중이면 True 반환
+            return True, using_tab
+        return False, None
+    
+    def register_port(self, port_name, tab_name):
+        """포트 등록 및 모든 탭의 포트 목록 새로고침"""
+        self.port_usage[port_name] = tab_name
+        print(f"DEBUG: 포트 등록 - {port_name} → {tab_name}, 현재 등록된 포트: {self.port_usage}")
+        
+        # 모든 탭의 포트 목록 즉시 새로고침 (포트 등록 후 바로 반영)
+        # 동기적으로 실행하여 포트 등록 상태가 확실히 반영되도록 함
+        self.refresh_all_port_lists()
+    
+    def unregister_port(self, port_name):
+        """포트 사용 해제 및 모든 탭의 포트 목록 새로고침"""
+        if port_name in self.port_usage:
+            tab_name = self.port_usage.pop(port_name)
+            print(f"DEBUG: 포트 해제 - {port_name} (이전 사용 탭: {tab_name})")
+            
+            # 모든 탭의 포트 목록 새로고침 (해제 완료 시 즉시 반영)
+            # QTimer.singleShot으로 다음 이벤트 루프에서 실행하여 UI 업데이트가 확실히 반영되도록 함
+            QTimer.singleShot(0, self.refresh_all_port_lists)
+            return True
+        return False
+    
+    def refresh_all_port_lists(self):
+        """모든 탭의 포트 목록 새로고침 (연결/해제 시 모든 탭 콤보박스 업데이트)"""
+        try:
+            print(f"DEBUG: refresh_all_port_lists 시작 - 현재 등록된 포트: {self.port_usage}")
+            
+            # 모든 탭의 포트 목록 새로고침
+            tabs_to_refresh = [
+                ('plc_tab', 'PLC 통신'),
+                ('scanner_tab', '바코드 스캐너'),
+                ('printer_tab', '바코드 프린터'),
+                ('nutrunner_tab', '너트 런너')
+            ]
+            
+            for tab_attr, tab_name in tabs_to_refresh:
+                if hasattr(self, tab_attr):
+                    tab = getattr(self, tab_attr)
+                    if tab and hasattr(tab, 'simple_refresh_ports'):
+                        try:
+                            tab.simple_refresh_ports()
+                            print(f"DEBUG: {tab_name} 탭 포트 목록 새로고침 완료")
+                        except Exception as e:
+                            print(f"DEBUG: {tab_name} 탭 포트 목록 새로고침 오류: {e}")
+        except Exception as e:
+            print(f"DEBUG: 포트 목록 새로고침 오류: {e}")
 
 
 def main():
     """메인 함수"""
+    # 이미 실행 중인 인스턴스가 있는지 확인
+    if AdminPanel._instance is not None:
+        print("⚠️ 관리자 패널이 이미 실행 중입니다. 기존 창을 활성화합니다.")
+        # 기존 창을 앞으로 가져오기
+        existing_window = AdminPanel._instance
+        existing_window.show()
+        existing_window.raise_()
+        existing_window.activateWindow()
+        # QApplication은 이미 실행 중이므로 종료하지 않음
+        return
+    
     app = QApplication(sys.argv)
     
     # 전역 예외 처리

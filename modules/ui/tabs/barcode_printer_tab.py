@@ -52,7 +52,7 @@ class BarcodePrinterTab(QWidget):
         # 포트 선택
         serial_layout.addWidget(QLabel("포트:"), 0, 0)
         self.port_combo = QComboBox()
-        self.port_combo.setMinimumWidth(150)
+        self.port_combo.setMinimumWidth(500)  # "-사용중-" 표시를 위해 너비 확장
         serial_layout.addWidget(self.port_combo, 0, 1)
         
         # 연결 상태 표시 (포트 옆에)
@@ -237,6 +237,17 @@ class BarcodePrinterTab(QWidget):
         if available_ports:
             for port in available_ports:
                 port_info = f"{port.device} - {port.description}"
+                
+                # AdminPanel에서 포트 사용 중인지 확인
+                is_in_use = False
+                using_tab = None
+                if hasattr(self, 'admin_panel') and self.admin_panel:
+                    is_in_use, using_tab = self.admin_panel.is_port_in_use(port.device, getattr(self, 'tab_name', '바코드 프린터'))
+                
+                # 사용 중인 포트는 "-사용중-" 표시
+                if is_in_use:
+                    port_info += f" -사용중-"
+                
                 self.port_combo.addItem(port_info)
                 print(f"DEBUG: 프린터 포트 추가 (사용가능): {port_info}")
         
@@ -244,6 +255,17 @@ class BarcodePrinterTab(QWidget):
         if unavailable_ports:
             for port, error in unavailable_ports:
                 port_info = f"{port.device} - {port.description} (사용불가)"
+                
+                # AdminPanel에서 포트 사용 중인지 확인
+                is_in_use = False
+                using_tab = None
+                if hasattr(self, 'admin_panel') and self.admin_panel:
+                    is_in_use, using_tab = self.admin_panel.is_port_in_use(port.device, getattr(self, 'tab_name', '바코드 프린터'))
+                
+                # 사용 중인 포트는 "-사용중-" 표시
+                if is_in_use:
+                    port_info = f"{port.device} - {port.description} -사용중-"
+                
                 self.port_combo.addItem(port_info)
                 print(f"DEBUG: 프린터 포트 추가 (사용불가): {port_info}")
         
@@ -293,6 +315,17 @@ class BarcodePrinterTab(QWidget):
             else:
                 for port in available_ports:
                     port_info = f"{port.device} - {port.description}"
+                    
+                    # AdminPanel에서 포트 사용 중인지 확인
+                    is_in_use = False
+                    using_tab = None
+                    if hasattr(self, 'admin_panel') and self.admin_panel:
+                        is_in_use, using_tab = self.admin_panel.is_port_in_use(port.device, getattr(self, 'tab_name', '바코드 프린터'))
+                    
+                    # 사용 중인 포트는 "-사용중-" 표시
+                    if is_in_use:
+                        port_info += f" -사용중-"
+                    
                     self.port_combo.addItem(port_info)
             
             print(f"DEBUG: 강제 새로고침 완료 - {len(available_ports)}개 포트 발견")
@@ -305,7 +338,7 @@ class BarcodePrinterTab(QWidget):
         """간단한 포트 새로고침 - 포트 테스트 없이"""
         import serial.tools.list_ports
         
-        print("DEBUG: 간단한 포트 새로고침 시작")
+        print(f"DEBUG: 프린터 simple_refresh_ports 시작 - admin_panel: {hasattr(self, 'admin_panel') and self.admin_panel is not None}")
         
         # 현재 연결된 포트 정보 저장
         current_connected_port = None
@@ -324,8 +357,20 @@ class BarcodePrinterTab(QWidget):
                 self.port_combo.addItem("사용 가능한 포트 없음")
                 print("DEBUG: 포트 없음")
             else:
+                ports.sort(key=lambda x: x.device)
                 for port in ports:
                     port_info = f"{port.device} - {port.description}"
+                    
+                    # AdminPanel에서 포트 사용 중인지 확인
+                    is_in_use = False
+                    using_tab = None
+                    if hasattr(self, 'admin_panel') and self.admin_panel:
+                        is_in_use, using_tab = self.admin_panel.is_port_in_use(port.device, getattr(self, 'tab_name', '바코드 프린터'))
+                    
+                    # 사용 중인 포트는 "-사용중-" 표시
+                    if is_in_use:
+                        port_info += f" -사용중-"
+                    
                     self.port_combo.addItem(port_info)
                     
                     # 현재 연결된 포트가 있으면 선택
@@ -347,6 +392,22 @@ class BarcodePrinterTab(QWidget):
             return
         
         port_name = self.port_combo.currentText().split(" - ")[0]
+        tab_name = getattr(self, 'tab_name', '바코드 프린터')
+        
+        # 포트 중복 사용 확인
+        if hasattr(self, 'admin_panel') and self.admin_panel:
+            is_in_use, using_tab = self.admin_panel.is_port_in_use(port_name, tab_name)
+            if is_in_use:
+                from PyQt5.QtWidgets import QMessageBox
+                QMessageBox.warning(
+                    self, 
+                    "포트 사용 중", 
+                    f"{port_name} 포트는 현재 '{using_tab}' 탭에서 사용 중입니다.\n\n"
+                    f"다른 탭에서 해당 포트 연결을 해제한 후 다시 시도하세요."
+                )
+                self.connect_btn.setChecked(False)
+                return
+        
         baudrate = int(self.baudrate_combo.currentText())
         
         import serial
@@ -356,16 +417,29 @@ class BarcodePrinterTab(QWidget):
         self.serial_thread.connection_status.connect(self.on_connection_status)
         self.serial_thread.start()
         
+        # 포트명 및 admin_panel 정보 저장 (연결 성공 시 등록용)
+        self.serial_thread.port_name = port_name
+        self.serial_thread.admin_panel = getattr(self, 'admin_panel', None)
+        self.serial_thread.tab_name = tab_name
+        
         # 버튼 상태 업데이트
         self.connect_btn.setChecked(True)
         self.disconnect_btn.setChecked(False)
         
         self.log_message(f"{port_name} 연결 시도 중...")
+        # 연결 완료 시 AdminPanel.register_port에서 모든 탭 새로고침됨
     
     def disconnect_serial(self):
         """시리얼 포트 연결 해제 - 단순하고 확실한 방법"""
         try:
             print("DEBUG: 프린터 연결 해제 시작")
+            
+            # 현재 사용 중인 포트 확인
+            port_name = None
+            if self.serial_thread and hasattr(self.serial_thread, 'port_name'):
+                port_name = self.serial_thread.port_name
+            elif self.port_combo.currentText() != "사용 가능한 포트 없음":
+                port_name = self.port_combo.currentText().split(" - ")[0]
             
             # 시리얼 스레드가 있으면 간단히 종료
             if self.serial_thread:
@@ -374,6 +448,11 @@ class BarcodePrinterTab(QWidget):
                     self.serial_thread.wait(500)  # 0.5초만 대기
                 except:
                     pass
+                
+                # 포트 사용 해제
+                if port_name and hasattr(self, 'admin_panel') and self.admin_panel:
+                    self.admin_panel.unregister_port(port_name)
+                
                 self.serial_thread = None
             
             # UI 상태 즉시 업데이트
@@ -386,9 +465,7 @@ class BarcodePrinterTab(QWidget):
             self.port_status_label.setText("🔴 미연결")
             self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
             
-            # 메인화면 알림 제거 - AdminPanel은 독립적인 설정/테스트 도구
-            
-            # 포트 새로고침 (간단한 방법)
+            # 연결 해제 시 포트 목록 새로고침 (사용 중인 포트 상태 반영)
             self.simple_refresh_ports()
             
             self.log_message("연결이 해제되었습니다.")
@@ -400,6 +477,18 @@ class BarcodePrinterTab(QWidget):
     
     def on_connection_status(self, success, message):
         """연결 상태 변경 처리"""
+        # 연결 상태 변경 시 포트 목록 새로고침 (최초 연결한 탭 포함)
+        # register_port는 connection_status_changed 신호 발송 전에 호출되고
+        # refresh_all_port_lists()도 이미 실행되었지만, 현재 탭의 콤보박스를 확실히 업데이트하기 위해 즉시 새로고침
+        if success:
+            # 연결 성공 시 포트가 이미 등록되어 있으므로 즉시 새로고침
+            # QTimer.singleShot으로 약간 지연하여 refresh_all_port_lists() 실행 후 새로고침
+            from PyQt5.QtCore import QTimer
+            QTimer.singleShot(10, self.simple_refresh_ports)
+        else:
+            # 연결 실패 시 즉시 새로고침
+            self.simple_refresh_ports()
+        
         if success:
             self.connect_btn.setEnabled(False)
             self.connect_btn.setChecked(True)

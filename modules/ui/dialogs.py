@@ -156,12 +156,17 @@ class BarcodeAnalysisDialog(QDialog):
         # 사양 정보 행들
         supplier_code = self.barcode_data.supplier_code or ""
         part_number = self.barcode_data.part_number or ""
+        sequence_code = self.barcode_data.sequence_code or ""
+        eo_number = self.barcode_data.eo_number or ""
         print(f"DEBUG: BarcodeAnalysisDialog - 업체코드: '{supplier_code}', 부품번호: '{part_number}'")
+        print(f"DEBUG: BarcodeAnalysisDialog - 서열코드: '{sequence_code}', EO번호: '{eo_number}'")
         
         self.company_code_row = self.create_table_row("업체코드", "OK", supplier_code)
         self.part_number_row = self.create_table_row("부품번호", "OK", part_number)
-        self.sequence_code_row = self.create_table_row("서열코드", "-", "해당시 필수")
-        self.eo_number_row = self.create_table_row("EO번호", "-", "")
+        sequence_code_status = "OK" if sequence_code else "-"
+        eo_number_status = "OK" if eo_number else "-"
+        self.sequence_code_row = self.create_table_row("서열코드", sequence_code_status, sequence_code if sequence_code else "해당시 필수")
+        self.eo_number_row = self.create_table_row("EO번호", eo_number_status, eo_number if eo_number else "")
         
         table_layout.addWidget(self.company_code_row)
         table_layout.addWidget(self.part_number_row)
@@ -1081,12 +1086,17 @@ class BarcodeAnalysisTab(QWidget):
         # 사양 정보 행들
         supplier_code = self.barcode_data.supplier_code or ""
         part_number = self.barcode_data.part_number or ""
+        sequence_code = self.barcode_data.sequence_code or ""
+        eo_number = self.barcode_data.eo_number or ""
         print(f"DEBUG: BarcodeAnalysisTab - 업체코드: '{supplier_code}', 부품번호: '{part_number}'")
+        print(f"DEBUG: BarcodeAnalysisTab - 서열코드: '{sequence_code}', EO번호: '{eo_number}'")
         
         self.company_code_row = self.create_table_row("업체코드", "OK", supplier_code)
         self.part_number_row = self.create_table_row("부품번호", "OK", part_number)
-        self.sequence_code_row = self.create_table_row("서열코드", "-", "해당시 필수")
-        self.eo_number_row = self.create_table_row("EO번호", "-", "")
+        sequence_code_status = "OK" if sequence_code else "-"
+        eo_number_status = "OK" if eo_number else "-"
+        self.sequence_code_row = self.create_table_row("서열코드", sequence_code_status, sequence_code if sequence_code else "해당시 필수")
+        self.eo_number_row = self.create_table_row("EO번호", eo_number_status, eo_number if eo_number else "")
         
         table_layout.addWidget(self.company_code_row)
         table_layout.addWidget(self.part_number_row)

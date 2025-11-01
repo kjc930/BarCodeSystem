@@ -19,28 +19,34 @@
     "baudrate": 9600
   },
   "admin_panel": {
-    "x": 316,
-    "y": 123,
+    "x": 171,
+    "y": 180,
     "width": 1200,
     "height": 1061
   },
   "scanner": {
-    "port": "COM3 - Eterlogic Virtual Serial Port(COM3)",
+    "port": "COM3 - Eterlogic Virtual Serial Port(COM3) -사용중-",
     "baudrate": 9600,
     "terminator": "\\r\\n (CRLF)",
     "auto_scan": true
   },
   "printer": {
-    "port": "COM4 - Eterlogic Virtual Serial Port(COM4)",
+    "port": "COM5 - Eterlogic Virtual Serial Port(COM5)",
     "baudrate": 9600,
     "quality": "표준 (4 DPS)"
   },
   "plc": {
-    "port": "COM6 - AX99100 PCIe to High Speed Serial Port(COM6)",
+    "port": "COM3 - Eterlogic Virtual Serial Port(COM3) -사용중-",
     "baudrate": 9600,
     "parity": "None",
     "station_id": 1,
     "device": "%MW10",
     "test_value": 100
+  },
+  "nutrunner": {
+    "nutrunner1_port": "COM6 - Eterlogic Virtual Serial Port(COM6)",
+    "nutrunner1_baudrate": 9600,
+    "nutrunner2_port": "COM3 - Eterlogic Virtual Serial Port(COM3)",
+    "nutrunner2_baudrate": 9600
   }
 }

@@ -62,7 +62,7 @@ class BarcodeScannerTab(QWidget):
         # 포트 선택
         serial_layout.addWidget(QLabel("포트:"), 0, 0)
         self.port_combo = QComboBox()
-        self.port_combo.setMinimumWidth(150)
+        self.port_combo.setMinimumWidth(500)  # "-사용중-" 표시를 위해 너비 확장
         serial_layout.addWidget(self.port_combo, 0, 1)
         
         # 연결 상태 표시 (포트 옆에)
@@ -262,8 +262,25 @@ class BarcodeScannerTab(QWidget):
                 self.port_combo.addItem("사용 가능한 포트 없음")
                 print("DEBUG: 스캐너 포트 없음")
             else:
+                ports.sort(key=lambda x: x.device)
                 for port in ports:
                     port_info = f"{port.device} - {port.description}"
+                    
+                    # AdminPanel에서 포트 사용 중인지 확인
+                    is_in_use = False
+                    using_tab = None
+                    if hasattr(self, 'admin_panel') and self.admin_panel:
+                        is_in_use, using_tab = self.admin_panel.is_port_in_use(port.device, getattr(self, 'tab_name', '바코드 스캐너'))
+                        if is_in_use:
+                            print(f"DEBUG: 스캐너 simple_refresh_ports - {port.device}는 {using_tab}에서 사용 중 (등록된 포트: {self.admin_panel.port_usage})")
+                    else:
+                        print(f"DEBUG: 스캐너 simple_refresh_ports - admin_panel 없음")
+                    
+                    # 사용 중인 포트는 "-사용중-" 표시
+                    if is_in_use:
+                        port_info += f" -사용중-"
+                        print(f"DEBUG: 스캐너 포트 추가 (사용중): {port_info}")
+                    
                     self.port_combo.addItem(port_info)
                     
                     # 현재 연결된 포트가 있으면 선택
@@ -291,7 +308,24 @@ class BarcodeScannerTab(QWidget):
     
     def connect_serial(self):
         """시리얼 포트 연결 (공용 모듈 사용)"""
-        self.connection_manager.connect_serial(
+        # 포트 중복 사용 확인
+        port_name = self.port_combo.currentText().split(" - ")[0]
+        tab_name = getattr(self, 'tab_name', '바코드 스캐너')
+        
+        if hasattr(self, 'admin_panel') and self.admin_panel:
+            is_in_use, using_tab = self.admin_panel.is_port_in_use(port_name, tab_name)
+            if is_in_use:
+                from PyQt5.QtWidgets import QMessageBox
+                QMessageBox.warning(
+                    self, 
+                    "포트 사용 중", 
+                    f"{port_name} 포트는 현재 '{using_tab}' 탭에서 사용 중입니다.\n\n"
+                    f"다른 탭에서 해당 포트 연결을 해제한 후 다시 시도하세요."
+                )
+                self.connect_btn.setChecked(False)
+                return
+        
+        success = self.connection_manager.connect_serial(
             self.port_combo, 
             self.baudrate_combo, 
             self.connect_btn, 
@@ -299,13 +333,37 @@ class BarcodeScannerTab(QWidget):
             self.status_label, 
             self.log_message
         )
+        
+        if success:
+            # connection_manager에 admin_panel 및 tab_name 설정 (연결 성공 시 포트 등록용)
+            self.connection_manager.admin_panel = self.admin_panel
+            self.connection_manager.tab_name = tab_name
+            # 연결 완료 시 AdminPanel.register_port에서 모든 탭 새로고침됨
     
     def disconnect_serial(self):
-        """시리얼 포트 연결 해제 - 바코드 프린터 탭과 동일한 방식"""
+        """시리얼 포트 연결 해제 - connection_manager를 통해 안전하게 해제"""
         try:
             print("DEBUG: 스캐너 연결 해제 시작")
             
-            # 시리얼 스레드가 있으면 간단히 종료
+            # 현재 사용 중인 포트 확인
+            port_name = None
+            if self.port_combo.currentText() != "사용 가능한 포트 없음":
+                port_name = self.port_combo.currentText().split(" - ")[0]
+            
+            # connection_manager를 통해 연결 해제 (내부 상태 정리 포함)
+            if self.connection_manager:
+                self.connection_manager.disconnect_serial(
+                    self.connect_btn,
+                    self.disconnect_btn,
+                    self.status_label,
+                    self.log_message
+                )
+                
+                # 포트 사용 해제
+                if port_name and hasattr(self, 'admin_panel') and self.admin_panel:
+                    self.admin_panel.unregister_port(port_name)
+            
+            # 로컬 serial_thread도 정리 (안전을 위해)
             if self.serial_thread:
                 try:
                     self.serial_thread.stop()
@@ -314,27 +372,31 @@ class BarcodeScannerTab(QWidget):
                     pass
                 self.serial_thread = None
             
-            # UI 상태 즉시 업데이트
-            self.connect_btn.setEnabled(True)
-            self.connect_btn.setChecked(False)
-            self.disconnect_btn.setEnabled(False)
-            self.disconnect_btn.setChecked(True)
-            self.status_label.setText("연결되지 않음")
-            self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+            # 포트 상태 라벨 업데이트
             self.port_status_label.setText("🔴 미연결")
             self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
             
-            # 메인화면 알림 제거 - AdminPanel은 독립적인 설정/테스트 도구
-            
-            # 포트 새로고침 (간단한 방법)
+            # 연결 해제 시 포트 목록 새로고침 (사용 중인 포트 상태 반영)
             self.simple_refresh_ports()
             
-            self.log_message("연결이 해제되었습니다.")
             print("DEBUG: 스캐너 연결 해제 완료")
             
         except Exception as e:
             print(f"ERROR: 스캐너 연결 해제 중 오류: {e}")
             self.log_message(f"연결 해제 중 오류: {e}")
+            
+            # 오류가 발생해도 UI 상태는 업데이트
+            try:
+                self.connect_btn.setEnabled(True)
+                self.connect_btn.setChecked(False)
+                self.disconnect_btn.setEnabled(False)
+                self.disconnect_btn.setChecked(False)
+                self.status_label.setText("🔴 연결되지 않음")
+                self.status_label.setStyleSheet("QLabel { color: red; font-weight: bold; }")
+                self.port_status_label.setText("🔴 미연결")
+                self.port_status_label.setStyleSheet(get_port_status_disconnected_style())
+            except:
+                pass
     
     def on_connection_status(self, success, message):
         """연결 상태 변경 처리 (공용 모듈 사용)"""
@@ -346,6 +408,18 @@ class BarcodeScannerTab(QWidget):
             self.status_label, 
             self.log_message
         )
+        
+        # 연결 상태 변경 시 포트 목록 새로고침 (최초 연결한 탭 포함)
+        # register_port는 connection_status_changed 신호 발송 전에 호출되고
+        # refresh_all_port_lists()도 이미 실행되었지만, 현재 탭의 콤보박스를 확실히 업데이트하기 위해 즉시 새로고침
+        if success:
+            # 연결 성공 시 포트가 이미 등록되어 있으므로 즉시 새로고침
+            # QTimer.singleShot으로 약간 지연하여 refresh_all_port_lists() 실행 후 새로고침
+            from PyQt5.QtCore import QTimer
+            QTimer.singleShot(10, self.simple_refresh_ports)
+        else:
+            # 연결 실패 시 즉시 새로고침
+            self.simple_refresh_ports()
         
         # 포트 상태 라벨 업데이트
         if success:
@@ -400,8 +474,8 @@ class BarcodeScannerTab(QWidget):
                     self.scan_count_label.setText(f"스캔 횟수: {len(self.scanned_codes)}")
                     self.log_message(f"✅ 바코드 스캔 완료: {complete_barcode}")
                     
-                    # 메인 화면으로 바코드 스캔 이벤트 전달
-                    self.notify_main_screen_barcode_scanned(complete_barcode)
+                    # 테스트 바코드 클릭과 동일한 로직 사용 (다이얼로그 자동 표시)
+                    self.handle_barcode_scan(complete_barcode)
                     
                     # 자동 스캔 모드가 아닌 경우 알림
                     if not self.auto_scan_check.isChecked():
@@ -437,10 +511,8 @@ class BarcodeScannerTab(QWidget):
         self.analysis_text.clear()
         self.log_message("스캔 목록이 지워졌습니다.")
     
-    def on_code_selected(self, item):
-        """바코드 선택 시 자동 분석"""
-        barcode = item.text()
-        
+    def handle_barcode_scan(self, barcode):
+        """바코드 스캔 처리 - 테스트 바코드 클릭과 동일한 로직"""
         # AdminPanel이 있으면 탭 다이얼로그 사용, 없으면 기존 방식 사용
         if hasattr(self, 'admin_panel') and self.admin_panel:
             # #로 구분된 여러 바코드 처리
@@ -448,15 +520,17 @@ class BarcodeScannerTab(QWidget):
             # 빈 문자열 제거
             barcode_parts = [part.strip() for part in barcode_parts if part.strip()]
             
-            if len(barcode_parts) > 1:
-                # 여러 바코드인 경우 탭 다이얼로그 사용
-                self.admin_panel.show_barcode_analysis_dialog(barcode_parts)
-            else:
-                # 단일 바코드인 경우도 탭 다이얼로그 사용 (일관성)
-                self.admin_panel.show_barcode_analysis_dialog(barcode_parts)
+            # 여러 바코드/단일 바코드 모두 탭 다이얼로그 사용 (일관성)
+            self.admin_panel.show_barcode_analysis_dialog(barcode_parts)
         else:
             # AdminPanel이 없는 경우 기존 방식 사용
             self.analyze_barcode(barcode)
+    
+    def on_code_selected(self, item):
+        """바코드 선택 시 자동 분석"""
+        barcode = item.text()
+        # 테스트 바코드 클릭과 동일한 로직 사용
+        self.handle_barcode_scan(barcode)
     
     def update_connection_status_from_main(self, is_connected):
         """메인 화면에서 연결 상태 업데이트"""
@@ -543,10 +617,16 @@ class BarcodeScannerTab(QWidget):
     def add_test_barcode(self):
         """테스트용 바코드 추가"""
         import time
-        test_barcodes = [
-            "[)>06V2812P89131CU217T251031S2B2A0000033MY#[)>06V2812P89231CU1000SET2510022000@0000001M#[)>06V2812P89231CU1001SET251002S1B2A0000001M"
+        #TEST BARCODES 1,2,3의 구분해 표준바코드 테스트용 -삭제금지 KJC930
+        test_barcodes3 = [
+            "[)>06V2812P89131CU217SALC1EKETC0102T251031S2B2A0000033MN#[)>06V2812P89231CU1000SET2510022000@0000001M#[)>06V2812P89231CU1001SET251002S1B2A0000001M"
         ]
-        
+        test_barcodes = [
+            "[)>06V2812P89131CU217T251031S2B2A0000033#[)>06V2812P89231CU1000SET2510022000@0000001M#[)>06V2812P89231CU1001SET251002S1B2A0000001M"
+        ]        
+        test_barcodes1 = [
+            "[)>06V2812P89131CU217SALC1EKETC0102T251031S2B2A0000033MN#[)>06V2812P89231CU1000SET2510022000@0000001MY#[)>06V2812P89231CU1001SET251002S1B2A0000001MY"
+        ]                
         for i, barcode in enumerate(test_barcodes):
             # 시뮬레이션된 바코드 데이터 처리
             self.log_message(f"🧪 테스트 바코드 추가: {barcode}")
@@ -554,6 +634,9 @@ class BarcodeScannerTab(QWidget):
             # 온전한 바코드 데이터만 표시 (번호 없이)
             self.scan_list.addItem(barcode)
             self.scan_count_label.setText(f"스캔 횟수: {len(self.scanned_codes)}")
+            
+            # 시리얼 통신과 동일한 로직 사용 (다이얼로그 자동 표시)
+            self.handle_barcode_scan(barcode)
             
             # 약간의 지연 추가 (실제 스캔 시뮬레이션)
             time.sleep(0.1)

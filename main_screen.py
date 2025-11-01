@@ -26,15 +26,63 @@ from modules.utils.font_manager import FontManager
 from modules.core.production_panel import ProductionPanel
 from modules.ui.scan_status_dialog import ScanStatusDialog
 from modules.ui.plc_simulation_dialog import PLCSimulationDialog
+# login_dialog는 프로젝트 루트 또는 modules/ui/에 있을 수 있음
+try:
+    from modules.ui.login_dialog import LoginDialog
+except ImportError:
+    try:
+        from login_dialog import LoginDialog
+    except ImportError:
+        LoginDialog = None
+        print("경고: LoginDialog를 찾을 수 없습니다.")
 # 상대경로 기반으로 modules 폴더 사용
 
 
 class BarcodeMainScreen(QMainWindow):
     """바코드 시스템 메인 화면 - 실용적 디자인"""
     
-    def __init__(self):
+    # 중복 실행 방지를 위한 클래스 변수
+    _instance = None
+    
+    def __new__(cls, *args, **kwargs):
+        """싱글톤 패턴 - 중복 실행 방지"""
+        if cls._instance is not None:
+            # 이미 실행 중인 인스턴스가 있으면 기존 인스턴스 반환
+            if hasattr(cls._instance, '_initialized') and cls._instance._initialized:
+                print("⚠️ 메인 화면이 이미 실행 중입니다. 기존 창을 활성화합니다.")
+                return cls._instance
+        cls._instance = super().__new__(cls)
+        return cls._instance
+    
+    def __init__(self, *args, **kwargs):
+        # QMainWindow 초기화를 먼저 수행 (필수)
+        # super().__init__() 호출 전에는 속성 접근이 불안정할 수 있음
+        super().__init__()
+        
+        # 이미 초기화되었는지 확인 (기존 인스턴스 재사용 시)
+        # super().__init__() 이후에 체크하여 안전하게 접근
+        if hasattr(self, '_initialized') and self._initialized:
+            return
+        
         try:
-            super().__init__()
+            # 초기화 플래그 설정
+            self._initialized = True
+            
+            # 사용자 권한 정보 저장 (로그인 정보)
+            self.current_user = None
+            if LoginDialog is not None:
+                # get_current_user() 메서드 사용 (모듈 레벨 변수도 확인)
+                if hasattr(LoginDialog, 'get_current_user'):
+                    self.current_user = LoginDialog.get_current_user()
+                    print(f"DEBUG: 로그인 사용자 정보 (get_current_user): {self.current_user}")
+                elif hasattr(LoginDialog, 'current_user'):
+                    self.current_user = LoginDialog.current_user
+                    print(f"DEBUG: 로그인 사용자 정보 (current_user): {self.current_user}")
+                else:
+                    print(f"DEBUG: LoginDialog에 current_user 속성 또는 get_current_user 메서드가 없음")
+            else:
+                print(f"DEBUG: LoginDialog가 None입니다")
+            
             self.scanned_parts = []
             
             # ===== 프로그램 시작 시 기본 데이터 초기화 =====
@@ -422,6 +470,9 @@ class BarcodeMainScreen(QMainWindow):
         try:
             print("프로그램 종료 - 리소스 정리 시작")
             
+            # 인스턴스 참조 제거 (다시 실행 가능하도록)
+            BarcodeMainScreen._instance = None
+            
             # 연결 상태 모니터링 중지
             self.stop_connection_monitoring()
             
@@ -453,12 +504,31 @@ class BarcodeMainScreen(QMainWindow):
                 except Exception as e:
                     print(f" PLC 데이터 매니저 정리 실패: {e}")
             
-            # 로그 저장
+            # 로그 저장 (프로그램 종료 시 메모리에 남아있는 모든 로그 저장)
             try:
-                self.save_logs_to_file()
-                print("로그 파일 저장 완료")
+                # 스캔 로그 확인 및 저장
+                front_log_count = len(self.scan_logs.get("front_lh", []))
+                rear_log_count = len(self.scan_logs.get("rear_rh", []))
+                print(f"DEBUG: 프로그램 종료 시 로그 저장 - FRONT/LH: {front_log_count}개, REAR/RH: {rear_log_count}개")
+                
+                # 로그가 있는 패널만 저장
+                if front_log_count > 0:
+                    self.save_logs_to_file(panel_name="FRONT/LH")
+                    print(f"DEBUG: 프로그램 종료 시 FRONT/LH 로그 저장 완료 ({front_log_count}개 항목)")
+                
+                if rear_log_count > 0:
+                    self.save_logs_to_file(panel_name="REAR/RH")
+                    print(f"DEBUG: 프로그램 종료 시 REAR/RH 로그 저장 완료 ({rear_log_count}개 항목)")
+                
+                # 로그가 없으면 메시지만 출력
+                if front_log_count == 0 and rear_log_count == 0:
+                    print("DEBUG: 프로그램 종료 시 저장할 스캔 로그가 없음")
+                else:
+                    print("로그 파일 저장 완료")
             except Exception as e:
                 print(f" 로그 저장 실패: {e}")
+                import traceback
+                traceback.print_exception(type(e), e, e.__traceback__)
             
             print("리소스 정리 완료")
             event.accept()
@@ -1010,7 +1080,12 @@ class BarcodeMainScreen(QMainWindow):
         return False
         
     def init_ui(self):
-        self.setWindowTitle("바코드 시스템 메인 화면 v1.0.0")
+        # 프로그램 버전 정보
+        self.version = "1.0.0"
+        self.compile_date = "2024-03-19"
+        self.copyright = "© 2024 DAEIL INDUSTRIAL CO., LTD. All rights reserved."
+        
+        self.setWindowTitle(f"Data Matrix 바코드 생성 프로그램 v{self.version}")
         self.setGeometry(50, 50, 570, 850)  # 기본창 크기 절반으로 축소 (1140→570, 760→380)
         self.setStyleSheet(get_main_window_style())
         
@@ -1028,6 +1103,25 @@ class BarcodeMainScreen(QMainWindow):
         
         # 헤더
         self.create_header(main_layout)
+        
+        # 헤더 생성 후 사용자 권한 재확인 (디버깅)
+        if hasattr(self, 'sim_dialog_btn'):
+            print(f"DEBUG: init_ui 완료 후 권한 재확인 - current_user: {self.current_user}")
+            # LoginDialog에서 사용자 정보 다시 가져오기
+            if LoginDialog is not None:
+                if hasattr(LoginDialog, 'get_current_user'):
+                    latest_user = LoginDialog.get_current_user()
+                    print(f"DEBUG: LoginDialog.get_current_user(): {latest_user}")
+                    if latest_user:
+                        self.current_user = latest_user
+                        print(f"DEBUG: 사용자 정보 동기화 완료 (get_current_user): {self.current_user}")
+                        self.update_simulation_button_visibility()
+                elif hasattr(LoginDialog, 'current_user'):
+                    print(f"DEBUG: LoginDialog.current_user: {LoginDialog.current_user}")
+                    if not self.current_user and LoginDialog.current_user:
+                        self.current_user = LoginDialog.current_user
+                        print(f"DEBUG: 사용자 정보 동기화 완료: {self.current_user}")
+                        self.update_simulation_button_visibility()
         
         # 생산 패널들
         self.create_production_panels(main_layout)
@@ -1078,7 +1172,7 @@ class BarcodeMainScreen(QMainWindow):
         
         header_layout.addStretch()
         
-        # 시뮬레이션 제어 버튼 (개발용)
+        # 시뮬레이션 제어 버튼 (개발용) - admin 권한만 표시
         sim_layout = QVBoxLayout()
         sim_layout.setSpacing(5)
         
@@ -1088,6 +1182,9 @@ class BarcodeMainScreen(QMainWindow):
         sim_layout.addWidget(self.sim_dialog_btn)
         
         header_layout.addLayout(sim_layout)
+        
+        # 사용자 권한에 따라 버튼 표시/숨김
+        self.update_simulation_button_visibility()
         
         # 날짜/시간 (현재 화면 스타일과 일치하는 모던 디자인)
         datetime_container = QFrame()
@@ -1125,6 +1222,60 @@ class BarcodeMainScreen(QMainWindow):
         
         layout.addLayout(header_layout)
     
+    def update_simulation_button_visibility(self):
+        """시뮬레이션 버튼 표시/숨김 제어 (권한에 따라)"""
+        try:
+            print(f"DEBUG: 시뮬레이션 버튼 표시 제어 시작")
+            print(f"DEBUG: self.current_user: {self.current_user}")
+            
+            # LoginDialog에서 사용자 정보 가져오기 (여러 방법 시도)
+            user_info = None
+            user_role = None
+            
+            # 1. 먼저 self.current_user 확인
+            if self.current_user:
+                user_info = self.current_user
+                user_role = user_info.get('role')
+                print(f"DEBUG: self.current_user에서 사용자 정보 가져옴: {user_info}")
+            # 2. get_current_user() 메서드 사용
+            elif LoginDialog is not None and hasattr(LoginDialog, 'get_current_user'):
+                user_info = LoginDialog.get_current_user()
+                if user_info:
+                    user_role = user_info.get('role')
+                    self.current_user = user_info  # 동기화
+                    print(f"DEBUG: LoginDialog.get_current_user()에서 가져옴: {user_info}")
+            # 3. 클래스 변수 직접 확인
+            elif LoginDialog is not None and hasattr(LoginDialog, 'current_user'):
+                user_info = LoginDialog.current_user
+                if user_info:
+                    user_role = user_info.get('role')
+                    self.current_user = user_info  # 동기화
+                    print(f"DEBUG: LoginDialog.current_user에서 직접 가져옴: {user_info}")
+            
+            print(f"DEBUG: 최종 user_role: {user_role}")
+            print(f"DEBUG: 최종 user_info: {user_info}")
+            
+            # admin 권한인 경우에만 버튼 표시
+            if user_role == 'admin':
+                if hasattr(self, 'sim_dialog_btn'):
+                    self.sim_dialog_btn.setVisible(True)
+                    print("DEBUG: ✅ admin 권한 - 시뮬레이션 버튼 표시")
+                else:
+                    print("DEBUG: ⚠️ sim_dialog_btn 속성이 없습니다")
+            else:
+                if hasattr(self, 'sim_dialog_btn'):
+                    self.sim_dialog_btn.setVisible(False)
+                    print(f"DEBUG: ❌ user 권한 또는 권한 없음 (role: {user_role}) - 시뮬레이션 버튼 숨김")
+                else:
+                    print("DEBUG: ⚠️ sim_dialog_btn 속성이 없습니다")
+        except Exception as e:
+            print(f"DEBUG: 시뮬레이션 버튼 표시 제어 오류: {e}")
+            import traceback
+            traceback.print_exc()
+            # 오류 발생 시 안전하게 숨김
+            if hasattr(self, 'sim_dialog_btn'):
+                self.sim_dialog_btn.setVisible(False)
+    
     def create_status_bar(self):
         """상태바 생성 - 저작권 및 버전 정보 표시"""
         from PyQt5.QtWidgets import QStatusBar
@@ -1133,15 +1284,21 @@ class BarcodeMainScreen(QMainWindow):
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
         
-        # 버전 정보 (왼쪽) - 기본 버전 정보 사용
-        version_text = "바코드 시스템 v1.0.0"
+        # 버전 정보 (왼쪽)
+        if hasattr(self, 'version') and hasattr(self, 'compile_date'):
+            version_text = f"바코드 시스템 v{self.version} ({self.compile_date})"
+        else:
+            version_text = "바코드 시스템 v1.0.0"
         self.status_bar.showMessage(version_text)
         
         # 빌드 번호 업데이트 기능 (개발용) - 비활성화
         self.build_info = None
         
         # 저작권 정보 (오른쪽)
-        copyright_text = "Copyrightⓒ DAEIL All right reserved"
+        if hasattr(self, 'copyright'):
+            copyright_text = self.copyright
+        else:
+            copyright_text = "Copyrightⓒ DAEIL All right reserved"
         self.status_bar.addPermanentWidget(QLabel(copyright_text))
     
     def increment_build_number(self):
@@ -1151,9 +1308,10 @@ class BarcodeMainScreen(QMainWindow):
     def get_build_info(self):
         """현재 빌드 정보 반환 - 기본 정보"""
         return {
-            'version': '1.0.0',
+            'version': self.version if hasattr(self, 'version') else '1.0.0',
             'build_number': '1',
-            'build_date': '2025-01-17',
+            'build_date': self.compile_date if hasattr(self, 'compile_date') else '2024-03-19',
+            'compile_date': self.compile_date if hasattr(self, 'compile_date') else '2024-03-19',
             'git_commit': 'N/A'
         }
     
@@ -3028,13 +3186,23 @@ class BarcodeMainScreen(QMainWindow):
                 print("DEBUG: F2 키 - REAR/RH 부품번호가 없음")
         elif event.key() == Qt.Key_F3:
             # F3 키로 하위부품 바코드 스캔 테스트
-            test_child_barcode = "[)>06V2812P89231CU1000SET2510022000A0000001M"
+            test_child_barcode = "[)>06V2812P89231CU1000T2510022000A0000001M"
             print(f"DEBUG: F3 키 눌림 - 하위부품 바코드 스캔 테스트: {test_child_barcode}")
             self.test_barcode_scan(test_child_barcode)
         elif event.key() == Qt.Key_F4:
             # F4 키로 다른 하위부품 바코드 스캔 테스트
-            test_child_barcode = "[)>06V2812P89231CU1001SET251002S1B2A0000001M"
+            test_child_barcode = "[)>06V2812P89231CU1001T251002S1B2A0000001M"
             print(f"DEBUG: F4 키 눌림 - 하위부품 바코드 스캔 테스트: {test_child_barcode}")
+            self.test_barcode_scan(test_child_barcode)
+        elif event.key() == Qt.Key_F6:
+            # F6 키로 하위부품 바코드 스캔 테스트 (다른 시리얼번호)
+            test_child_barcode = "[)>\x1e06\x1dV2812\x1dP89231CU1002\x1dT2510022000A0000002\x1dM\x1e\x04"
+            print(f"DEBUG: F6 키 눌림 - 하위부품 바코드 스캔 테스트: {test_child_barcode}")
+            self.test_barcode_scan(test_child_barcode)
+        elif event.key() == Qt.Key_F7:
+            # F7 키로 다른 하위부품 바코드 스캔 테스트 (다른 시리얼번호)
+            test_child_barcode = "[)>\x1e06\x1dV2812\x1dP89331CU1003\x1dT251002S1B2A0000002\x1dM\x1e\x04"
+            print(f"DEBUG: F7 키 눌림 - 하위부품 바코드 스캔 테스트: {test_child_barcode}")
             self.test_barcode_scan(test_child_barcode)
         else:
             print(f"DEBUG: 다른 키 눌림 - 키 코드: {event.key()}")
@@ -3864,45 +4032,142 @@ class BarcodeMainScreen(QMainWindow):
             
             # 특정 패널만 저장하거나, 모두 저장
             if panel_name:
-                # 특정 패널만 저장 (덮어쓰기)
+                # 특정 패널만 저장 (기존 파일 읽어서 병합)
                 panel_name_upper = panel_name.upper()
                 if panel_name_upper == "FRONT/LH":
                     print(f"DEBUG: FRONT/LH 로그 개수: {len(self.scan_logs['front_lh'])}")
                     front_log_file = os.path.join(year_log_dir, f"front_lh_{today}.json")
                     
-                    # 메모리의 로그 데이터를 파일에 덮어쓰기
+                    # 기존 파일이 있으면 읽어서 병합
+                    existing_logs = []
+                    if os.path.exists(front_log_file):
+                        try:
+                            with open(front_log_file, 'r', encoding='utf-8') as f:
+                                existing_logs = json.load(f)
+                            print(f"DEBUG: 기존 FRONT/LH 로그 파일 읽기 완료 - {len(existing_logs)}개 항목")
+                        except Exception as e:
+                            print(f"DEBUG: 기존 FRONT/LH 로그 파일 읽기 실패: {e}")
+                            existing_logs = []
+                    
+                    # 메모리 로그와 기존 로그 병합 (중복 제거)
+                    merged_logs = existing_logs.copy()
+                    memory_logs = self.scan_logs["front_lh"]
+                    for new_log in memory_logs:
+                        # 중복 체크 (날짜, 시간, 공정부품으로 판단)
+                        is_duplicate = False
+                        for existing_log in merged_logs:
+                            if (existing_log.get("날짜") == new_log.get("날짜") and
+                                existing_log.get("시간") == new_log.get("시간") and
+                                existing_log.get("공정부품") == new_log.get("공정부품")):
+                                is_duplicate = True
+                                break
+                        if not is_duplicate:
+                            merged_logs.append(new_log)
+                    
+                    # 병합된 로그를 파일에 저장
                     with open(front_log_file, 'w', encoding='utf-8') as f:
-                        json.dump(self.scan_logs["front_lh"], f, ensure_ascii=False, indent=2)
-                    print(f"DEBUG: FRONT/LH 로그 파일 저장 (덮어쓰기) - 항목 수: {len(self.scan_logs['front_lh'])}")
+                        json.dump(merged_logs, f, ensure_ascii=False, indent=2)
+                    print(f"DEBUG: FRONT/LH 로그 파일 저장 완료 - 기존: {len(existing_logs)}개, 새로: {len(memory_logs)}개, 총: {len(merged_logs)}개 항목")
+                    
                 elif panel_name_upper == "REAR/RH":
                     print(f"DEBUG: REAR/RH 로그 개수: {len(self.scan_logs['rear_rh'])}")
                     rear_log_file = os.path.join(year_log_dir, f"rear_rh_{today}.json")
                     
-                    # 메모리의 로그 데이터를 파일에 덮어쓰기
+                    # 기존 파일이 있으면 읽어서 병합
+                    existing_logs = []
+                    if os.path.exists(rear_log_file):
+                        try:
+                            with open(rear_log_file, 'r', encoding='utf-8') as f:
+                                existing_logs = json.load(f)
+                            print(f"DEBUG: 기존 REAR/RH 로그 파일 읽기 완료 - {len(existing_logs)}개 항목")
+                        except Exception as e:
+                            print(f"DEBUG: 기존 REAR/RH 로그 파일 읽기 실패: {e}")
+                            existing_logs = []
+                    
+                    # 메모리 로그와 기존 로그 병합 (중복 제거)
+                    merged_logs = existing_logs.copy()
+                    memory_logs = self.scan_logs["rear_rh"]
+                    for new_log in memory_logs:
+                        # 중복 체크 (날짜, 시간, 공정부품으로 판단)
+                        is_duplicate = False
+                        for existing_log in merged_logs:
+                            if (existing_log.get("날짜") == new_log.get("날짜") and
+                                existing_log.get("시간") == new_log.get("시간") and
+                                existing_log.get("공정부품") == new_log.get("공정부품")):
+                                is_duplicate = True
+                                break
+                        if not is_duplicate:
+                            merged_logs.append(new_log)
+                    
+                    # 병합된 로그를 파일에 저장
                     with open(rear_log_file, 'w', encoding='utf-8') as f:
-                        json.dump(self.scan_logs["rear_rh"], f, ensure_ascii=False, indent=2)
-                    print(f"DEBUG: REAR/RH 로그 파일 저장 (덮어쓰기) - 항목 수: {len(self.scan_logs['rear_rh'])}")
+                        json.dump(merged_logs, f, ensure_ascii=False, indent=2)
+                    print(f"DEBUG: REAR/RH 로그 파일 저장 완료 - 기존: {len(existing_logs)}개, 새로: {len(memory_logs)}개, 총: {len(merged_logs)}개 항목")
             else:
-                # 모든 패널 저장 (덮어쓰기)
+                # 모든 패널 저장 (기존 파일 읽어서 병합)
                 print(f"DEBUG: FRONT/LH 로그 개수: {len(self.scan_logs['front_lh'])}")
                 print(f"DEBUG: REAR/RH 로그 개수: {len(self.scan_logs['rear_rh'])}")
                 
                 # FRONT/LH 로그 저장
                 front_log_file = os.path.join(year_log_dir, f"front_lh_{today}.json")
+                existing_front_logs = []
+                if os.path.exists(front_log_file):
+                    try:
+                        with open(front_log_file, 'r', encoding='utf-8') as f:
+                            existing_front_logs = json.load(f)
+                        print(f"DEBUG: 기존 FRONT/LH 로그 파일 읽기 완료 - {len(existing_front_logs)}개 항목")
+                    except Exception as e:
+                        print(f"DEBUG: 기존 FRONT/LH 로그 파일 읽기 실패: {e}")
+                
+                merged_front_logs = existing_front_logs.copy()
+                for new_log in self.scan_logs["front_lh"]:
+                    is_duplicate = False
+                    for existing_log in merged_front_logs:
+                        if (existing_log.get("날짜") == new_log.get("날짜") and
+                            existing_log.get("시간") == new_log.get("시간") and
+                            existing_log.get("공정부품") == new_log.get("공정부품")):
+                            is_duplicate = True
+                            break
+                    if not is_duplicate:
+                        merged_front_logs.append(new_log)
+                
                 with open(front_log_file, 'w', encoding='utf-8') as f:
-                    json.dump(self.scan_logs["front_lh"], f, ensure_ascii=False, indent=2)
-                print(f"DEBUG: FRONT/LH 로그 파일 저장 (덮어쓰기) - 항목 수: {len(self.scan_logs['front_lh'])}")
+                    json.dump(merged_front_logs, f, ensure_ascii=False, indent=2)
+                print(f"DEBUG: FRONT/LH 로그 파일 저장 완료 - 기존: {len(existing_front_logs)}개, 새로: {len(self.scan_logs['front_lh'])}개, 총: {len(merged_front_logs)}개 항목")
                 
                 # REAR/RH 로그 저장
                 rear_log_file = os.path.join(year_log_dir, f"rear_rh_{today}.json")
+                existing_rear_logs = []
+                if os.path.exists(rear_log_file):
+                    try:
+                        with open(rear_log_file, 'r', encoding='utf-8') as f:
+                            existing_rear_logs = json.load(f)
+                        print(f"DEBUG: 기존 REAR/RH 로그 파일 읽기 완료 - {len(existing_rear_logs)}개 항목")
+                    except Exception as e:
+                        print(f"DEBUG: 기존 REAR/RH 로그 파일 읽기 실패: {e}")
+                
+                merged_rear_logs = existing_rear_logs.copy()
+                for new_log in self.scan_logs["rear_rh"]:
+                    is_duplicate = False
+                    for existing_log in merged_rear_logs:
+                        if (existing_log.get("날짜") == new_log.get("날짜") and
+                            existing_log.get("시간") == new_log.get("시간") and
+                            existing_log.get("공정부품") == new_log.get("공정부품")):
+                            is_duplicate = True
+                            break
+                    if not is_duplicate:
+                        merged_rear_logs.append(new_log)
+                
                 with open(rear_log_file, 'w', encoding='utf-8') as f:
-                    json.dump(self.scan_logs["rear_rh"], f, ensure_ascii=False, indent=2)
-                print(f"DEBUG: REAR/RH 로그 파일 저장 (덮어쓰기) - 항목 수: {len(self.scan_logs['rear_rh'])}")
+                    json.dump(merged_rear_logs, f, ensure_ascii=False, indent=2)
+                print(f"DEBUG: REAR/RH 로그 파일 저장 완료 - 기존: {len(existing_rear_logs)}개, 새로: {len(self.scan_logs['rear_rh'])}개, 총: {len(merged_rear_logs)}개 항목")
             
             print(f"DEBUG: 로그 파일 저장 완료 - {today}")
             
         except Exception as e:
             print(f"DEBUG: 로그 파일 저장 오류: {e}")
+            import traceback
+            traceback.print_exception(type(e), e, e.__traceback__)
     
     def complete_work(self, panel_name):
         """작업완료 시 생산카운트 증가 및 자동 프린트"""
@@ -4048,7 +4313,12 @@ class BarcodeMainScreen(QMainWindow):
     
     def open_admin_panel(self, device_name):
         """AdminPanel 열기 및 해당 탭 활성화"""
-        if self.admin_panel is None:
+        # 싱글톤 패턴으로 이미 실행 중인 AdminPanel이 있으면 재사용
+        if AdminPanel._instance is not None:
+            # 기존 인스턴스 사용
+            self.admin_panel = AdminPanel._instance
+            print("DEBUG: 기존 AdminPanel 인스턴스 사용")
+        elif self.admin_panel is None:
             self.admin_panel = AdminPanel()
             # AdminPanel 연동 제거 - 독립적인 설정/테스트 도구
         
@@ -4063,8 +4333,10 @@ class BarcodeMainScreen(QMainWindow):
         
         tab_index = tab_mapping.get(device_name, 0)
         
-        # AdminPanel 표시 및 해당 탭 활성화
+        # AdminPanel 표시 및 해당 탭 활성화 (창을 앞으로 가져오기)
         self.admin_panel.show()
+        self.admin_panel.raise_()
+        self.admin_panel.activateWindow()
         self.admin_panel.tab_widget.setCurrentIndex(tab_index)
         
         # AdminPanel 연동 제거 - 독립적인 설정/테스트 도구
@@ -4284,6 +4556,17 @@ class BarcodeMainScreen(QMainWindow):
 
 def main():
     try:
+        # 이미 실행 중인 인스턴스가 있는지 확인
+        if BarcodeMainScreen._instance is not None:
+            print("⚠️ 메인 화면이 이미 실행 중입니다. 기존 창을 활성화합니다.")
+            # 기존 창을 앞으로 가져오기
+            existing_window = BarcodeMainScreen._instance
+            existing_window.show()
+            existing_window.raise_()
+            existing_window.activateWindow()
+            # QApplication은 이미 실행 중이므로 종료하지 않음
+            return
+        
         app = QApplication(sys.argv)
         
         # 애플리케이션 스타일 설정
@@ -4301,11 +4584,48 @@ def main():
         
         sys.excepthook = handle_exception
         
-        window = BarcodeMainScreen()
-        window.show()
-       
+        # 로그인 다이얼로그 표시
+        if LoginDialog is None:
+            print("경고: LoginDialog가 없어 로그인 없이 메인 화면을 실행합니다.")
+            window = BarcodeMainScreen()
+            window.show()
+            sys.exit(app.exec_())
         
-        sys.exit(app.exec_())
+        login_dialog = LoginDialog()
+        result = login_dialog.exec_()
+        
+        if result == QDialog.Accepted:
+            # 로그인 성공 시 사용자 정보 확인
+            print(f"DEBUG: 로그인 성공 후 LoginDialog.current_user 확인: {LoginDialog.current_user}")
+            
+            # get_current_user() 메서드도 확인
+            if hasattr(LoginDialog, 'get_current_user'):
+                user_info = LoginDialog.get_current_user()
+                print(f"DEBUG: LoginDialog.get_current_user() 결과: {user_info}")
+                if user_info is None:
+                    print("⚠️ 경고: LoginDialog.get_current_user()가 None입니다.")
+            
+            if LoginDialog.current_user is None:
+                print("⚠️ 경고: LoginDialog.current_user가 None입니다. 로그인 정보를 확인하세요.")
+            
+            # 로그인 성공 시 메인 창 표시
+            window = BarcodeMainScreen()
+            
+            # 창 생성 후 권한 재확인 및 버튼 표시 업데이트
+            if hasattr(window, 'sim_dialog_btn'):
+                print(f"DEBUG: 메인 창 생성 후 권한 재확인")
+                if hasattr(LoginDialog, 'get_current_user'):
+                    latest_user = LoginDialog.get_current_user()
+                    if latest_user:
+                        window.current_user = latest_user
+                        print(f"DEBUG: 사용자 정보 업데이트 완료: {window.current_user}")
+                window.update_simulation_button_visibility()
+            
+            window.show()
+            sys.exit(app.exec_())
+        else:
+            # 로그인 취소 또는 실패 시 프로그램 종료
+            sys.exit()
         
     except Exception as e:
         print(f" 프로그램 시작 오류: {e}")

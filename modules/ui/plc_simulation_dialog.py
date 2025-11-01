@@ -7,9 +7,9 @@ PLC 시뮬레이션 제어 다이얼로그
 import sys
 import os
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QGridLayout, 
-                             QLabel, QPushButton, QGroupBox, QFrame)
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont, QColor
+                             QLabel, QPushButton, QGroupBox, QFrame, QShortcut)
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QTimer
+from PyQt5.QtGui import QFont, QColor, QKeySequence
 
 # Program 디렉토리를 Python 경로에 추가
 # 상대경로 기반으로 modules 폴더 사용
@@ -31,6 +31,29 @@ class PLCSimulationDialog(QDialog):
         self.timer = None  # 자동 전송 타이머
         
         self.init_ui()
+        
+        # F3, F4, F6, F7 키 단축키 설정 (QShortcut 사용)
+        self.f3_shortcut = QShortcut(QKeySequence(Qt.Key_F3), self)
+        self.f3_shortcut.activated.connect(self.on_f3_pressed)
+        self.f3_shortcut.setContext(Qt.WidgetShortcut)
+        
+        self.f4_shortcut = QShortcut(QKeySequence(Qt.Key_F4), self)
+        self.f4_shortcut.activated.connect(self.on_f4_pressed)
+        self.f4_shortcut.setContext(Qt.WidgetShortcut)
+        
+        self.f6_shortcut = QShortcut(QKeySequence(Qt.Key_F6), self)
+        self.f6_shortcut.activated.connect(self.on_f6_pressed)
+        self.f6_shortcut.setContext(Qt.WidgetShortcut)
+        
+        self.f7_shortcut = QShortcut(QKeySequence(Qt.Key_F7), self)
+        self.f7_shortcut.activated.connect(self.on_f7_pressed)
+        self.f7_shortcut.setContext(Qt.WidgetShortcut)
+        
+        # 모든 자식 위젯에 이벤트 필터 설치
+        self.install_event_filter_to_children()
+        
+        # 다이얼로그 표시 후 포커스 설정
+        QTimer.singleShot(100, self.setFocus)
         
     def init_ui(self):
         """UI 초기화"""
@@ -343,6 +366,113 @@ class PLCSimulationDialog(QDialog):
                 }
             """)
             print("자동 전송 중지")
+    
+    def install_event_filter_to_children(self):
+        """모든 자식 위젯에 이벤트 필터 설치"""
+        def install_recursive(widget):
+            """재귀적으로 모든 자식 위젯에 이벤트 필터 설치"""
+            widget.installEventFilter(self)
+            for child in widget.children():
+                if isinstance(child, QPushButton):
+                    child.installEventFilter(self)
+                elif hasattr(child, 'children'):
+                    install_recursive(child)
+        
+        # 모든 자식 위젯에 이벤트 필터 설치
+        install_recursive(self)
+    
+    def eventFilter(self, obj, event):
+        """이벤트 필터 - F3, F4, F6, F7 키를 다이얼로그의 keyPressEvent로 전달"""
+        if event.type() == QEvent.KeyPress:
+            if event.key() in (Qt.Key_F3, Qt.Key_F4, Qt.Key_F6, Qt.Key_F7):
+                # F3, F4, F6, F7 키는 다이얼로그의 keyPressEvent로 전달
+                print(f"DEBUG: eventFilter에서 F3/F4/F6/F7 키 감지 - 키 코드: {event.key()}")
+                self.keyPressEvent(event)
+                return True  # 이벤트 처리 완료
+        return super().eventFilter(obj, event)
+    
+    def on_f3_pressed(self):
+        """F3 키 단축키 처리"""
+        print(f"DEBUG: PLC 시뮬레이션 다이얼로그 - F3 단축키 눌림")
+        test_child_barcode = "[)>\x1e06\x1dV2812\x1dP89231CU1000\x1dT2510022000A0000001\x1dM\x1e\x04"
+        if self.parent() and hasattr(self.parent(), 'test_barcode_scan'):
+            print(f"DEBUG: 부모의 test_barcode_scan 호출 (F3)")
+            self.parent().test_barcode_scan(test_child_barcode)
+        else:
+            print(f"DEBUG: 부모 또는 test_barcode_scan 메서드가 없음 - parent: {self.parent()}")
+    
+    def on_f4_pressed(self):
+        """F4 키 단축키 처리"""
+        print(f"DEBUG: PLC 시뮬레이션 다이얼로그 - F4 단축키 눌림")
+        test_child_barcode = "[)>\x1e06\x1dV2812\x1dP89231CU1001\x1dT251002S1B2A0000001\x1dM\x1e\x04"
+        if self.parent() and hasattr(self.parent(), 'test_barcode_scan'):
+            print(f"DEBUG: 부모의 test_barcode_scan 호출 (F4)")
+            self.parent().test_barcode_scan(test_child_barcode)
+        else:
+            print(f"DEBUG: 부모 또는 test_barcode_scan 메서드가 없음 - parent: {self.parent()}")
+    
+    def on_f6_pressed(self):
+        """F6 키 단축키 처리"""
+        print(f"DEBUG: PLC 시뮬레이션 다이얼로그 - F6 단축키 눌림")
+        test_child_barcode = "[)>\x1e06\x1dV2812\x1dP89231CU1002\x1dT2510022000A0000002\x1dM\x1e\x04"
+        if self.parent() and hasattr(self.parent(), 'test_barcode_scan'):
+            print(f"DEBUG: 부모의 test_barcode_scan 호출 (F6)")
+            self.parent().test_barcode_scan(test_child_barcode)
+        else:
+            print(f"DEBUG: 부모 또는 test_barcode_scan 메서드가 없음 - parent: {self.parent()}")
+    
+    def on_f7_pressed(self):
+        """F7 키 단축키 처리"""
+        print(f"DEBUG: PLC 시뮬레이션 다이얼로그 - F7 단축키 눌림")
+        test_child_barcode = "[)>\x1e06\x1dV2812\x1dP89331CU1003\x1dT251002S1B2A0000002\x1dM\x1e\x04"
+        if self.parent() and hasattr(self.parent(), 'test_barcode_scan'):
+            print(f"DEBUG: 부모의 test_barcode_scan 호출 (F7)")
+            self.parent().test_barcode_scan(test_child_barcode)
+        else:
+            print(f"DEBUG: 부모 또는 test_barcode_scan 메서드가 없음 - parent: {self.parent()}")
+    
+    def showEvent(self, event):
+        """다이얼로그 표시 시 포커스 설정"""
+        super().showEvent(event)
+        # 다이얼로그가 표시될 때 포커스를 받도록 설정
+        QTimer.singleShot(50, self.setFocus)
+    
+    def keyPressEvent(self, event):
+        """키보드 이벤트 처리 - F3, F4, F6, F7는 부모의 test_barcode_scan 직접 호출"""
+        print(f"DEBUG: PLC 시뮬레이션 다이얼로그 keyPressEvent 호출 - 키 코드: {event.key()}")
+        
+        # F3, F4, F6, F7 키 처리 (이스케이프 시퀀스 형식으로 통일)
+        if event.key() == Qt.Key_F3:
+            test_child_barcode = "[)>\x1e06\x1dV2812\x1dP89231CU1000\x1dT2510022000A0000001\x1dM\x1e\x04"
+            print(f"DEBUG: PLC 시뮬레이션 다이얼로그 - F3 키 눌림")
+            if self.parent() and hasattr(self.parent(), 'test_barcode_scan'):
+                self.parent().test_barcode_scan(test_child_barcode)
+            event.accept()
+            return
+        elif event.key() == Qt.Key_F4:
+            test_child_barcode = "[)>\x1e06\x1dV2812\x1dP89231CU1001\x1dT251002S1B2A0000001\x1dM\x1e\x04"
+            print(f"DEBUG: PLC 시뮬레이션 다이얼로그 - F4 키 눌림")
+            if self.parent() and hasattr(self.parent(), 'test_barcode_scan'):
+                self.parent().test_barcode_scan(test_child_barcode)
+            event.accept()
+            return
+        elif event.key() == Qt.Key_F6:
+            test_child_barcode = "[)>\x1e06\x1dV2812\x1dP89231CU1002\x1dT2510022000A0000002\x1dM\x1e\x04"
+            print(f"DEBUG: PLC 시뮬레이션 다이얼로그 - F6 키 눌림")
+            if self.parent() and hasattr(self.parent(), 'test_barcode_scan'):
+                self.parent().test_barcode_scan(test_child_barcode)
+            event.accept()
+            return
+        elif event.key() == Qt.Key_F7:
+            test_child_barcode = "[)>\x1e06\x1dV2812\x1dP89331CU1003\x1dT251002S1B2A0000002\x1dM\x1e\x04"
+            print(f"DEBUG: PLC 시뮬레이션 다이얼로그 - F7 키 눌림")
+            if self.parent() and hasattr(self.parent(), 'test_barcode_scan'):
+                self.parent().test_barcode_scan(test_child_barcode)
+            event.accept()
+            return
+        
+        # 다른 키는 기본 처리
+        super().keyPressEvent(event)
     
     def send_plc_signal(self):
         """PLC 신호 전송"""

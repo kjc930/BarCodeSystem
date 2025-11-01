@@ -1,0 +1,22 @@
+{
+  "users": [
+    {
+      "id": "system",
+      "password_hash": "d0998aee9aa36e325e92326e093280f5:337d0f0bd2cb6fbbcfb89d14d976a2239b812f20ec3dde153713d0b7dc7535f0",
+      "role": "admin",
+      "pc_bound": true
+    },
+    {
+      "id": "admin",
+      "password_hash": "69de35eda928e18fc16d57f23c524343:4665805624d12081e447489212abe52c99a988745aacce47033d3f849d50f2b7",
+      "role": "admin"
+    },
+    {
+      "id": "user",
+      "password_hash": "2fa0106c16e624520f04f2daa4a93418:b32498ac712206aa0aa98063ed95d4da6016dcf7fed4624094c8502c21a8016e",
+      "role": "user"
+    }
+  ],
+  "registered_pc": "6023d53ef8c6d364",
+  "initialized": true
+}

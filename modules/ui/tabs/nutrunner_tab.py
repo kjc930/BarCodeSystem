@@ -44,7 +44,7 @@ class NutRunnerTab(QWidget):
         # 포트 선택
         nutrunner1_layout.addWidget(QLabel("포트:"), 0, 0)
         self.nutrunner1_port_combo = QComboBox()
-        self.nutrunner1_port_combo.setMinimumWidth(150)
+        self.nutrunner1_port_combo.setMinimumWidth(500)  # "-사용중-" 표시를 위해 너비 확장
         nutrunner1_layout.addWidget(self.nutrunner1_port_combo, 0, 1)
         
         # 연결 상태 표시 (포트 옆에)
@@ -101,7 +101,7 @@ class NutRunnerTab(QWidget):
         # 포트 선택
         nutrunner2_layout.addWidget(QLabel("포트:"), 0, 0)
         self.nutrunner2_port_combo = QComboBox()
-        self.nutrunner2_port_combo.setMinimumWidth(150)
+        self.nutrunner2_port_combo.setMinimumWidth(500)  # "-사용중-" 표시를 위해 너비 확장
         nutrunner2_layout.addWidget(self.nutrunner2_port_combo, 0, 1)
         
         # 연결 상태 표시 (포트 옆에)
@@ -195,6 +195,17 @@ class NutRunnerTab(QWidget):
             if available_ports:
                 for port in available_ports:
                     port_info = f"{port.device} - {port.description}"
+                    
+                    # AdminPanel에서 포트 사용 중인지 확인
+                    is_in_use = False
+                    using_tab = None
+                    if hasattr(self, 'admin_panel') and self.admin_panel:
+                        is_in_use, using_tab = self.admin_panel.is_port_in_use(port.device, getattr(self, 'tab_name', '너트 런너'))
+                    
+                    # 사용 중인 포트는 "-사용중-" 표시
+                    if is_in_use:
+                        port_info += f" -사용중-"
+                    
                     combo.addItem(port_info)
                     print(f"DEBUG: 너트{i+1} 포트 추가 (사용가능): {port_info}")
             
@@ -202,6 +213,17 @@ class NutRunnerTab(QWidget):
             if unavailable_ports:
                 for port, error in unavailable_ports:
                     port_info = f"{port.device} - {port.description} (사용불가)"
+                    
+                    # AdminPanel에서 포트 사용 중인지 확인 (사용불가여도 다른 탭에서 사용 중일 수 있음)
+                    is_in_use = False
+                    using_tab = None
+                    if hasattr(self, 'admin_panel') and self.admin_panel:
+                        is_in_use, using_tab = self.admin_panel.is_port_in_use(port.device, getattr(self, 'tab_name', '너트 런너'))
+                    
+                    # 사용 중인 포트는 "-사용중-" 표시 추가
+                    if is_in_use:
+                        port_info = port_info.replace(" (사용불가)", "") + f" -사용중-"
+                    
                     combo.addItem(port_info)
                     print(f"DEBUG: 너트{i+1} 포트 추가 (사용불가): {port_info}")
             
@@ -244,8 +266,20 @@ class NutRunnerTab(QWidget):
                 if not ports:
                     port_combo.addItem("사용 가능한 포트 없음")
                 else:
+                    ports.sort(key=lambda x: x.device)
                     for port in ports:
                         port_info = f"{port.device} - {port.description}"
+                        
+                        # AdminPanel에서 포트 사용 중인지 확인
+                        is_in_use = False
+                        using_tab = None
+                        if hasattr(self, 'admin_panel') and self.admin_panel:
+                            is_in_use, using_tab = self.admin_panel.is_port_in_use(port.device, getattr(self, 'tab_name', '너트 런너'))
+                        
+                        # 사용 중인 포트는 "-사용중-" 표시
+                        if is_in_use:
+                            port_info += f" -사용중-"
+                        
                         port_combo.addItem(port_info)
                         
                         # 현재 연결된 포트가 있으면 선택
